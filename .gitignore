@@ -1,5 +1,8 @@
 # ---- PulseDiscover repo: keep code + docs + small evidence; exclude heavy/regenerable data ----
 
+# local SVG render previews (not committed)
+preview/
+
 # raw data dumps (GB) and all interim/processed data + model artifacts
 data/
 outputs/_models/

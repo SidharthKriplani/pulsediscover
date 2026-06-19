@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 488" font-family="-apple-system, Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="840" height="488" rx="14" fill="#0d1b2c" stroke="#1d3350"/>
+
+  <!-- header bar -->
+  <rect x="0" y="0" width="840" height="46" rx="14" fill="#16263c"/>
+  <rect x="0" y="30" width="840" height="16" fill="#16263c"/>
+  <text x="22" y="29" font-size="13.5" font-weight="bold" fill="#e6edf5">PulseDiscover API &#183; GET /recommend</text>
+  <text x="818" y="29" text-anchor="end" font-size="10.5" fill="#6f829c" letter-spacing="0.5">OFFLINE_EVAL &#183; served-c2</text>
+
+  <!-- hero decision banner (green = warm/exact success) -->
+  <rect x="20" y="60" width="800" height="78" rx="10" fill="#15401f" stroke="#3aa14a"/>
+  <text x="40" y="96" font-size="26" font-weight="bold" fill="#7ef29a">EXACT</text>
+  <text x="40" y="120" font-size="11.5" fill="#8fc79b">warm user &#183; ALS retrieval &#183; fallback_used: false</text>
+  <text x="800" y="98" text-anchor="end" font-size="30" font-weight="bold" fill="#7ef29a">5</text>
+  <text x="800" y="118" text-anchor="end" font-size="11" fill="#8fc79b">items &#183; latency 3.1 ms &#183; 0% empty</text>
+
+  <!-- context strip -->
+  <rect x="20" y="150" width="800" height="46" rx="8" fill="#13243a"/>
+  <g font-size="9.5" fill="#6f829c"><text x="40" y="170">USER (hashed)</text><text x="220" y="170">K</text><text x="300" y="170">CANDIDATES</text><text x="470" y="170">MODEL_ID</text><text x="650" y="170">INDEX_ID</text></g>
+  <g font-size="12" font-weight="bold" fill="#dce8f6"><text x="40" y="187">8842281e&#8230;</text><text x="220" y="187">5</text><text x="300" y="187">5</text><text x="470" y="187">als_f64_fbaa29668f</text><text x="650" y="187">faiss_flatip_fbaa2966</text></g>
+
+  <!-- list heading -->
+  <text x="22" y="226" font-size="11.5" font-weight="bold" fill="#b3a8ee" letter-spacing="0.6">TOP-5 RECOMMENDED &#183; source: als &#183; ranked by relevance</text>
+
+  <!-- item rows: id | green relevance bar | score | creator -->
+  <g font-size="11.5">
+    <!-- row template: label, bar (max ~ x360..x600 = 240px) -->
+    <text x="40" y="252" fill="#dce8f6">item 13496</text>
+    <rect x="300" y="243" width="232" height="12" rx="3" fill="#3ddc6e"/><text x="540" y="252" font-size="10.5" fill="#8fc79b">0.62</text><text x="800" y="252" text-anchor="end" font-size="10" fill="#6f829c">creator 346732</text>
+
+    <text x="40" y="280" fill="#dce8f6">item 11</text>
+    <rect x="300" y="271" width="206" height="12" rx="3" fill="#35c463"/><text x="514" y="280" font-size="10.5" fill="#8fc79b">0.55</text><text x="800" y="280" text-anchor="end" font-size="10" fill="#6f829c">creator 4</text>
+
+    <text x="40" y="308" fill="#dce8f6">item 18007564</text>
+    <rect x="300" y="299" width="184" height="12" rx="3" fill="#2fae57"/><text x="492" y="308" font-size="10.5" fill="#8fc79b">0.49</text><text x="800" y="308" text-anchor="end" font-size="10" fill="#6f829c">creator 6540057</text>
+
+    <text x="40" y="336" fill="#dce8f6">item 119322</text>
+    <rect x="300" y="327" width="165" height="12" rx="3" fill="#2a9b4d"/><text x="473" y="336" font-size="10.5" fill="#8fc79b">0.44</text><text x="800" y="336" text-anchor="end" font-size="10" fill="#6f829c">creator 3618</text>
+
+    <text x="40" y="364" fill="#dce8f6">item 10572</text>
+    <rect x="300" y="355" width="154" height="12" rx="3" fill="#268a45"/><text x="462" y="364" font-size="10.5" fill="#8fc79b">0.41</text><text x="800" y="364" text-anchor="end" font-size="10" fill="#6f829c">creator 346732</text>
+  </g>
+
+  <!-- fallback note -->
+  <rect x="20" y="386" width="800" height="42" rx="8" fill="#171f2e" stroke="#2c3a4e"/>
+  <circle cx="40" cy="407" r="5" fill="#8b9bb4"/>
+  <text x="56" y="404" font-size="11" fill="#cdd6e3">unknown / cold user &#8594; <tspan fill="#cbb58a">popularity fallback</tspan> &#183; "source": "popularity", "fallback_used": true</text>
+  <text x="56" y="420" font-size="10" fill="#6f829c">graceful degradation &#8212; 0% empty-response verified across all failure modes</text>
+
+  <!-- footer -->
+  <text x="22" y="452" font-size="9.5" fill="#5f7088">served-c2 R@20 ~0.0375 (V2 protocol) &#183; V1 d3aplus 0.0846 is a different build/protocol &#8212; NOT comparable &#183; offline eval, not online lift</text>
+  <text x="22" y="470" font-size="9.5" fill="#5f7088">item_ids / scores are illustrative of the live response shape &#183; live: pulsediscover-serving-98058433335.us-central1.run.app</text>
+</svg>

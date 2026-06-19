@@ -1,207 +1,189 @@
 # PulseDiscover
 
-An offline, honesty-gated **recommender decision system** on a real 2.56M-interaction Goodreads corpus. Two-stage retrieve→rank with four candidate sources (ALS · semantic content · BM25 · popularity), FAISS serving, a learned ALS+semantic fusion ranker, off-policy evaluation, and catalog-exposure governance — wrapped in a FastAPI service deployed on GCP Cloud Run.
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-serving-009688?logo=fastapi&logoColor=white)
+![FAISS](https://img.shields.io/badge/FAISS-ANN_retrieval-4B8BBE)
+![LightGBM](https://img.shields.io/badge/LightGBM-LambdaMART-2E7D32)
+![Cloud Run](https://img.shields.io/badge/Cloud_Run-LIVE-4285F4?logo=googlecloud&logoColor=white)
+![Scope](https://img.shields.io/badge/scope-offline_eval-555555)
 
-Built to demonstrate production recommender/IR engineering: candidate generation, learned-to-rank fusion, ANN serving, cold-start retrieval, off-policy evaluation (IPS/SNIPS/DR), and ruthless claim discipline — every number is offline and protocol-tagged, and the honest negatives are kept, not buried.
+**A two-stage recommender *decision* system on 2.56M real Goodreads interactions &mdash; built to answer one hard question: _which offline retrieval/ranking/serving "win" actually deserves to ship, and which ones are lying to you?_**
 
-**Live:** `https://pulsediscover-serving-98058433335.us-central1.run.app` · `/health` → `{"status":"ok","ready":true}`
+> Recommenders rarely fail because the model was wrong. They fail because a **metric improved while catalog health, candidate fidelity, or cold-start coverage silently collapsed** &mdash; and nobody measured the gap. PulseDiscover is the measurement layer that catches that gap before it reaches users.
+
+**Metrics &mdash; offline floor:** `ALS R@20 0.085` &middot; `cold-lane R@20 0.241` &middot; `SASRec converged → lost` &nbsp;|&nbsp; **served-c2 lane:** `R@20 ~0.0375` &middot; `FlatIP lossless −47% p95` &middot; `0% empty-response` &middot; `Cloud Run: LIVE`
+
+**Live:** `https://pulsediscover-serving-98058433335.us-central1.run.app`
 
 ---
 
 ## Architecture
 
-```
-                                user_id (+ optional seed item)
-                                          │
-                                          ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  RecommenderService   (served on c2 ALS f64 — the single versioned spine) │
-│                                                                           │
-│   ① CANDIDATE GENERATION                                                  │
-│      ┌──────────┐  ┌─────────────────┐  ┌───────────┐  ┌──────────────┐  │
-│      │   ALS    │  │ semantic content│  │   BM25    │  │  popularity  │  │
-│      │ (warm MF)│  │  MiniLM + FAISS │  │ (lexical) │  │  (fallback)  │  │
-│      └────┬─────┘  └────────┬────────┘  └─────┬─────┘  └──────┬───────┘  │
-│           │                 │                 │               │          │
-│   ② RETRIEVAL — FAISS top-K (FlatIP exact ✓ · HNSW scale · ✗ IVF rejected)│
-│           └──────────────┬──┴─────────────────┘               │          │
-│                          ▼                                     │          │
-│   ③ FUSION / RANK                                              │          │
-│      RRF  ──or──  LightGBM LambdaMART  (over ALS+semantic features)       │
-│                          │                                     │          │
-│   ④ EXPOSURE RERANK  (config-flagged head-cap, default OFF)    │          │
-│                          │                                     │          │
-│   ⑤ FALLBACK TREE  ──unknown / sparse / error / empty──────────┘          │
-│                          │   (never empty — 0% empty-response verified)   │
-│                          ▼                                                 │
-│   ⑥ SERVE   FastAPI:  /recommend  /health  /metadata  /metrics            │
-│                          │                                                 │
-│   ⑦ LOG  per-request JSON (versioned model/index ids, latency, fallback)  │
-└──────────────────────────┼────────────────────────────────────────────────┘
-                           ▼
-   ⑧ EVALUATE  cohort recall · NDCG/MRR · Gini/coverage · IPS/SNIPS/DR
-                           ▼
-   ⑨ DECIDE    ship / hold / reject  (behind a locked claim ladder)
-```
+![architecture](docs/assets/architecture.svg)
 
-The whole system is a **gated experimentation program** (gates G11–G31): every stage was added, measured, and either adopted or rejected with an artifact. V1 set the offline modelling floor; the V2 lane (G22–G31) added serving, cold-start, exposure governance, learned fusion, executed OPE, and a search/IR front end — then the serving path shipped to Cloud Run.
+Every stage was added, measured, and **adopted or rejected with an artifact** across a gated program (G11&ndash;G31). V1 set the offline modelling floor; the V2 lane (G22&ndash;G31) added serving, cold-start, exposure governance, learned fusion, executed off-policy evaluation, and a search/IR front end &mdash; then the serving path shipped to Cloud Run.
 
 ---
 
-## ⚠️ Metric protocol boundary (read before any number)
+## Live endpoint
 
-The V1 **`d3aplus`** ALS result (**R@20 0.0846**) and the V2 **served-`c2`** results (full-catalog, single-held-out-gold, **R@20 ~0.0375**) are **different model builds and different evaluation protocols — they are NOT comparable.** They're kept in a registry (`docs/G26A_MODEL_PROTOCOL_REGISTRY.md`) specifically so they're never conflated. V2 numbers are used for *relative* cross-policy structure, never as a headline that overturns V1.
+PulseDiscover serves the **c2 ALS model with exact FlatIP FAISS retrieval** over HTTPS. Warm users get personalized `als` results; unknown/cold users get a graceful popularity fallback &mdash; never empty.
+
+![sample output](docs/assets/sample_output.svg)
+
+```bash
+curl https://pulsediscover-serving-98058433335.us-central1.run.app/health
+# {"status":"ok","ready":true,"load_error":null}
+```
+
+> The live endpoint serves the **served-c2** model (R@20 ~0.0375 under the V2 protocol). The V1 `d3aplus` ALS result (R@20 0.0846) is a **different build and protocol** and is *not* what's deployed &mdash; see Truth Boundary.
+
+---
+
+## Failure mode addressed
+
+This project is built around the failure modes of *recommender evaluation and serving*, named in advance:
+
+- An **offline Recall@K win that worsens catalog health** &mdash; a recall bump while the long tail gets starved.
+- An **ANN index that silently degrades the candidate pool** &mdash; gold recall survives while candidate fidelity collapses (IVF).
+- A **single-held-out-gold metric that's blind to most of the slate changing** &mdash; so the visible number can't see the damage.
+- **Cold-start measured as a recall drop** when the real cost is coverage/personalization collapse.
+- **Cross-protocol metric conflation** &mdash; quoting a tuning-set number as if it were the served-model number.
+
+Each is detected by an explicit check (overlap@K, exposure Gini, cohort separation, a model/protocol registry), not by hope.
 
 ---
 
 ## Eval results (offline, protocol-tagged)
 
 | Result | Number | Protocol |
-|--------|--------|----------|
+|---|---|---|
 | ALS warm floor | R@20 **0.085** | V1 d3aplus tuning |
-| Canonical SASRec, converged | R@20 0.065 (**lost to ALS**) | V1 — honest negative |
+| Canonical SASRec, converged | R@20 0.065 (**lost to ALS**) | V1 &mdash; honest negative |
 | Content-hybrid cold lane | cold R@20 **0.241** (ALS = 0) | V1 cold-start |
 | FAISS FlatIP (exact) | lossless, ~**47%** lower p95 | V2 latency |
-| FAISS HNSW ef64 | overlap **0.992**, ~2.4× | V2 latency |
-| FAISS IVF | **rejected** — overlap collapsed to 0.28–0.78 | V2 |
-| Cold-start fallback cost | coverage **~59×** collapse; personalization 0.68→**0.001** | V2 served-c2 |
+| FAISS HNSW ef64 | overlap **0.992**, ~2.4&times; | V2 latency |
+| FAISS IVF | **rejected** &mdash; overlap collapsed 0.28&ndash;0.78 | V2 |
+| Cold-start fallback cost | coverage **~59&times;** collapse; personalization 0.68&rarr;**0.001** | V2 served-c2 |
 | Semantic cold-start reach | **54.6%** of unseen golds (ALS/pop = 0) | V2 served-c2 |
-| Learned fusion vs ALS-only | test R@20 **0.036 vs 0.022**; cold 0.032 vs 0 | V2 — held-out test, 81 positives |
-| Off-policy evaluation | DR **0.0089** vs true 0.0106; SNIPS stable; IPS over-estimates | V2 — offline, proxy reward |
-| Exposure concentration | all policies Gini **> 0.97**; popularity = 1.0 | V2 — concentration, not fairness |
-| Search/IR hybrid | BM25 **0.0133** > dense 0.0067; RRF hybrid 0.0117 | V2 — seed-item, NDCG/MRR |
+| Learned fusion vs ALS-only | test R@20 **0.036 vs 0.022**; cold 0.032 vs 0 | V2 &mdash; held-out test, 81 positives |
+| Off-policy evaluation | DR **0.0089** vs true 0.0106; SNIPS stable; IPS over-estimates | V2 &mdash; offline, proxy reward |
+| Exposure concentration | all policies Gini **&gt; 0.97**; popularity = 1.0 | V2 &mdash; concentration, not fairness |
+| Search/IR hybrid | BM25 **0.0133** &gt; dense 0.0067; RRF hybrid 0.0117 | V2 &mdash; seed-item, NDCG/MRR |
 | Serving | warm p95 **~3.3 ms** (local), **0%** empty | V2 load test |
 
-Every cell is offline. Small-sample caveats (e.g. 81 test positives) are stated, not hidden.
+---
+
+## Gate ladder (V2: G22&ndash;G31)
+
+| Gate | What shipped | Verdict |
+|---|---|---|
+| G22 | FAISS latency&ndash;quality frontier (FlatIP / HNSW / IVF) | FlatIP default, IVF rejected |
+| G23 | Production-shaped FastAPI serving + load test | 0% empty, p95 ~3.3ms |
+| G24 | Cold-start / sparse-cohort fallback quality | coverage collapse ~59&times; |
+| G25 | Catalog exposure governance (Gini / coverage) | concentration measured |
+| G26A/B | Decision-architecture spine + heuristic exposure rerank | quarantine closed |
+| G27 | Semantic content retrieval (MiniLM + FAISS) | cold-start reach 54.6% |
+| G28 | Learned ALS+semantic fusion tournament (LambdaMART) | beat ALS-only on test |
+| G29 | Off-policy evaluation executed (IPS / SNIPS / DR) | estimators validated |
+| G30 | Final RiskFrame audit + interview kit | offline gold-complete |
+| G31 | Search/IR front end (BM25 + dense + RRF, NDCG/MRR) | role coverage added |
+
+---
+
+## Truth Boundary
+
+| Real (built & measured) | Simulated / proxy | NOT claimed |
+|---|---|---|
+| 2.56M-interaction Goodreads dataset, temporal split | OPE propensities are synthetic (logging policy we control) | online lift / engagement / A/B impact |
+| ALS, SASRec, content, semantic, BM25 retrieval | OPE reward is a held-out-gold proxy, not real clicks | production *quality* (deployed &ne; effective) |
+| FAISS serving + load test | small positive count in fusion eval (81 test positives) | solved cold-start / solved long-tail |
+| Cloud Run deployment (live HTTPS) | &mdash; | fairness certification (exposure = concentration only) |
+| Cohort recall, exposure Gini, NDCG/MRR, IPS/SNIPS/DR | &mdash; | LLM recommender / "semantic taste" |
+| Gate-by-gate audit history | &mdash; | learned-fusion-beats-ALS beyond the offline test split |
+
+**Protocol boundary:** V1 `d3aplus` (R@20 0.0846) and served-`c2` (R@20 ~0.0375) are different builds and protocols &mdash; **never comparable.** Kept in `docs/G26A_MODEL_PROTOCOL_REGISTRY.md`.
 
 ---
 
 ## Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Warm retrieval | ALS implicit matrix factorization · 64 factors |
-| Semantic (cold) retrieval | sentence-transformers `all-MiniLM-L6-v2` · 384-dim · FAISS FlatIP |
-| Lexical retrieval | BM25Okapi (`rank_bm25`) · query-by-document |
-| Fusion / rank | Reciprocal Rank Fusion (RRF, k=60) · LightGBM **LambdaMART** |
-| Exposure rerank | heuristic head-cap (config-flagged, default off) |
-| ANN serving | FAISS — IndexFlatIP (exact) · IndexHNSWFlat (scale) |
-| Off-policy eval | IPS · SNIPS · Doubly-Robust |
-| Evaluation | cohort Recall@K · NDCG@K · MRR · Gini / catalog coverage |
+|---|---|
+| Warm retrieval | ALS implicit matrix factorization &middot; 64 factors |
+| Semantic (cold) retrieval | sentence-transformers `all-MiniLM-L6-v2` &middot; 384-dim &middot; FAISS FlatIP |
+| Lexical retrieval | BM25Okapi (`rank_bm25`) &middot; query-by-document |
+| Fusion / rank | Reciprocal Rank Fusion (RRF, k=60) &middot; LightGBM **LambdaMART** |
+| ANN serving | FAISS &mdash; IndexFlatIP (exact) &middot; IndexHNSWFlat (scale) |
+| Off-policy eval | IPS &middot; SNIPS &middot; Doubly-Robust |
+| Evaluation | cohort Recall@K &middot; NDCG@K &middot; MRR &middot; Gini / catalog coverage |
 | API | FastAPI + uvicorn |
 | Deployment | Docker + GCP Cloud Run (512 MiB / 1 vCPU, exact FlatIP) |
-| Corpus | Goodreads fantasy/paranormal (UCSD book graph) · 2.56M interactions · 94k users · 42k items |
-
----
-
-## Project structure
-
-```
-pulsediscover/
-├── src/
-│   ├── serving/                FastAPI app + serving spine
-│   │   ├── api.py              /recommend /health /metadata /metrics
-│   │   ├── recommender_service.py   versioned loader · fallback tree · logging
-│   │   └── faiss_retriever.py  FlatIP / HNSW / IVF wrappers
-│   ├── retrieval/
-│   │   ├── semantic_content_index.py   MiniLM dense content lane (G27)
-│   │   └── bm25_lexical_index.py       BM25 query-by-document (G31)
-│   ├── ranking/
-│   │   └── g28_fusion_ranker.py        RRF + LambdaMART fusion (G28)
-│   ├── ope/
-│   │   └── logging_policy.py            logging policy + IPS/SNIPS/DR (G29)
-│   └── eval/
-│       ├── cold_start_cohorts.py        cohort builder (G24)
-│       ├── catalog_exposure_governance.py   Gini/coverage (G25)
-│       └── exposure_aware_reranking.py  head-cap / tail-boost (G26)
-├── scripts/                    every gate run script + embedding/asset builders
-├── docs/                       gate reports · interview kit · defense kernel · registry · control tower
-├── outputs/                    evidence JSONs + plots
-├── deploy/                     Cloud Run deploy script · Dockerfile · cloudbuild
-├── defense/                    interview defense PDF
-└── README.md
-```
-
----
-
-## Setup
-
-**Requirements:** Python 3.10+
-
-```bash
-pip install -r requirements.txt
-
-# Run the serving API locally (exact FlatIP, HNSW off — the deployed config)
-cd src && PD_DATADIR=../data/interim PD_BUILD_HNSW=0 uvicorn serving.api:app --port 8080
-
-curl localhost:8080/health                                  # {"status":"ok","ready":true}
-curl "localhost:8080/recommend?user_id=<known>&k=5"         # 5 items, source:als
-```
-
-> Large derived artifacts (ALS factors, embeddings, raw CSVs) are **not committed** (size / GitHub limits). `scripts/` shows how each is built from the public Goodreads dataset.
-
----
-
-## Cloud deployment (GCP Cloud Run)
-
-```bash
-./deploy/cloudrun_deploy.sh <GCP_PROJECT_ID> us-central1
-# precomputes a 4MB serving-assets bundle → builds a lean image (~42MB context)
-# → deploys 512MiB / 1vCPU / min-instances=1 / concurrency=8 → curls /health + /recommend
-```
-
-The lean image bakes only the ALS factors + a precomputed popularity/creator bundle (no 114 MB train.csv), loads in ~0.8 s, and serves exact FlatIP over HTTPS. Full spec + teardown in `deploy/DEPLOY.md`.
+| Corpus | Goodreads fantasy/paranormal (UCSD book graph) &middot; 2.56M interactions &middot; 94k users &middot; 42k items |
 
 ---
 
 ## Failures I'm proud of
 
-The interview value of a project is the failures you catch yourself.
+The interview value of a project is the failures you catch yourself. Five-plus documented post-mortems in `docs/PULSEDISCOVERY_FAILURES_AND_HARDENING.md`:
 
-- **SASRec false convergence** — training early-stopped at ~6 epochs on an all-NaN val-loss curve (masked-attention NaN); a NaN comparison silently satisfied patience while the model was still learning. Rejected it, rebuilt the monitor on an eval-R@20 plateau.
-- **IVF — the metric can lie** — IVF looked fine on gold Recall@20 while candidate-overlap@K vs exact had collapsed to 0.28–0.78: a mostly *different* candidate set that happened to still contain the gold. Rejected IVF; made overlap@K a first-class acceptance check.
-- **ID-dtype silent zeroing** — `book_id` was a string in the ALS index but ints in eval; every lookup missed and recall floored to ~0 *while the pipeline ran clean with plausible-shaped numbers*. Caught it with an overlap sanity check (zero catalog-overlapping keys — impossible if types matched).
-
-Full set + the serving edge-case stress test: `docs/PULSEDISCOVERY_FAILURES_AND_HARDENING.md`.
-
----
-
-## Key engineering decisions
-
-**Why ALS over SASRec for the warm floor?**
-I trained a canonical full-softmax SASRec *to convergence* (~95 epochs, eval-R@20 plateau) and it still scored below ALS (0.065 vs 0.085). On short, sparse book histories the dominant signal is collaborative co-read, which matrix factorization captures directly — depth wasn't the lever. The honest negative is the senior signal, so I kept it.
-
-**Why FlatIP exact as the default instead of HNSW?**
-FlatIP is lossless and ~47% faster than numpy brute force at this scale; HNSW ef64 is near-lossless (overlap 0.992, ~2.4×) but approximate. Correctness by default, opt into approximation explicitly — HNSW is a flagged scale mode, not the silent default.
-
-**Why was IVF rejected if it was faster?**
-At low `nprobe` it kept gold Recall@20 flat while candidate-overlap vs exact collapsed — it served a largely broken candidate set that a single-gold metric couldn't see. Speed that silently destroys candidate fidelity is a recall bug.
-
-**Why call RRF "robustness, not a recall win"?**
-RRF recovers cold-start and ~4× coverage at ~95% of ALS relevance, but does **not** beat ALS-only on warm recall. I report it as robustness/coverage, never as a headline lift — because it isn't one.
-
-**Why a learned fusion ranker over the two retrievers?**
-ALS and semantic candidate sets are almost disjoint (overlap 6,749 of ~880k). A LambdaMART ranker can pick the best across both complementary sources — which is what lifted held-out test recall (0.036 vs 0.022) and recovered cold-start (0.032 vs 0). Claimed only on the offline test split, with the 81-positive caveat attached.
-
-**Why off-policy evaluation if there are no real users?**
-To prove I can estimate a policy's value the right way before an A/B exists. The logging policy records propensities; IPS/SNIPS/DR recover a known value offline (DR lowest-bias, SNIPS lowest-variance, IPS shows the variance problem). It's a methodology demonstration — not a real online estimate, and I say so.
-
-**Why keep V1 and V2 metrics in a registry?**
-Because they're different model builds and protocols. Conflating a 0.0846 with a 0.0375 to look better would be the exact dishonesty this project is built to avoid.
+- **SASRec false convergence** &mdash; an all-NaN val-loss curve silently satisfied early-stopping patience while the model was still learning; rejected and rebuilt the monitor on an eval-R@20 plateau.
+- **IVF "the metric can lie"** &mdash; gold Recall@20 stayed flat while candidate-overlap vs exact collapsed to 0.28&ndash;0.78; rejected IVF, made overlap@K an acceptance check.
+- **ID-dtype silent zeroing** &mdash; string-vs-int `book_id` keys made every lookup miss and recall floor to ~0 *while the pipeline ran clean*; caught with an overlap sanity check.
+- **DR went negative** &mdash; a class-balanced reward model over-predicted vs a ~1% base rate and broke Doubly-Robust OPE; fixed with a base-rate-calibrated model (DR then lowest-bias).
+- **G24 recall non-monotonicity** &mdash; cold cohorts scored *higher* recall than warm; refused the expected story and reframed the real cost as coverage/personalization collapse.
 
 ---
 
-## What this does *not* claim
+## Quick start
 
-- **Offline only** — recall / OPE / simulation; no live A/B.
-- **Deployed ≠ improved engagement** — the API is live on Cloud Run, but there's no online-lift, real-user, or business-impact claim.
-- **Cold-start handled, not solved** · **exposure measured, not fairness-certified** · the semantic lane is **embedding-based candidate generation, not an LLM recommender**.
-- **No deep-model win** (the converged SASRec is a documented honest negative); **learned fusion beats ALS only on the offline test split**, not in production.
+```bash
+pip install -r requirements.txt
+
+# serving API locally (exact FlatIP, HNSW off — the deployed config)
+cd src && PD_DATADIR=../data/interim PD_BUILD_HNSW=0 uvicorn serving.api:app --port 8080
+curl localhost:8080/health                              # {"status":"ok","ready":true}
+curl "localhost:8080/recommend?user_id=<known>&k=5"     # 5 items, source:als
+```
+
+Large derived artifacts (ALS factors, embeddings, raw CSVs) are **not committed** (size / GitHub limits); `scripts/` builds each from the public Goodreads dataset. One-command Cloud Run deploy + spec in `deploy/DEPLOY.md`.
 
 ---
 
-## Where to read more
+## Evidence artifacts
 
-`docs/78_CONTROL_TOWER.md` (status) · `docs/PULSEDISCOVERY_INTERVIEW_KIT.md` (pitch + claim ladder) · `docs/PULSEDISCOVERY_UNIFIED_DEFENSE_KERNEL.md` (method-by-method defense) · `defense/PulseDiscover_Interview_Defense.pdf`.
+Every claim maps to a JSON in `outputs/evidence/`. A sample of what each proves:
+
+| Artifact | Proves |
+|---|---|
+| `g22_faiss_latency_quality_report.json` | FlatIP lossless &minus;47% p95; HNSW near-lossless; IVF overlap collapse |
+| `g23_serving_api_report.json` | production-like API, 0% empty, failure-mode coverage |
+| `g24_cold_start_sparse_cohort_report.json` | fallback coverage collapse ~59&times;, personalization 0.68&rarr;0.001 |
+| `g25_catalog_exposure_governance_report.json` | exposure Gini/coverage; HNSW exposure-neutral |
+| `g27_semantic_retrieval_report.json` | semantic reaches 54.6% of item-cold-start golds |
+| `g28_final_ranker_fusion_decision.json` | learned fusion beats ALS-only on held-out test |
+| `g29_ope_execution_report.json` | IPS/SNIPS/DR recover a known value offline |
+| `g31_search_ir_report.json` | BM25 + dense + RRF with NDCG/MRR |
+| `g30_final_gold_audit.json` | RiskFrame 9.1, offline gold-complete |
+
+**Deeper docs:** `docs/78_CONTROL_TOWER.md` (status) &middot; `docs/PULSEDISCOVERY_INTERVIEW_KIT.md` (pitch + claim ladder) &middot; `docs/PULSEDISCOVERY_UNIFIED_DEFENSE_KERNEL.md` (method-by-method defense) &middot; **Interview defense PDF:** `defense/PulseDiscover_Interview_Defense.pdf`.
+
+---
+
+## Resume-safe claim
+
+> Built **PulseDiscover**, an offline two-stage recommender decision system on 2.56M real Goodreads interactions (94k users, 42k items): tuned **ALS matrix factorization** to a warm-retrieval floor and *earned* it by showing a **converged full-softmax SASRec still lost**; built a **FAISS** latency&ndash;quality frontier (FlatIP exact default, HNSW scale, **IVF rejected** for candidate-overlap collapse); added a **dense semantic (MiniLM) cold-start lane** that uniquely reaches item-cold-start items and a **BM25** lexical lane; trained a **LightGBM LambdaMART fusion** ranker that beat ALS-only on the held-out test split; **executed off-policy evaluation** (IPS/SNIPS/DR) and measured **catalog-exposure governance** (Gini/coverage); and **deployed the FastAPI + FAISS serving path to GCP Cloud Run** &mdash; all under strict claim discipline with documented honest negatives and an explicit offline/online boundary.
+
+---
+
+## Portfolio
+
+| Project | Focus |
+|---|---|
+| [pulsediscover](https://github.com/SidharthKriplani/pulsediscover) | **(this)** recommender / IR decision system + serving + OPE |
+| [pulseagent](https://github.com/SidharthKriplani/pulseagent) | multi-agent RAG on LangGraph (MCP tools, NLI verification) |
+| [pulseguard](https://github.com/SidharthKriplani/pulseguard) | ML credit-risk governance (champion/challenger, calibration, Cloud Run) |
+| [pulseknowledge](https://github.com/SidharthKriplani/pulseknowledge) | RAG reliability harness (hybrid retrieval, citation entailment) |
+| [all repositories &rarr;](https://github.com/SidharthKriplani?tab=repositories) | full portfolio |
 
 *If a result isn't backed by an artifact in `outputs/evidence/`, it isn't claimed.*
