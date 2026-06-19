@@ -1,0 +1,364 @@
+{
+  "gate": "G25",
+  "title": "Catalog Exposure Fairness / Coverage Governance",
+  "lane": "V2",
+  "provenance": "computed_offline_real_data",
+  "scope_guardrails": [
+    "Catalog EXPOSURE governance under the served G23 c2_als.pkl protocol (ALS f64).",
+    "NOT protected-class fairness; NOT a fairness certification; NOT creator/marketplace fairness solved.",
+    "NOT online diversity; NOT production exposure governance; NOT long-tail discovery solved.",
+    "Absolute numbers reflect the served model + offline split; V1 (gold_candidate 8.9) untouched."
+  ],
+  "k": 20,
+  "audited_population": {
+    "users": 10000,
+    "cohorts": {
+      "warm_6plus": 7360,
+      "unknown": 1062,
+      "low_3_5": 817,
+      "sparse_1_2": 761
+    }
+  },
+  "catalog_size": 40541,
+  "item_tier_thresholds": {
+    "p50": 17.0,
+    "p90": 88.0
+  },
+  "per_policy_exposure_stats": {
+    "als_warm": {
+      "k": 20,
+      "total_exposure_slots": 199992,
+      "unique_items_recommended": 3532,
+      "catalog_coverage": 0.08712,
+      "zero_exposure_items": 37009,
+      "zero_exposure_share": 0.91288,
+      "gini": 0.9822,
+      "top_1pct_share": 0.7191,
+      "top_5pct_share": 0.9808,
+      "top_10pct_share": 1.0,
+      "tier_exposure_share": {
+        "head": 0.93136,
+        "mid": 0.05907,
+        "long_tail": 0.00957
+      },
+      "tier_catalog_share": {
+        "head": 0.09492,
+        "mid": 0.39414,
+        "long_tail": 0.51094
+      },
+      "tier_exposure_lift_vs_base": {
+        "head": 9.812,
+        "mid": 0.15,
+        "long_tail": 0.019
+      },
+      "tier_avg_exposure": {
+        "head": 48.406,
+        "mid": 0.739,
+        "long_tail": 0.092
+      },
+      "tier_coverage": {
+        "head": 0.703,
+        "mid": 0.0466,
+        "long_tail": 0.004
+      }
+    },
+    "popularity": {
+      "k": 20,
+      "total_exposure_slots": 200000,
+      "unique_items_recommended": 60,
+      "catalog_coverage": 0.00148,
+      "zero_exposure_items": 40481,
+      "zero_exposure_share": 0.99852,
+      "gini": 0.9995,
+      "top_1pct_share": 1.0,
+      "top_5pct_share": 1.0,
+      "top_10pct_share": 1.0,
+      "tier_exposure_share": {
+        "head": 1.0,
+        "mid": 0.0,
+        "long_tail": 0.0
+      },
+      "tier_catalog_share": {
+        "head": 0.09492,
+        "mid": 0.39414,
+        "long_tail": 0.51094
+      },
+      "tier_exposure_lift_vs_base": {
+        "head": 10.535,
+        "mid": 0.0,
+        "long_tail": 0.0
+      },
+      "tier_avg_exposure": {
+        "head": 51.975,
+        "mid": 0.0,
+        "long_tail": 0.0
+      },
+      "tier_coverage": {
+        "head": 0.0156,
+        "mid": 0.0,
+        "long_tail": 0.0
+      }
+    },
+    "content": {
+      "k": 20,
+      "total_exposure_slots": 175976,
+      "unique_items_recommended": 2015,
+      "catalog_coverage": 0.0497,
+      "zero_exposure_items": 38526,
+      "zero_exposure_share": 0.9503,
+      "gini": 0.9946,
+      "top_1pct_share": 0.9329,
+      "top_5pct_share": 1.0,
+      "top_10pct_share": 1.0,
+      "tier_exposure_share": {
+        "head": 0.93887,
+        "mid": 0.05111,
+        "long_tail": 0.01002
+      },
+      "tier_catalog_share": {
+        "head": 0.09492,
+        "mid": 0.39414,
+        "long_tail": 0.51094
+      },
+      "tier_exposure_lift_vs_base": {
+        "head": 9.891,
+        "mid": 0.13,
+        "long_tail": 0.02
+      },
+      "tier_avg_exposure": {
+        "head": 42.936,
+        "mid": 0.563,
+        "long_tail": 0.085
+      },
+      "tier_coverage": {
+        "head": 0.1918,
+        "mid": 0.0513,
+        "long_tail": 0.0221
+      }
+    },
+    "item_sim": {
+      "k": 20,
+      "total_exposure_slots": 178760,
+      "unique_items_recommended": 3935,
+      "catalog_coverage": 0.09706,
+      "zero_exposure_items": 36606,
+      "zero_exposure_share": 0.90294,
+      "gini": 0.9756,
+      "top_1pct_share": 0.6153,
+      "top_5pct_share": 0.9631,
+      "top_10pct_share": 1.0,
+      "tier_exposure_share": {
+        "head": 0.89023,
+        "mid": 0.09698,
+        "long_tail": 0.01279
+      },
+      "tier_catalog_share": {
+        "head": 0.09492,
+        "mid": 0.39414,
+        "long_tail": 0.51094
+      },
+      "tier_exposure_lift_vs_base": {
+        "head": 9.379,
+        "mid": 0.246,
+        "long_tail": 0.025
+      },
+      "tier_avg_exposure": {
+        "head": 41.356,
+        "mid": 1.085,
+        "long_tail": 0.11
+      },
+      "tier_coverage": {
+        "head": 0.7513,
+        "mid": 0.0606,
+        "long_tail": 0.0036
+      }
+    },
+    "blended": {
+      "k": 20,
+      "total_exposure_slots": 199992,
+      "unique_items_recommended": 3532,
+      "catalog_coverage": 0.08712,
+      "zero_exposure_items": 37009,
+      "zero_exposure_share": 0.91288,
+      "gini": 0.9822,
+      "top_1pct_share": 0.7191,
+      "top_5pct_share": 0.9808,
+      "top_10pct_share": 1.0,
+      "tier_exposure_share": {
+        "head": 0.93136,
+        "mid": 0.05907,
+        "long_tail": 0.00957
+      },
+      "tier_catalog_share": {
+        "head": 0.09492,
+        "mid": 0.39414,
+        "long_tail": 0.51094
+      },
+      "tier_exposure_lift_vs_base": {
+        "head": 9.812,
+        "mid": 0.15,
+        "long_tail": 0.019
+      },
+      "tier_avg_exposure": {
+        "head": 48.406,
+        "mid": 0.739,
+        "long_tail": 0.092
+      },
+      "tier_coverage": {
+        "head": 0.703,
+        "mid": 0.0466,
+        "long_tail": 0.004
+      }
+    }
+  },
+  "served_mode_exposure_stats": {
+    "exact": {
+      "k": 20,
+      "total_exposure_slots": 80000,
+      "unique_items_recommended": 2743,
+      "catalog_coverage": 0.06766,
+      "zero_exposure_items": 37798,
+      "zero_exposure_share": 0.93234,
+      "gini": 0.9859,
+      "top_1pct_share": 0.7827,
+      "top_5pct_share": 0.9896,
+      "top_10pct_share": 1.0,
+      "tier_exposure_share": {
+        "head": 0.96929,
+        "mid": 0.02716,
+        "long_tail": 0.00355
+      },
+      "tier_catalog_share": {
+        "head": 0.09492,
+        "mid": 0.39414,
+        "long_tail": 0.51094
+      },
+      "tier_exposure_lift_vs_base": {
+        "head": 10.212,
+        "mid": 0.069,
+        "long_tail": 0.007
+      },
+      "tier_avg_exposure": {
+        "head": 20.152,
+        "mid": 0.136,
+        "long_tail": 0.014
+      },
+      "tier_coverage": {
+        "head": 0.5959,
+        "mid": 0.0253,
+        "long_tail": 0.0022
+      }
+    },
+    "scale_hnsw": {
+      "k": 20,
+      "total_exposure_slots": 80000,
+      "unique_items_recommended": 2756,
+      "catalog_coverage": 0.06798,
+      "zero_exposure_items": 37785,
+      "zero_exposure_share": 0.93202,
+      "gini": 0.9858,
+      "top_1pct_share": 0.78,
+      "top_5pct_share": 0.9892,
+      "top_10pct_share": 1.0,
+      "tier_exposure_share": {
+        "head": 0.96868,
+        "mid": 0.02766,
+        "long_tail": 0.00366
+      },
+      "tier_catalog_share": {
+        "head": 0.09492,
+        "mid": 0.39414,
+        "long_tail": 0.51094
+      },
+      "tier_exposure_lift_vs_base": {
+        "head": 10.205,
+        "mid": 0.07,
+        "long_tail": 0.007
+      },
+      "tier_avg_exposure": {
+        "head": 20.139,
+        "mid": 0.138,
+        "long_tail": 0.014
+      },
+      "tier_coverage": {
+        "head": 0.5959,
+        "mid": 0.026,
+        "long_tail": 0.0023
+      }
+    }
+  },
+  "served_exact_vs_hnsw_note": "Exposure distribution under exact FAISS vs HNSW ef64 on the same warm sample; compare gini / coverage to confirm the approximate index does not materially reshape catalog exposure.",
+  "user_cohort_x_item_tier_exposure_blended": {
+    "unknown": {
+      "head": 19453,
+      "mid": 1438,
+      "long_tail": 349
+    },
+    "sparse_1_2": {
+      "head": 14043,
+      "mid": 999,
+      "long_tail": 178
+    },
+    "low_3_5": {
+      "head": 15472,
+      "mid": 769,
+      "long_tail": 99
+    },
+    "warm_6plus": {
+      "head": 137297,
+      "mid": 8608,
+      "long_tail": 1287
+    }
+  },
+  "item_coldstart": {
+    "definition": "held-out gold items unseen in train under this offline split",
+    "share_unseen_gold": 0.5715,
+    "note": "Item-cold-start items by construction receive ~0 collaborative exposure; no policy here surfaces them. Offline-split sense only, not production new-catalog cold-start."
+  },
+  "recommended_policy": {
+    "policy": "blended",
+    "rationale": "Among policies that always return a slate, blended inherits ALS's wider catalog opportunity (lowest Gini / zero-exposure of the serving-complete policies) while still falling back safely. Popularity has the worst concentration (near-degenerate). item-sim spreads exposure most but cannot serve no-history users.",
+    "policy_gini_ranking_low_to_high": [
+      [
+        "item_sim",
+        0.9756
+      ],
+      [
+        "blended",
+        0.9822
+      ],
+      [
+        "als_warm",
+        0.9822
+      ],
+      [
+        "content",
+        0.9946
+      ],
+      [
+        "popularity",
+        0.9995
+      ]
+    ],
+    "honest_caveat": "Even the best policy is head-concentrated: this catalog and the ALS floor concentrate exposure; G25 quantifies the gap, it does NOT solve long-tail discovery."
+  },
+  "limitations": [
+    "Exposure measured over the eval-user cohort sample at top-20, offline.",
+    "Head/mid/long-tail tiers are train-popularity percentiles, not editorial categories.",
+    "Genre/shelf cohorts not separately audited (shelf metadata is a noisy proxy).",
+    "This is exposure concentration, NOT protected-class fairness or certification.",
+    "No exposure-rebalancing intervention is built; G25 measures, it does not fix."
+  ],
+  "claim_boundary": {
+    "exposure_concentration_measured": true,
+    "fairness_solved": false,
+    "creator_fairness_solved": false,
+    "marketplace_fairness_certified": false,
+    "online_diversity_improved": false,
+    "long_tail_discovery_solved": false,
+    "production_exposure_governance_deployed": false,
+    "protected_class_analysis": false,
+    "safe_claim": "PulseDiscovery G25 audits catalog exposure concentration across retrieval and fallback policies, measuring head/mid/tail exposure, catalog coverage, zero-exposure share, and concentration tradeoffs."
+  },
+  "runtime_sec": 20.8
+}

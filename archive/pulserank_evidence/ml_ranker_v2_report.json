@@ -1,0 +1,42 @@
+{
+  "artifact": "pulserank_ml_ranker_v2_report",
+  "status": "pass",
+  "split_strategy": "temporal_holdout",
+  "train_days": [
+    1,
+    60
+  ],
+  "holdout_days": [
+    61,
+    90
+  ],
+  "train_examples": 280600,
+  "train_positives": 254,
+  "comparison": {
+    "popularity_baseline": {
+      "ndcg": 0.17680032535133652,
+      "mrr": 0.13937301587301584,
+      "recall": 0.29,
+      "map": 0.13937301587301584,
+      "precision": 0.03
+    },
+    "v1_heuristic": {
+      "ndcg": 0.13643820284491318,
+      "mrr": 0.10014550264550262,
+      "recall": 0.24333333333333335,
+      "map": 0.10014550264550262,
+      "precision": 0.025333333333333347
+    },
+    "v2_ml_ranker": {
+      "ndcg": 0.19201660406646978,
+      "mrr": 0.15548412698412697,
+      "recall": 0.3,
+      "map": 0.15548412698412697,
+      "precision": 0.03133333333333333
+    },
+    "v2_vs_popularity_lift": 0.08606476648103199,
+    "v2_vs_v1_lift": 0.407352193613482,
+    "evaluated_sessions": 150
+  },
+  "evidence_statement": "V2 LightGBM ranker trained on attributed purchase labels, evaluated against popularity and V1 heuristic baselines on temporal holdout (days 61-90)."
+}

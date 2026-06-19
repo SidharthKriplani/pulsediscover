@@ -1,0 +1,118 @@
+{
+  "scope": "DOMAIN Goodreads fantasy/paranormal \u2014 SASRec objective ablation",
+  "tag": "[BUILT \u2014 real data, CPU-limited]",
+  "eval": "leave-last-out, 5,000-user sample, full 40k scoring",
+  "hardware": "CPU (4 threads), no GPU",
+  "seed": 20260616,
+  "controlled_variable": "training objective ONLY (full-position vs last-position); architecture d=64/2blocks/2heads/maxlen30 held fixed",
+  "reproducibility": "run_g11_sequence_tournament.py train saslp; evalb",
+  "results": {
+    "ALS_f64_floor": {
+      "R@20": {
+        "mean": 0.0846,
+        "ci95": [
+          0.0766,
+          0.0922
+        ]
+      },
+      "R@50": {
+        "mean": 0.1466,
+        "ci95": [
+          0.1366,
+          0.156
+        ]
+      },
+      "N@20": {
+        "mean": 0.0344
+      }
+    },
+    "SASRec_v1_d3b_lastpos_d48": {
+      "R@20": {
+        "mean": 0.0362,
+        "ci95": [
+          0.031,
+          0.0412
+        ]
+      },
+      "R@50": {
+        "mean": 0.0804,
+        "ci95": [
+          0.0728,
+          0.088
+        ]
+      },
+      "N@20": {
+        "mean": 0.0122
+      }
+    },
+    "SASRec_v2_fullpos_d64": {
+      "R@20": {
+        "mean": 0.0076,
+        "ci95": [
+          0.0054,
+          0.01
+        ]
+      },
+      "R@50": {
+        "mean": 0.0162,
+        "ci95": [
+          0.0128,
+          0.0196
+        ]
+      },
+      "N@20": {
+        "mean": 0.0023
+      },
+      "epochs_done": 8,
+      "loss_curve": [
+        3.9005,
+        1.5438,
+        1.1057,
+        1.0032,
+        0.9701,
+        0.9567,
+        0.951,
+        0.9478
+      ],
+      "gold_in_vocab": 4948,
+      "n_eval": 5000
+    },
+    "SASRec_v2_lastpos_d64": {
+      "R@20": {
+        "mean": 0.003,
+        "ci95": [
+          0.0016,
+          0.0046
+        ]
+      },
+      "R@50": {
+        "mean": 0.0098,
+        "ci95": [
+          0.0072,
+          0.0126
+        ]
+      },
+      "N@20": {
+        "mean": 0.0009
+      },
+      "epochs_done": 8,
+      "loss_curve": [
+        5.2075,
+        3.1559,
+        2.0659,
+        1.5386,
+        1.2666,
+        1.1165,
+        1.0288,
+        0.9739
+      ],
+      "gold_in_vocab": 4948,
+      "n_eval": 5000
+    }
+  },
+  "ablation_delta": {
+    "lastpos_minus_fullpos_R@20": -0.0046,
+    "lastpos_vs_v1_R@20": -0.0332,
+    "lastpos_vs_als_R@20": -0.0816
+  }
+}

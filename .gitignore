@@ -1,0 +1,40 @@
+# ---- PulseDiscover repo: keep code + docs + small evidence; exclude heavy/regenerable data ----
+
+# raw data dumps (GB) and all interim/processed data + model artifacts
+data/
+outputs/_models/
+outputs/archive_extract/
+*.pt
+*.pkl
+*.npz
+*.npy
+*.parquet
+*.zip
+*.json.gz
+*.csv.gz
+*.csv
+
+# scratch / upload dirs from earlier gates
+uploads/
+*_upload/
+
+# python / OS noise
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.DS_Store
+.venv/
+venv/
+
+# keep the small, portfolio-valuable evidence + plots (re-include after the broad data ignores)
+!outputs/
+outputs/*
+!outputs/evidence/
+!outputs/evidence/*.json
+!outputs/plots/
+!outputs/plots/*.png
+
+# keep deploy/control config explicitly
+!.gcloudignore
+!Dockerfile
+!docker-compose.yml

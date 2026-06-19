@@ -1,0 +1,165 @@
+{
+  "phase": 7,
+  "dataset": "movielens-1m",
+  "is_evidence": true,
+  "tag": "[BUILT][SYNTHETIC \u2014 catalog-health audit on simulator]",
+  "role": "feedback-loop / catalog-health audit (simulator-scoped; NOT real online lift)",
+  "config": {
+    "rounds": 10,
+    "exposures_per_round": 1000000.0,
+    "eps_ratchet": 0.02,
+    "eps_ctr_explore": 0.1
+  },
+  "quality_def": "TRAIN mean rating normalized to [0,1]",
+  "popularity_def": "TRAIN interaction count",
+  "n_items": 3705,
+  "item_exposure_metrics_per_round": {
+    "ratchet": [
+      {
+        "round": 0,
+        "gini": 0.6209,
+        "entropy": 7.5292,
+        "long_tail_share": 0.3573
+      },
+      {
+        "round": 1,
+        "gini": 0.6498,
+        "entropy": 7.4392,
+        "long_tail_share": 0.3261
+      },
+      {
+        "round": 2,
+        "gini": 0.6647,
+        "entropy": 7.3885,
+        "long_tail_share": 0.3138
+      },
+      {
+        "round": 3,
+        "gini": 0.6741,
+        "entropy": 7.3545,
+        "long_tail_share": 0.3067
+      },
+      {
+        "round": 4,
+        "gini": 0.681,
+        "entropy": 7.3288,
+        "long_tail_share": 0.3018
+      },
+      {
+        "round": 5,
+        "gini": 0.6863,
+        "entropy": 7.3081,
+        "long_tail_share": 0.2981
+      },
+      {
+        "round": 6,
+        "gini": 0.6907,
+        "entropy": 7.2909,
+        "long_tail_share": 0.2952
+      },
+      {
+        "round": 7,
+        "gini": 0.6944,
+        "entropy": 7.276,
+        "long_tail_share": 0.2928
+      },
+      {
+        "round": 8,
+        "gini": 0.6976,
+        "entropy": 7.263,
+        "long_tail_share": 0.2908
+      },
+      {
+        "round": 9,
+        "gini": 0.7004,
+        "entropy": 7.2514,
+        "long_tail_share": 0.289
+      }
+    ],
+    "ctr_explore": [
+      {
+        "round": 0,
+        "gini": 0.5703,
+        "entropy": 7.6452,
+        "long_tail_share": 0.3934
+      },
+      {
+        "round": 1,
+        "gini": 0.1522,
+        "entropy": 8.1755,
+        "long_tail_share": 0.7643
+      },
+      {
+        "round": 2,
+        "gini": 0.1515,
+        "entropy": 8.1759,
+        "long_tail_share": 0.7659
+      },
+      {
+        "round": 3,
+        "gini": 0.1513,
+        "entropy": 8.1759,
+        "long_tail_share": 0.7661
+      },
+      {
+        "round": 4,
+        "gini": 0.1513,
+        "entropy": 8.176,
+        "long_tail_share": 0.7661
+      },
+      {
+        "round": 5,
+        "gini": 0.1512,
+        "entropy": 8.176,
+        "long_tail_share": 0.7661
+      },
+      {
+        "round": 6,
+        "gini": 0.1512,
+        "entropy": 8.176,
+        "long_tail_share": 0.7662
+      },
+      {
+        "round": 7,
+        "gini": 0.1512,
+        "entropy": 8.176,
+        "long_tail_share": 0.7662
+      },
+      {
+        "round": 8,
+        "gini": 0.1512,
+        "entropy": 8.176,
+        "long_tail_share": 0.7662
+      },
+      {
+        "round": 9,
+        "gini": 0.1512,
+        "entropy": 8.176,
+        "long_tail_share": 0.7662
+      }
+    ]
+  },
+  "summary": {
+    "gini_round0": 0.6209,
+    "gini_final_ratchet": 0.7004,
+    "gini_final_ctr_explore": 0.1512,
+    "entropy_final_ratchet": 7.2514,
+    "entropy_final_ctr_explore": 8.176,
+    "long_tail_share_round0": 0.3573,
+    "long_tail_share_final_ratchet": 0.289,
+    "long_tail_share_final_ctr_explore": 0.7662
+  },
+  "buried_quality_exposure_share": {
+    "n_buried_items": 301,
+    "baseline_popularity_share": 0.0125,
+    "final_ratchet": 0.0204,
+    "final_ctr_explore": 0.0976
+  },
+  "genre_level_proxy_gini": {
+    "ratchet_final": 0.6751,
+    "ctr_explore_final": 0.657
+  },
+  "creator_level_note": "MovieLens has no creators/authors; creator-level concentration is a Goodreads-domain feature (pending). Genre primary-category used as a proxy.",
+  "honesty": "ratchet (rank by click volume) concentrates exposure round over round; ctr_explore (exposure-normalized rate + exploration) keeps concentration lower and surfaces high-quality low-popularity items. Catalog-level abstraction; simulator-scoped.",
+  "ts": 1781559236
+}

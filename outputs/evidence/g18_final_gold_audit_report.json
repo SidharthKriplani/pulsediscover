@@ -1,0 +1,78 @@
+{
+  "scope": "G18 Final Gold Audit + claim-safe closeout (RiskFrame/BeastMax 15-axis)",
+  "overall_verdict": "RiskFrame-gold CANDIDATE / claim-safe portfolio closeout complete",
+  "gold_status": "gold_candidate",
+  "final_score_by_axis": {
+    "1_product_thesis": 9, "2_buyer_jd_alignment": 8, "3_industry_realism": 9, "4_data_realism": 8,
+    "5_method_depth": 7.5, "6_technique_tournament_quality": 9, "7_evidence_quality": 9.5,
+    "8_evaluation_quality": 9, "9_business_consequence_chain": 8, "10_failure_mode_coverage": 9,
+    "11_operational_realism": 8, "12_claim_safety": 10, "13_interview_defensibility": 9.5,
+    "14_differentiation_memorability": 9, "15_build_feasibility_reproducibility": 9
+  },
+  "mean_score": 8.7,
+  "blocking_gaps": [
+    "Method depth (#5): no advanced sequence/graph/two-tower model beat the ALS f64 floor (honest negatives); per the decision rule this blocks gold_complete.",
+    "Offline-only: no live A/B, no proven business lift.",
+    "Deferred: LightGCN candidate source and canonical full-softmax SASRec trained to convergence (GPU) not done."
+  ],
+  "non_blocking_gaps": [
+    "Co-occurrence lift not 95%-significant at n=733 (conditional adopt).",
+    "Per-item IPS variance (aggregate-only trust).",
+    "FAISS IVF is a scale-demo at 40k items.",
+    "Single domain; business consequence chain qualitative."
+  ],
+  "accepted_claims": [
+    "ALS f64 warm floor R@20 0.085 (best single generator)",
+    "Content-hybrid cold candidate lane cold R@20 0.241 (not cold-start solved)",
+    "Sequence models tested seriously, mostly < ALS (best SASRec-small 0.0594)",
+    "Full-softmax SASRec 6.7x over sampled-neg (0.0068->0.0456) but < ALS",
+    "TwoTower built, honest negative R@20 0.0020",
+    "LTR ~2x single-retriever WITHIN candidates (0.0382->0.0791; mid 0.1201)",
+    "GPU sequence features non-additive to LTR (+0.0027, noise)",
+    "Candidate coverage the binding lever; G13 widening +44% (0.086->0.124); mid = adopted knee",
+    "G14 pure LTR default; aggressive slate governance not worth relevance cost (combined 20.7% self-violation)",
+    "G15 co-occ conditional adopt: +3.76pp marginal coverage, directional, not 95%-significant",
+    "G16 FAISS FlatIP exact adopted (p95 0.781->0.475, retention 1.0); IVF scale-demo only",
+    "G17 defense kernel accepted as interview-defense layer"
+  ],
+  "forbidden_claims": [
+    "online lift / improved business metrics", "production / deployed / live traffic",
+    "deep/sequence/graph/two-tower beat ALS", "cold-start solved", "creator fairness solved",
+    "catalog health solved", "FAISS improved recommendation quality", "90/10 proven best",
+    "full-catalog recall (for within-candidate metrics)", "RiskFrame-gold complete"
+  ],
+  "deferred_items": [
+    "Canonical full-softmax SASRec to convergence (GPU)", "LightGCN candidate source (not cheap on CPU)",
+    "Live A/B of the 90/10 policy (specced in G4, not run)", "Co-occurrence significance at larger N",
+    "Training-time creator fairness"
+  ],
+  "artifact_inventory": {
+    "evidence_json": ["c2_als.pkl", "domain_coldstart_report.json", "g11_sequence_tournament_metrics.json",
+      "g11cd_colab_metrics.json", "g12_ltr_metrics.json", "g12_candidate_feature_table_enriched.csv.gz",
+      "g13_candidate_coverage_report.json", "g14_final_slate_policy_report.json",
+      "g15_candidate_source_report.json", "g16_faiss_serving_report.json",
+      "g17_defense_traceability_matrix.json", "g18_final_gold_audit_report.json",
+      "domain_two_lane_ope_report.json", "domain_two_lane_ope_prevalence_report.json",
+      "domain_position_bias_two_lane_report.json", "domain_creator_catalog_health_report.json"],
+    "checkpoints": ["outputs/_models/gpu/ckpt_canonical.pt", "ckpt_small.pt", "ckpt_twotower.pt"],
+    "key_docs": ["docs/12 ledger", "docs/33 claim table", "docs/45 dossier", "docs/49 RiskFrame audit",
+      "docs/50-67 G11-G17", "docs/68-71 G18"],
+    "colab_notebooks": ["G11D_GPU_Batch.ipynb", "G12A2_GPU_Score_Export.ipynb"]
+  },
+  "resume_safe_claims": [
+    "Built offline two-stage recommender (candidate gen -> LambdaMART) on 2.56M Goodreads interactions",
+    "Tuned ALS to R@20 0.085 warm floor; content-hybrid cold lane cold R@20 0.241",
+    "LTR ~doubled single-retriever ranking within candidates (0.038->0.079)",
+    "Diagnosed candidate coverage as bottleneck; +44% offline within-candidate R@20 by widening retrieval",
+    "Built OPE, position-bias correction, FAISS serving index; documented honest negatives"
+  ],
+  "interview_safe_claims": [
+    "ALS beat sequence models on this catalog; honest negatives diagnosed",
+    "Full-softmax was a 6.7x lever, still < MF",
+    "GPU features non-additive to ranker (importance != marginal contribution)",
+    "Coverage was the bottleneck, not ranking; widening converted",
+    "Governance best handled upstream; pure LTR default",
+    "FAISS retains recall (latency, not quality); co-occ conditional; nothing online/deployed/solved"
+  ],
+  "final_recommendation": "Ship as a RiskFrame-gold CANDIDATE / claim-safe portfolio artifact now. To reach gold_complete: train a canonical/advanced model to genuinely contend with ALS (or formally accept the documented MF-wins negative as terminal), and/or run the specced live A/B. Do NOT label gold_complete until then."
+}

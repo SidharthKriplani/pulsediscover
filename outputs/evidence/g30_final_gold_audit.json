@@ -1,0 +1,52 @@
+{
+  "project": "PulseDiscover",
+  "gate": "G30",
+  "pass": "Gold Pass 3/3",
+  "title": "Final RiskFrame Gold Audit + Interview Kit",
+  "overall_verdict": "ACCEPT_OFFLINE_GOLD_COMPLETE_INTERVIEW_READY",
+  "riskframe_score": {
+    "product_thesis_clarity": 9,
+    "market_jd_relevance": 9,
+    "technique_tournament_depth": 9,
+    "deep_defense_kernel": 9,
+    "product_reasoning_kernel": 9,
+    "data_realism_feature_engineering": 9,
+    "synthetic_realism_audit": 8,
+    "evidence_honesty": 10,
+    "evaluation_validity": 9,
+    "decision_economics": 9,
+    "industry_pattern_awareness": 9,
+    "hairy_failure_modes": 9,
+    "achievement_moments": 9,
+    "tradeoff_density": 10,
+    "interview_dominance": 9
+  },
+  "riskframe_mean": 9.1,
+  "mid_project_audit_mean": 8.3,
+  "score_band": "OFFLINE_GOLD_COMPLETE",
+  "gold_decision": {
+    "v1_status": "gold_candidate 8.9 (locked, historical, NOT retroactively upgraded)",
+    "v1_blocker": "G20 SASRec headline is plot_reconstructed; immaterial to the overall dossier",
+    "v2_lane": "offline gold-complete",
+    "overall": "offline gold-complete / interview-ready; online evidence permanently out of scope"
+  },
+  "mid_audit_risks_resolved": {
+    "component_coherence": "G26A decision spine + model/protocol registry (d3aplus vs served c2 never conflated)",
+    "ope_gap": "G29 executed logging->IPS/SNIPS/DR and validated estimators recover a known value",
+    "pile_of_components": "G27 semantic + G28 learned fusion gave each candidate source a measured role + a fusion policy"
+  },
+  "gold_pass_summary": {
+    "pass_1_G28": "learned fusion beat ALS-only on held-out test (R@20 0.036 vs 0.022) + recovered cold-start; champion LightGBM LambdaMART",
+    "pass_2_G29": "OPE executed offline; IPS/SNIPS/DR recover known value (DR lowest-bias, SNIPS lowest-variance)",
+    "pass_3_G30": "final audit 9.1; interview kit locked"
+  },
+  "permanent_out_of_scope": [
+    "online A/B lift", "real-user behaviour", "real-traffic propensities / real-reward OPE",
+    "production deployment", "learned-ranker-beats-ALS online", "fairness certification"
+  ],
+  "interview_kit": "docs/PULSEDISCOVERY_INTERVIEW_KIT.md",
+  "claim_ladder": "docs/G26A_CLAIM_UNLOCK_TABLE.md",
+  "model_registry": "docs/G26A_MODEL_PROTOCOL_REGISTRY.md",
+  "final_status": "INTERVIEW-READY (offline gold-complete). Project closed for interview use.",
+  "v1_unchanged": true
+}

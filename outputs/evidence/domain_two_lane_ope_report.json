@@ -1,0 +1,246 @@
+{
+  "STATUS": "SOURCE OF TRUTH = loggers{alsheavy, coldsupport}. Earlier top-level OPE keys were a preliminary/buggy single-run draft and have been removed to avoid contradiction.",
+  "meta": {
+    "dataset": "goodreads_fantasy_paranormal",
+    "scope": "two-lane OPE / offline A/B readiness",
+    "tag": "[BUILT][SYNTHETIC \u2014 known-propensity OPE]",
+    "reward": "examined(PBM) AND item==user gold (warm/cold); offline proxy, NOT business lift",
+    "n_instances": 10000,
+    "n_logged_slots": 200000,
+    "eval_population": "5k warm + 5k cold (50/50)"
+  },
+  "loggers": {
+    "alsheavy": {
+      "config": {
+        "epsc": 0.15,
+        "Mc": 40,
+        "Mw": 40,
+        "tau": 5.0
+      },
+      "policies": {
+        "als_only": {
+          "GT": 0.00037,
+          "IPS": 0.00032,
+          "SNIPS": 0.00031,
+          "DM": 0.00046,
+          "DR": 0.00032,
+          "bias_IPS": -6e-05,
+          "bias_SNIPS": -6e-05,
+          "bias_DR": -5e-05,
+          "ESS": 2522.8,
+          "matched_slots": 8288,
+          "w_max": 290.02,
+          "w_mean": 24.479,
+          "DR_ci95": [
+            0.000131,
+            0.000539
+          ],
+          "DR_std": 0.000115,
+          "IPS_ci95": [
+            0.00013,
+            0.000545
+          ]
+        },
+        "q90_10": {
+          "GT": 0.00051,
+          "IPS": 0.00032,
+          "SNIPS": 0.00032,
+          "DM": 0.00045,
+          "DR": 0.00032,
+          "bias_IPS": -0.0002,
+          "bias_SNIPS": -0.0002,
+          "bias_DR": -0.00019,
+          "ESS": 2565.4,
+          "matched_slots": 8272,
+          "w_max": 266.67,
+          "w_mean": 24.092,
+          "DR_ci95": [
+            0.000102,
+            0.00058
+          ],
+          "DR_std": 0.00013,
+          "IPS_ci95": [
+            9.7e-05,
+            0.000573
+          ]
+        },
+        "q80_20": {
+          "GT": 0.00063,
+          "IPS": 0.00165,
+          "SNIPS": 0.00167,
+          "DM": 0.00053,
+          "DR": 0.00167,
+          "bias_IPS": 0.00101,
+          "bias_SNIPS": 0.00104,
+          "bias_DR": 0.00103,
+          "ESS": 2305.2,
+          "matched_slots": 8221,
+          "w_max": 266.67,
+          "w_mean": 23.965,
+          "DR_ci95": [
+            0.000133,
+            0.005507
+          ],
+          "DR_std": 0.001403,
+          "IPS_ci95": [
+            0.00013,
+            0.004436
+          ]
+        },
+        "rrf": {
+          "GT": 0.00141,
+          "IPS": 0.00439,
+          "SNIPS": 0.0045,
+          "DM": 0.00075,
+          "DR": 0.00442,
+          "bias_IPS": 0.00298,
+          "bias_SNIPS": 0.00308,
+          "bias_DR": 0.003,
+          "ESS": 1360.9,
+          "matched_slots": 7541,
+          "w_max": 266.67,
+          "w_mean": 25.911,
+          "DR_ci95": [
+            0.000389,
+            0.009784
+          ],
+          "DR_std": 0.002406,
+          "IPS_ci95": [
+            0.000356,
+            0.008462
+          ]
+        }
+      },
+      "GT_ranking": [
+        "rrf",
+        "q80_20",
+        "q90_10",
+        "als_only"
+      ],
+      "DR_ranking": [
+        "rrf",
+        "q80_20",
+        "als_only",
+        "q90_10"
+      ],
+      "ranking_match": false,
+      "dr_identifies_90_10_over_als": false
+    },
+    "coldsupport": {
+      "config": {
+        "epsc": 0.35,
+        "Mc": 10,
+        "Mw": 20,
+        "tau": 5.0
+      },
+      "policies": {
+        "als_only": {
+          "GT": 0.00037,
+          "IPS": 0.00046,
+          "SNIPS": 0.00045,
+          "DM": 0.00038,
+          "DR": 0.00046,
+          "bias_IPS": 9e-05,
+          "bias_SNIPS": 8e-05,
+          "bias_DR": 9e-05,
+          "ESS": 2016.8,
+          "matched_slots": 6492,
+          "w_max": 372.44,
+          "w_mean": 31.652,
+          "DR_ci95": [
+            0.000178,
+            0.000959
+          ],
+          "DR_std": 0.000192,
+          "IPS_ci95": [
+            0.000167,
+            0.000882
+          ]
+        },
+        "q90_10": {
+          "GT": 0.00051,
+          "IPS": 0.00046,
+          "SNIPS": 0.00045,
+          "DM": 0.00046,
+          "DR": 0.00045,
+          "bias_IPS": -5e-05,
+          "bias_SNIPS": -6e-05,
+          "bias_DR": -6e-05,
+          "ESS": 2914.8,
+          "matched_slots": 7162,
+          "w_max": 249.65,
+          "w_mean": 28.785,
+          "DR_ci95": [
+            0.000161,
+            0.000852
+          ],
+          "DR_std": 0.000185,
+          "IPS_ci95": [
+            0.000167,
+            0.0009
+          ]
+        },
+        "q80_20": {
+          "GT": 0.00063,
+          "IPS": 0.00075,
+          "SNIPS": 0.00073,
+          "DM": 0.00057,
+          "DR": 0.00075,
+          "bias_IPS": 0.00012,
+          "bias_SNIPS": 9e-05,
+          "bias_DR": 0.00011,
+          "ESS": 3932.7,
+          "matched_slots": 7754,
+          "w_max": 167.35,
+          "w_mean": 26.631,
+          "DR_ci95": [
+            0.000243,
+            0.001299
+          ],
+          "DR_std": 0.000269,
+          "IPS_ci95": [
+            0.000258,
+            0.001369
+          ]
+        },
+        "rrf": {
+          "GT": 0.00141,
+          "IPS": 0.00159,
+          "SNIPS": 0.00159,
+          "DM": 0.00118,
+          "DR": 0.00159,
+          "bias_IPS": 0.00017,
+          "bias_SNIPS": 0.00017,
+          "bias_DR": 0.00018,
+          "ESS": 7594.7,
+          "matched_slots": 9195,
+          "w_max": 50.4,
+          "w_mean": 21.724,
+          "DR_ci95": [
+            0.000858,
+            0.00255
+          ],
+          "DR_std": 0.000411,
+          "IPS_ci95": [
+            0.000835,
+            0.002583
+          ]
+        }
+      },
+      "GT_ranking": [
+        "rrf",
+        "q80_20",
+        "q90_10",
+        "als_only"
+      ],
+      "DR_ranking": [
+        "rrf",
+        "q80_20",
+        "als_only",
+        "q90_10"
+      ],
+      "ranking_match": false,
+      "dr_identifies_90_10_over_als": false
+    }
+  }
+}

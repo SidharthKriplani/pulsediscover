@@ -1,0 +1,115 @@
+{
+  "artifact": "pulserank_model_card_v2",
+  "model_id": "ml_ranker_lightgbm_v2",
+  "model_type": "LightGBM binary classifier (pointwise ranking)",
+  "data": {
+    "training_window": "days 1-60",
+    "evaluation_window": "days 61-90",
+    "training_examples": 280600,
+    "positive_rate": 0.00091,
+    "label_source": "attributed_label_log.csv (3-day attribution window)"
+  },
+  "labels": {
+    "positive": "attributed_purchase == 1",
+    "negative": "attributed_purchase == 0 (candidate shown but not purchased)"
+  },
+  "features": {
+    "included": [
+      "category_affinity",
+      "price_fit",
+      "freshness_score",
+      "latent_quality",
+      "popularity_score",
+      "category_train_rate",
+      "seller_train_rate",
+      "price_bucket_train_rate",
+      "als_score",
+      "cooc_score",
+      "affinity_x_price_fit",
+      "popularity_x_freshness",
+      "latent_quality_sq",
+      "log_popularity_rank"
+    ],
+    "v1_base": [
+      "category_affinity",
+      "price_fit",
+      "freshness_score",
+      "latent_quality",
+      "popularity_score",
+      "category_train_rate",
+      "seller_train_rate",
+      "price_bucket_train_rate"
+    ],
+    "v2_new": [
+      "als_score",
+      "cooc_score",
+      "affinity_x_price_fit",
+      "popularity_x_freshness",
+      "latent_quality_sq",
+      "log_popularity_rank"
+    ]
+  },
+  "excluded_features": {
+    "display_rank": "Would leak ranking position into labels (position bias / label leakage)"
+  },
+  "metrics": {
+    "holdout_comparison": {
+      "popularity_baseline": {
+        "ndcg": 0.17680032535133652,
+        "mrr": 0.13937301587301584,
+        "recall": 0.29,
+        "map": 0.13937301587301584,
+        "precision": 0.03
+      },
+      "v1_heuristic": {
+        "ndcg": 0.13643820284491318,
+        "mrr": 0.10014550264550262,
+        "recall": 0.24333333333333335,
+        "map": 0.10014550264550262,
+        "precision": 0.025333333333333347
+      },
+      "v2_ml_ranker": {
+        "ndcg": 0.19201660406646978,
+        "mrr": 0.15548412698412697,
+        "recall": 0.3,
+        "map": 0.15548412698412697,
+        "precision": 0.03133333333333333
+      },
+      "v2_vs_popularity_lift": 0.08606476648103199,
+      "v2_vs_v1_lift": 0.407352193613482,
+      "evaluated_sessions": 150
+    },
+    "train_metrics": {
+      "ndcg@10": 0.9383688906003788
+    }
+  },
+  "hyperparameters": {
+    "objective": "lambdarank",
+    "metric": [
+      "ndcg"
+    ],
+    "ndcg_eval_at": [
+      10
+    ],
+    "num_leaves": 4,
+    "learning_rate": 0.01,
+    "min_child_samples": 100,
+    "reg_alpha": 5.0,
+    "reg_lambda": 10.0,
+    "seed": 20260505,
+    "verbose": -1
+  },
+  "limitations": [
+    "ALS and co-occurrence scores are set to 0.0 \u2014 learned retrieval not yet integrated",
+    "Pointwise ranker does not model list-level interactions (no listwise/pairwise loss)",
+    "Class imbalance handled via scale_pos_weight; no hard negative mining",
+    "No online learning or model refresh \u2014 static train window",
+    "Position bias correction not applied to training labels"
+  ],
+  "leakage_controls": [
+    "Temporal holdout: train on days 1-60, evaluate on days 61-90",
+    "display_rank excluded from features",
+    "Train statistics computed only on train split",
+    "No future-looking features (e.g., return status at prediction time)"
+  ]
+}

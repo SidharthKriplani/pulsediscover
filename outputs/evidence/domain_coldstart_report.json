@@ -1,0 +1,189 @@
+{
+  "dataset": "goodreads_fantasy_paranormal",
+  "scope": "DOMAIN cold-start (global-time test, new-vs-pre-test items)",
+  "tag": "[BUILT \u2014 real data (domain)]",
+  "eval": "cold-start: 5,000 test interactions on items NEVER seen pre-test; users with pre-test history",
+  "cold_pool": {
+    "n_cold_items": 1420,
+    "n_new_creators": 330,
+    "n_new_series": 898,
+    "n_cold_test_interactions": 27458,
+    "gold_author_warm_pct": 32.78
+  },
+  "coldstart_recall": {
+    "als_f64": {
+      "R@20": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "R@50": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "R@100": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "R@200": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "same_author": {
+      "R@20": {
+        "mean": 0.2084,
+        "ci95": [
+          0.198,
+          0.2208
+        ]
+      },
+      "R@50": {
+        "mean": 0.2876,
+        "ci95": [
+          0.2758,
+          0.3006
+        ]
+      },
+      "R@100": {
+        "mean": 0.3158,
+        "ci95": [
+          0.3034,
+          0.3288
+        ]
+      },
+      "R@200": {
+        "mean": 0.3274,
+        "ci95": [
+          0.315,
+          0.3404
+        ]
+      }
+    },
+    "same_series": {
+      "R@20": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "R@50": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "R@100": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "R@200": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ]
+      }
+    },
+    "tfidf": {
+      "R@20": {
+        "mean": 0.122,
+        "ci95": [
+          0.1132,
+          0.1314
+        ]
+      },
+      "R@50": {
+        "mean": 0.2104,
+        "ci95": [
+          0.1994,
+          0.2222
+        ]
+      },
+      "R@100": {
+        "mean": 0.3148,
+        "ci95": [
+          0.3018,
+          0.328
+        ]
+      },
+      "R@200": {
+        "mean": 0.45,
+        "ci95": [
+          0.4358,
+          0.4636
+        ]
+      }
+    },
+    "content_hybrid": {
+      "R@20": {
+        "mean": 0.241,
+        "ci95": [
+          0.2294,
+          0.2532
+        ]
+      },
+      "R@50": {
+        "mean": 0.3402,
+        "ci95": [
+          0.327,
+          0.354
+        ]
+      },
+      "R@100": {
+        "mean": 0.4406,
+        "ci95": [
+          0.4268,
+          0.4544
+        ]
+      },
+      "R@200": {
+        "mean": 0.5566,
+        "ci95": [
+          0.5434,
+          0.5706
+        ]
+      }
+    }
+  },
+  "warm_context_ALS_f64_LLO": {
+    "R@20": 0.0846,
+    "R@50": 0.1466,
+    "R@100": 0.2154,
+    "R@200": 0.2978
+  },
+  "coverage": {
+    "cold_items_total": 1420,
+    "sameauthor_surfaced_cold_items": 1025,
+    "sameauthor_surfaced_authors": 587,
+    "hybrid_surfaced_cold_items_top100": 1420,
+    "hybrid_cold_item_coverage_pct": 100.0
+  },
+  "runtime_sec": {
+    "coldeval_sameauthor_series": 6.7,
+    "tfidf_hybrid": 9.7
+  },
+  "decision": "KEEP \u2014 content channel gives non-zero cold-start recall (hybrid R@20 0.24, R@200 0.56) with broad coverage and fast CPU runtime, where ALS f64 is structurally ~0.",
+  "honest_notes": [
+    "ALS f64 cold recall is 0 BY CONSTRUCTION (new items absent from its factor space) \u2014 the contrast, not a tuning failure.",
+    "same_author ceiling = 32.8% (gold's author warm); same_series ~0 (cold golds rarely in a previously-read series).",
+    "OFFLINE cold-start candidate channel only \u2014 NOT proven business lift; no A/B, no online exposure test.",
+    "cold pool is core (k-cored) items new in the test window; sub-threshold brand-new items are out of the core scope."
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "project": "PulseDiscovery",
+  "audit_gate": "PULSEDISCOVERY_RISKFRAME_GOLD_RUTHLESS_AUDIT",
+  "overall_verdict": "PATCH",
+  "verdict_detail": "Strong, honest recommender DECISION dossier (not a pile of components), but with a real component-coherence + OPE-logging gap. Proceed via G26A (architecture consolidation + OPE logging design) then G26B (unblock the built G26 mitigation). V1 stays gold_candidate 8.9, untouched.",
+  "riskframe_score": {
+    "product_thesis_clarity": 9,
+    "market_jd_relevance": 9,
+    "technique_tournament_depth": 8,
+    "deep_defense_kernel": 8,
+    "product_reasoning_kernel": 9,
+    "data_realism_feature_engineering": 8,
+    "synthetic_realism_audit": 7,
+    "evidence_honesty": 9,
+    "evaluation_validity": 7,
+    "decision_economics": 8,
+    "industry_pattern_awareness": 8,
+    "hairy_failure_modes": 9,
+    "achievement_moments": 9,
+    "tradeoff_density": 9,
+    "interview_dominance": 8
+  },
+  "riskframe_mean": 8.3,
+  "score_band": "STRONG_NEEDS_CONSOLIDATION_MEAT_PASS",
+  "top_15_claim_risks": [
+    "V1 d3aplus R@20 0.0846 vs served c2 ~0.0375 recall not reconciled in one place — interview trap.",
+    "G20 SASRec headline is plot_reconstructed (secondary metrics lost) — packaging gap blocking gold_complete.",
+    "No confidence intervals on any headline metric.",
+    "Recall is single-held-out-gold; NDCG not computed (could be challenged).",
+    "All behavioural claims have NO online evidence (offline only).",
+    "Heuristic G26 rerankers could be mistaken for a learned LTR ranker.",
+    "Head-cap Pareto win is protocol-specific (warm cohort, niche-skewed gold) — must not be stated as universal.",
+    "Popularity fallback could be mis-sold as a healthy default (it is Gini 1.0, emergency-only).",
+    "Exposure audit could be mis-stated as fairness — must stay 'concentration', not certification.",
+    "Item cold-start (57.2%) must stay 'offline-split unseen', not real new-catalog cold-start.",
+    "Local TestClient p95 (~3.3ms) is not production p95.",
+    "HNSW must stay explicit scale option, not silent default.",
+    "FAISS speedups are latency, not quality — easy to overstate.",
+    "OPE (IPS/SNIPS/DR) is invalid until propensities are logged — must not report any OPE number yet.",
+    "G24/G25/G26 absolute numbers are SERVED_MODEL c2 and NOT_COMPARABLE_ACROSS_PROTOCOLS to V1."
+  ],
+  "top_15_ambition_gaps": [
+    "No online A/B.",
+    "No real user traffic.",
+    "No logged propensities (blocks OPE).",
+    "No valid IPS/SNIPS/DR.",
+    "No exposure mitigation wired into the serving path (only measured).",
+    "No learned reranker (LambdaMART/LTR) implemented — G26 rerankers are heuristic.",
+    "No two-tower retrieval lane.",
+    "No LightGCN lane.",
+    "No feedback-loop / popularity-amplification simulation.",
+    "No creator-side/business metadata exploited (creator exposure blind).",
+    "No online-experiment-readiness card.",
+    "No production infra latency benchmark.",
+    "No real new-item cold-start launch simulation.",
+    "No long-term retention metric.",
+    "No reconciled model/index registry (d3aplus vs c2)."
+  ],
+  "top_15_missing_evidence_items": [
+    "Direct G20 v3 JSON + SASRec secondary metrics (NDCG, per-epoch).",
+    "Confidence intervals / bootstrap on headline recalls.",
+    "NDCG@K alongside Recall@K.",
+    "Propensity logs (impression, position, pi_log, reward).",
+    "A valid IPS/SNIPS/DR estimate once logged.",
+    "Reconciliation table: which ALS model (d3aplus vs c2) backs which claim.",
+    "End-to-end decision/data-flow architecture diagram.",
+    "Online-experiment-readiness design.",
+    "Production load benchmark (not in-process).",
+    "Exposure mitigation A/B-style offline counterfactual.",
+    "Creator-level exposure metrics.",
+    "Two-tower / LightGCN comparison runs.",
+    "Feedback-loop simulation results.",
+    "Real new-item content-to-embedding cold-start retrieval.",
+    "Long-horizon / retention proxy."
+  ],
+  "delete_or_downgrade_claims": [
+    "DOWNGRADE: any unqualified 'ALS R@20 ~0.085' in V2 context -> tag d3aplus protocol; served c2 is ~0.0375.",
+    "DELETE: any phrasing implying production deployment, real users, or online lift.",
+    "DELETE: 'fairness' / 'fairness certified' anywhere — only 'exposure concentration'.",
+    "DELETE: 'solved cold-start' / 'solved long-tail discovery'.",
+    "DOWNGRADE: head-cap 'improves recall and exposure' -> add 'on this offline single-gold protocol; protocol-specific'.",
+    "DOWNGRADE: G26 rerankers -> 'heuristic exposure rerankers', not 'learned reranker'.",
+    "DELETE: any OPE/IPS number (none is valid yet)."
+  ],
+  "safe_claims_now": [
+    "Built an offline, honesty-gated two-stage recommender decision program on a real 2.56M-interaction Goodreads catalog.",
+    "Tuned ALS to a warm retrieval floor and showed a canonical full-softmax SASRec, trained to convergence, still lost — MF is the warm floor under this protocol.",
+    "Diagnosed candidate coverage as the binding bottleneck and lifted offline recall ~44% by widening candidate generation.",
+    "Built a FAISS latency-quality frontier: FlatIP exact lossless ~47% faster; HNSW ef64 near-lossless (overlap 0.992) ~2.4x; rejected IVF for candidate-overlap collapse.",
+    "Built and load-tested a production-like FastAPI serving API with versioned loader, full fallback tree, structured logging, health and monitoring hooks (warm p95 ~3.3ms local, 0% empty).",
+    "Measured cold/sparse fallback QUALITY: popularity fallback collapses catalog coverage ~59x and personalization to ~0; reported recall non-monotonicity honestly.",
+    "Audited catalog exposure concentration (Gini, coverage, zero-exposure, head/tail lift) and showed HNSW is exposure-neutral vs exact.",
+    "Built exposure-aware rerankers and quantified the relevance/exposure tradeoff frontier (head-cap Pareto-dominant on the warm cohort; MMR/genre-div honest negatives)."
+  ],
+  "safe_claims_after_next_gate": [
+    "Consolidated a single recommender decision architecture (candgen->retrieval->rank/rerank->fallback->serve->log->evaluate->decide) with a reconciled model/index registry.",
+    "Designed a propensity-logging schema that makes IPS/SNIPS/DR off-policy evaluation valid.",
+    "Produced an online-experiment-readiness card for an exposure-mitigation rollout.",
+    "(G26B) Wired a head-cap/tail-boost exposure mitigation into the serving path with a measured relevance/exposure tradeoff."
+  ],
+  "forbidden_claims": [
+    "production recommender serving real users",
+    "online lift / engagement improvement",
+    "fairness solved / creator fairness solved / marketplace fairness certified",
+    "solved cold-start (user or item)",
+    "solved long-tail discovery",
+    "online diversity improved",
+    "production exposure governance deployed",
+    "protected-class fairness analysis",
+    "proof that SASRec never works",
+    "any IPS/SNIPS/DR value before propensities are logged",
+    "gold_complete (V1 stays gold_candidate)"
+  ],
+  "next_gate_recommendation": "OPTION_C: G26A (Recommender Decision Architecture Consolidation + OPE Logging Design) then G26B (unblock + integrate the built G26 exposure-aware reranking).",
+  "next_gate_rationale": "Real disconnected-component risk (two ALS models unreconciled, no propensity logging, decision flow never drawn). G26A directly unlocks OPE/mitigation execution, satisfying the 'no audit-only gate unless it unlocks OPE/mitigation' bar; G26 work loses nothing by shipping as G26B on a consolidated spine.",
+  "blocked_until": [
+    "G26 (exposure-aware reranking) stays BLOCKED until G26A consolidation + OPE logging design is accepted, then unblocks as G26B.",
+    "Any OPE/IPS/SNIPS/DR claim blocked until propensity logging exists.",
+    "gold_complete blocked until direct G20 v3 JSON + secondary metrics recovered (V1 packaging)."
+  ],
+  "resume_lines_safe_now": [
+    "Built an offline, evidence-gated recommender decision program on 2.56M Goodreads interactions: ALS warm floor with documented deep-model negatives (converged SASRec still lost), candidate-coverage diagnosis (+~44% offline recall), a FAISS latency-quality frontier, a production-like FastAPI+FAISS serving layer with fallback/monitoring/load-test, and quantified cold-start, exposure-concentration, and exposure-mitigation frontiers.",
+    "Caught and corrected real failure modes (NaN-driven false convergence, stale-script reruns, ID-dtype lookup bug, IVF candidate-overlap collapse) and kept strict claim boundaries (no online lift, no fairness certification, no solved cold-start)."
+  ],
+  "resume_lines_unsafe_delete": [
+    "Deployed a production recommender / served real users.",
+    "Improved engagement / drove online lift / increased diversity online.",
+    "Built a fairness-certified or cold-start-solved recommender.",
+    "Beat ALS with a deep/sequence/graph/two-tower model.",
+    "Implemented a learned LambdaMART reranker in V2 (the G26 rerankers are heuristic).",
+    "Achieved RiskFrame-gold complete."
+  ],
+  "v1_status": "gold_candidate 8.9 (terminal, untouched)",
+  "v2_status": "strong; requires G26A consolidation spine before further mitigation",
+  "control_doc_mapping": {
+    "control_tower": "docs/78_CONTROL_TOWER.md",
+    "evidence_ledger": "docs/12_EVIDENCE_LEDGER.md",
+    "claim_boundary": "docs/69_G18_CLAIM_BOUNDARY_LOCK.md",
+    "note": "The 00/04/06 names in the brief are generic RiskFrame labels; live files are 78/12/69. No stray files created."
+  }
+}

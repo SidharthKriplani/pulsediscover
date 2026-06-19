@@ -1,0 +1,87 @@
+{
+  "scope": "G21 Final 15-Axis RiskFrame-Gold Audit",
+  "decision": "PATCH",
+  "gold_status": "gold_candidate",
+  "score": 8.9,
+  "substance_mean": 9.0,
+  "threshold_gold_complete": 9.0,
+  "method_depth_blocker": "CLOSED (G20 v3 terminal: canonical full-softmax SASRec converged, R@20 0.065 < ALS 0.085)",
+  "scores_by_axis": {
+    "1_product_thesis_clarity": 9.5,
+    "2_market_jd_relevance": 8.5,
+    "3_technique_tournament_depth": 9.0,
+    "4_deep_defense_kernel": 9.5,
+    "5_product_reasoning_kernel": 9.0,
+    "6_data_realism_feature_eng": 8.0,
+    "7_synthetic_realism_audit": 7.5,
+    "8_evidence_honesty": 10.0,
+    "9_evaluation_validity": 9.0,
+    "10_decision_economics": 8.0,
+    "11_industry_pattern_awareness": 9.0,
+    "12_hairy_failure_modes": 9.5,
+    "13_achievement_moments": 9.5,
+    "14_tradeoff_density": 9.0,
+    "15_interview_dominance": 9.5
+  },
+  "ten_checks": {
+    "1_metric_tag_N_source_limitation": "PASS",
+    "2_g20_provenance_acknowledged": "PASS",
+    "3_secondary_metrics_pending_not_invented": "PASS (this is the packaging gap -> PATCH)",
+    "4_mf_terminal_floor_offline_protocol": "PASS",
+    "5_coldstart_not_overclaimed": "PASS",
+    "6_faiss_not_quality_claim": "PASS",
+    "7_ltr_within_candidate_not_mixed": "PASS",
+    "8_no_production_online_ab_deployed": "PASS",
+    "9_lightgcn_optional_deferred": "PASS",
+    "10_resume_only_ledger_surviving": "PASS"
+  },
+  "blocking_gaps": [],
+  "evidence_packaging_gaps": [
+    "G20 v3 artifact is plot_reconstructed (not direct v3 JSON); secondary SASRec metrics (R@50/R@200/NDCG) null/pending"
+  ],
+  "non_blocking_gaps": [
+    "synthetic-realism audit doc absent",
+    "decision economics qualitative (no $ model)",
+    "single domain",
+    "no explicit JD map"
+  ],
+  "path_to_gold_complete": "Recover the DIRECT v3 JSON (exact secondary metrics + direct provenance) -> clears check #3 -> score >=9, no gap -> declare gold_complete.",
+  "evidence_ledger_consistency": "PASS \u2014 docs/12 G-series rows reconcile with outputs/evidence artifacts; G20 row carries plot-reconstructed/pending caveat; no contradictions.",
+  "accepted_g20_values": {
+    "VALID_CONVERGENCE": true,
+    "monitor_set": "validation_monitor",
+    "final_eval_used_for_stopping": false,
+    "final_eval_runs_count": 1,
+    "convergence_hit": "monitor-R@20 plateau",
+    "resumed_from_ep": 40,
+    "total_epochs_approx": 95,
+    "total_epoch_cap": 160,
+    "canonical_R@20": 0.065,
+    "als_f64_R@20": 0.0846,
+    "ratio_vs_als": 0.768,
+    "verdict": "clearly_loses",
+    "provenance": "plot_reconstructed",
+    "secondary_metrics": "null / pending_correct_v3_json"
+  },
+  "resume_safe_claims": [
+    "Offline two-stage recommender (candidate gen -> LambdaMART) on 2.56M Goodreads interactions",
+    "ALS f64 warm floor R@20 0.085; content-hybrid cold lane 0.241",
+    "Trained canonical full-softmax SASRec to convergence; still did not beat ALS -> MF is the right warm floor (offline)",
+    "LTR ~2x single-retriever within candidates; diagnosed coverage bottleneck, +44% R@20 by widening retrieval",
+    "OPE + position-bias correction + FAISS serving index; documented honest negatives"
+  ],
+  "forbidden_claims": [
+    "gold_complete (until direct v3 JSON)",
+    "online lift",
+    "production",
+    "live A/B",
+    "deployed quality",
+    "deep model beat ALS",
+    "cold-start/fairness/health solved",
+    "full-catalog for within-candidate"
+  ],
+  "safe_target_claim": "PulseDiscover is an offline recommender-systems decision dossier showing that ALS remains the strongest warm-retrieval floor after a valid convergence test of canonical full-softmax SASRec, with cold-start and serving layers evaluated under explicit claim boundaries.",
+  "final_recommendation": "gold_candidate now (PATCH, 8.9). One bounded action (direct v3 JSON recovery) -> gold_complete. Do not declare gold_complete until then.",
+  "gold_complete_path_status": "DEFERRED/CLOSED \u2014 Colab session lost; direct v3 JSON + v3 checkpoint unrecoverable without a 30-80min re-run. The pending secondary metrics (R@50/R@200/NDCG) are immaterial (they are of a model that loses to ALS); they change no claim or conclusion. Project LOCKED at gold_candidate as the honest terminal status. Re-run remains optional if a clean gold_complete artifact is ever desired.",
+  "final_status": "gold_candidate (LOCKED, terminal)"
+}

@@ -1,0 +1,182 @@
+{
+  "phase": "Option B \u2014 SASRec-\u03c0 OPE",
+  "dataset": "movielens-1m",
+  "is_evidence": true,
+  "tag": "[BUILT][SYNTHETIC \u2014 simulator]",
+  "role": "OPE with \u03c0 = trained SASRec scores (smoke + simulator; NOT real online lift)",
+  "what_changed": "target policy \u03c0 = softmax(SASRec scores) instead of softmax(ALS). \u03bc (popularity logging) and ground-truth reward (ALS oracle) UNCHANGED.",
+  "truth_boundary": "Ground-truth reward remains ALS/simulator-based; only the evaluated policy is SASRec. No real online lift claimed.",
+  "seed": 20260616,
+  "config": {
+    "epsilon": 0.1,
+    "slate_L": 10,
+    "pool_N": 50,
+    "tau_mu": 1.0,
+    "tau_pi": 0.7,
+    "pbm_base": 0.95,
+    "pbm_gamma": 0.7,
+    "rel_alpha": 1.2,
+    "rel_bias": -0.8,
+    "qhat_good_alpha": 1.0,
+    "qhat_good_bias": -0.6
+  },
+  "headline_no_clip": {
+    "ground_truth_V_pi_SASRec": 0.138293,
+    "IPS": {
+      "est": 0.134573,
+      "bias": -0.00372
+    },
+    "SNIPS": {
+      "est": 0.135886,
+      "bias": -0.002407
+    },
+    "DM_good_qhat": {
+      "est": 0.148722,
+      "bias": 0.010429
+    },
+    "DR_good_qhat": {
+      "est": 0.136218,
+      "bias": -0.002075
+    },
+    "DM_bad_qhat": {
+      "est": 0.294851,
+      "bias": 0.156558
+    },
+    "DR_bad_qhat": {
+      "est": 0.138209,
+      "bias": -8.4e-05
+    },
+    "ESS": 4474.3,
+    "w_max": 120.124,
+    "w_mean": 0.9903,
+    "n_events": 60400,
+    "n_users": 6040
+  },
+  "bootstrap_ci95_no_clip": {
+    "good_qhat": {
+      "IPS": {
+        "ci95": [
+          0.12489,
+          0.14448
+        ],
+        "boot_std": 0.005073
+      },
+      "SNIPS": {
+        "ci95": [
+          0.12583,
+          0.14542
+        ],
+        "boot_std": 0.004792
+      },
+      "DM": {
+        "ci95": [
+          0.14808,
+          0.14937
+        ],
+        "boot_std": 0.000354
+      },
+      "DR": {
+        "ci95": [
+          0.12704,
+          0.14508
+        ],
+        "boot_std": 0.004501
+      }
+    },
+    "bad_qhat": {
+      "IPS": {
+        "ci95": [
+          0.1255,
+          0.14436
+        ],
+        "boot_std": 0.004931
+      },
+      "SNIPS": {
+        "ci95": [
+          0.12761,
+          0.14526
+        ],
+        "boot_std": 0.004721
+      },
+      "DM": {
+        "ci95": [
+          0.29425,
+          0.29545
+        ],
+        "boot_std": 0.0003
+      },
+      "DR": {
+        "ci95": [
+          0.12802,
+          0.14844
+        ],
+        "boot_std": 0.005258
+      }
+    },
+    "B": 400,
+    "method": "user-cluster bootstrap"
+  },
+  "clipping_sweep": [
+    {
+      "clip": null,
+      "ESS": 4474.3,
+      "IPS_bias": -0.00372,
+      "SNIPS_bias": -0.002407,
+      "DR_good_bias": -0.002075,
+      "DR_bad_bias": -8.4e-05
+    },
+    {
+      "clip": 5,
+      "ESS": 22782.8,
+      "IPS_bias": -0.036852,
+      "SNIPS_bias": 0.004446,
+      "DR_good_bias": 0.001754,
+      "DR_bad_bias": 0.043899
+    },
+    {
+      "clip": 10,
+      "ESS": 15755.0,
+      "IPS_bias": -0.029249,
+      "SNIPS_bias": 0.001768,
+      "DR_good_bias": 0.000726,
+      "DR_bad_bias": 0.033317
+    },
+    {
+      "clip": 20,
+      "ESS": 9364.7,
+      "IPS_bias": -0.019706,
+      "SNIPS_bias": -0.000876,
+      "DR_good_bias": -0.000623,
+      "DR_bad_bias": 0.020073
+    },
+    {
+      "clip": 50,
+      "ESS": 4831.5,
+      "IPS_bias": -0.005287,
+      "SNIPS_bias": -0.002657,
+      "DR_good_bias": -0.002215,
+      "DR_bad_bias": 0.001095
+    },
+    {
+      "clip": 100,
+      "ESS": 4496.2,
+      "IPS_bias": -0.00372,
+      "SNIPS_bias": -0.002361,
+      "DR_good_bias": -0.002007,
+      "DR_bad_bias": 6e-06
+    }
+  ],
+  "comparison_to_ALS_pi": {
+    "ground_truth_V_pi_ALS": 0.219103,
+    "IPS_bias": -0.012543,
+    "SNIPS_bias": -0.010761,
+    "DR_good_bias": -0.007449,
+    "DR_bad_bias": -0.005836,
+    "DR_good_boot_std": 0.003446,
+    "IPS_boot_std": 0.004169,
+    "ESS": 12325.1
+  },
+  "can_DR_evaluate_SASRec_policy": true,
+  "honesty": "DR expected to track GT and beat IPS variance; reported as observed. Truth still ALS-based.",
+  "ts": 1781561919
+}

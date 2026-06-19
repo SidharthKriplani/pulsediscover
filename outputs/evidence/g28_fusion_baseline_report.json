@@ -1,0 +1,194 @@
+{
+  "gate": "G28",
+  "section": "fusion_baselines",
+  "provenance": "served_c2_offline_test_split",
+  "test_users": 944,
+  "metrics": {
+    "als_only": {
+      "recall@20": 0.0222,
+      "recall@50": 0.0413,
+      "ndcg@20": 0.0068,
+      "recall@20_by_cohort": {
+        "sparse_1_2": 0.0235,
+        "warm_6plus": 0.0194,
+        "low_3_5": 0.046
+      },
+      "recall@20_by_gold_tier": {
+        "head": 0.0837,
+        "unseen": 0.0,
+        "long_tail": 0.0,
+        "mid": 0.0183
+      },
+      "catalog_coverage": 0.04494,
+      "unique_items": 1865,
+      "gini": 0.9863,
+      "long_tail_share": 0.00646,
+      "head_share": 0.9563,
+      "coldstart_recall@20": 0.0,
+      "coldstart_reachability": 0.0
+    },
+    "semantic_only": {
+      "recall@20": 0.0169,
+      "recall@50": 0.0254,
+      "ndcg@20": 0.0074,
+      "recall@20_by_cohort": {
+        "sparse_1_2": 0.0471,
+        "warm_6plus": 0.0117,
+        "low_3_5": 0.0345
+      },
+      "recall@20_by_gold_tier": {
+        "head": 0.022,
+        "unseen": 0.0209,
+        "long_tail": 0.0,
+        "mid": 0.0
+      },
+      "catalog_coverage": 0.23323,
+      "unique_items": 9680,
+      "gini": 0.8518,
+      "long_tail_share": 0.49306,
+      "head_share": 0.12278,
+      "coldstart_recall@20": 0.0209,
+      "coldstart_reachability": 0.7778
+    },
+    "popularity_only": {
+      "recall@20": 0.0074,
+      "recall@50": 0.0085,
+      "ndcg@20": 0.003,
+      "recall@20_by_cohort": {
+        "sparse_1_2": 0.0118,
+        "warm_6plus": 0.0052,
+        "low_3_5": 0.023
+      },
+      "recall@20_by_gold_tier": {
+        "head": 0.0308,
+        "unseen": 0.0,
+        "long_tail": 0.0,
+        "mid": 0.0
+      },
+      "catalog_coverage": 0.00048,
+      "unique_items": 20,
+      "gini": 0.9996,
+      "long_tail_share": 0.0,
+      "head_share": 1.0,
+      "coldstart_recall@20": 0.0,
+      "coldstart_reachability": 0.0
+    },
+    "als_first": {
+      "recall@20": 0.0222,
+      "recall@50": 0.0413,
+      "ndcg@20": 0.0068,
+      "recall@20_by_cohort": {
+        "sparse_1_2": 0.0235,
+        "warm_6plus": 0.0194,
+        "low_3_5": 0.046
+      },
+      "recall@20_by_gold_tier": {
+        "head": 0.0837,
+        "unseen": 0.0,
+        "long_tail": 0.0,
+        "mid": 0.0183
+      },
+      "catalog_coverage": 0.04494,
+      "unique_items": 1865,
+      "gini": 0.9863,
+      "long_tail_share": 0.00646,
+      "head_share": 0.9563,
+      "coldstart_recall@20": 0.0,
+      "coldstart_reachability": 0.0
+    },
+    "semantic_fallback": {
+      "recall@20": 0.0222,
+      "recall@50": 0.0413,
+      "ndcg@20": 0.0068,
+      "recall@20_by_cohort": {
+        "sparse_1_2": 0.0235,
+        "warm_6plus": 0.0194,
+        "low_3_5": 0.046
+      },
+      "recall@20_by_gold_tier": {
+        "head": 0.0837,
+        "unseen": 0.0,
+        "long_tail": 0.0,
+        "mid": 0.0183
+      },
+      "catalog_coverage": 0.04494,
+      "unique_items": 1865,
+      "gini": 0.9863,
+      "long_tail_share": 0.00646,
+      "head_share": 0.9563,
+      "coldstart_recall@20": 0.0,
+      "coldstart_reachability": 0.0
+    },
+    "source_balanced": {
+      "recall@20": 0.0201,
+      "recall@50": 0.0456,
+      "ndcg@20": 0.0069,
+      "recall@20_by_cohort": {
+        "sparse_1_2": 0.0471,
+        "warm_6plus": 0.0142,
+        "low_3_5": 0.046
+      },
+      "recall@20_by_gold_tier": {
+        "head": 0.0441,
+        "unseen": 0.0171,
+        "long_tail": 0.0,
+        "mid": 0.0
+      },
+      "catalog_coverage": 0.17709,
+      "unique_items": 7350,
+      "gini": 0.9178,
+      "long_tail_share": 0.25561,
+      "head_share": 0.53919,
+      "coldstart_recall@20": 0.0171,
+      "coldstart_reachability": 0.6667
+    },
+    "rrf": {
+      "recall@20": 0.0212,
+      "recall@50": 0.0456,
+      "ndcg@20": 0.0078,
+      "recall@20_by_cohort": {
+        "sparse_1_2": 0.0471,
+        "warm_6plus": 0.0142,
+        "low_3_5": 0.0575
+      },
+      "recall@20_by_gold_tier": {
+        "head": 0.0485,
+        "unseen": 0.0171,
+        "long_tail": 0.0,
+        "mid": 0.0
+      },
+      "catalog_coverage": 0.17589,
+      "unique_items": 7300,
+      "gini": 0.9189,
+      "long_tail_share": 0.24915,
+      "head_share": 0.54857,
+      "coldstart_recall@20": 0.0171,
+      "coldstart_reachability": 0.6667
+    },
+    "weighted_score": {
+      "recall@20": 0.0212,
+      "recall@50": 0.0413,
+      "ndcg@20": 0.0073,
+      "recall@20_by_cohort": {
+        "sparse_1_2": 0.0235,
+        "warm_6plus": 0.0181,
+        "low_3_5": 0.046
+      },
+      "recall@20_by_gold_tier": {
+        "head": 0.0837,
+        "unseen": 0.0,
+        "long_tail": 0.0,
+        "mid": 0.0092
+      },
+      "catalog_coverage": 0.05106,
+      "unique_items": 2119,
+      "gini": 0.9849,
+      "long_tail_share": 0.01234,
+      "head_share": 0.94243,
+      "coldstart_recall@20": 0.0,
+      "coldstart_reachability": 0.0
+    }
+  },
+  "why_als_first_fails_on_coldstart": "ALS fills the top-20 with its own (in-catalog) candidates, so semantic cold-start items never reach the slate: als_first coldstart R@20=0.0. Any fusion that does not let semantic items compete for slots inherits this failure.",
+  "fusion_that_avoids_it": "source_balanced / rrf / semantic_fallback let semantic candidates compete: semantic_fallback coldstart R@20=0.0, rrf coldstart R@20=0.0171, source_balanced coldstart R@20=0.0171."
+}

@@ -1,0 +1,50 @@
+{
+  "n_events": 60400,
+  "n_impressions": 6040,
+  "slate_L": 10,
+  "propensity_sums_mean": 1.0,
+  "propensity_sums_max_abs_dev_from_1": 0.0,
+  "min_logged_propensity": 0.00452318,
+  "zero_propensity_actions": 0,
+  "exploration_share": 0.0985,
+  "configured_epsilon": 0.1,
+  "min_pi_propensity": 1.515e-05,
+  "overall_examination_rate": 0.3789,
+  "overall_reward_rate": 0.1656,
+  "examination_rate_by_rank": {
+    "0": 0.9477,
+    "1": 0.5876,
+    "2": 0.4331,
+    "3": 0.3719,
+    "4": 0.3187,
+    "5": 0.2781,
+    "6": 0.2412,
+    "7": 0.2202,
+    "8": 0.1975,
+    "9": 0.1932
+  },
+  "reward_rate_by_rank": {
+    "0": 0.4298,
+    "1": 0.2624,
+    "2": 0.1927,
+    "3": 0.1578,
+    "4": 0.1381,
+    "5": 0.1194,
+    "6": 0.098,
+    "7": 0.094,
+    "8": 0.0833,
+    "9": 0.0808
+  },
+  "examination_monotonic_decreasing": true,
+  "leakage_check_mu_truth_pi_use_train_only": true,
+  "leakage_note": "test held-out items (800) and the held-out next-item labels are NEVER referenced in mu/truth/pi; all are built from `train`. Test set used only to define the split boundary.",
+  "CHECKS_PASS": {
+    "propensities_sum_to_1": true,
+    "no_zero_propensity_actions": true,
+    "exploration_share_matches_eps": true,
+    "examination_plausible_and_declining": true,
+    "reward_plausible": true,
+    "pi_has_overlap_support": true
+  },
+  "ALL_PASS": true
+}

@@ -1,0 +1,65 @@
+{
+  "artifact": "content_discovery_overlay_v2",
+  "status": "pass",
+  "random_seed": 20261505,
+  "field_counts": {
+    "item_catalog_v2": {
+      "total_rows": 650,
+      "creator_id": 650,
+      "market_segment": 650,
+      "genre": 650,
+      "content_type": 650,
+      "content_length": 650,
+      "content_parts": 650
+    },
+    "impression_log_v2": {
+      "total_rows": 41320,
+      "engagement_depth_nonzero": 3964,
+      "completion_flag": 329,
+      "time_spent_seconds_nonzero": 3957,
+      "favorite_flag": 141,
+      "follow_creator_flag": 40,
+      "continuation_flag": 1688
+    },
+    "user_sessions_v2": {
+      "total_rows": 4132,
+      "segment_affinity": 4132,
+      "preferred_segment": 4132,
+      "genre_affinity": 4132
+    }
+  },
+  "distributions": {
+    "segment_distribution": {
+      "seg_a": 203,
+      "seg_b": 81,
+      "seg_c": 69,
+      "seg_d": 67,
+      "seg_e": 52,
+      "seg_f": 48,
+      "seg_g": 32,
+      "seg_h": 32,
+      "seg_i": 25,
+      "seg_j": 21,
+      "seg_k": 11,
+      "seg_l": 9
+    },
+    "genre_distribution": {
+      "technology": 125,
+      "lifestyle": 114,
+      "everyday": 84,
+      "home-living": 75,
+      "wellness": 72,
+      "family": 64,
+      "general": 61,
+      "sports-outdoors": 55
+    }
+  },
+  "rates": {
+    "mean_engagement_depth_clicked": 0.40395,
+    "completion_rate": 0.00796,
+    "favorite_rate": 0.00341,
+    "follow_rate": 0.00097,
+    "continuation_rate": 0.04085
+  },
+  "evidence_statement": "Content-discovery V2 overlay applied to V1 corpus. 650 items enriched with creator, market_segment, genre, content_type, content_length, content_parts. 41320 impressions enriched with engagement signals. 4132 sessions enriched with segment/genre affinity. V1 data files are untouched."
+}

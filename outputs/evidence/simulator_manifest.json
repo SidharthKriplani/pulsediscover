@@ -1,0 +1,52 @@
+{
+  "phase": "4A",
+  "dataset": "movielens-1m",
+  "role": "OPE simulator on MovieLens-1M smoke",
+  "is_evidence": true,
+  "tag": "[BUILT][SYNTHETIC \u2014 known-propensity simulator]",
+  "seed": 20260616,
+  "config": {
+    "epsilon": 0.1,
+    "slate_L": 10,
+    "pool_N": 50,
+    "tau_mu": 1.0,
+    "tau_pi": 0.7,
+    "pbm_base": 0.95,
+    "pbm_gamma": 0.7,
+    "rel_alpha": 1.2,
+    "rel_bias": -0.8
+  },
+  "logging_policy_mu": "popularity-softmax over per-user top-50 pool (TRAIN popularity), eps-mixed to uniform",
+  "ground_truth_reward": "sigmoid(rel_alpha * zscore(ALS_score) + rel_bias); ALS trained on TRAIN",
+  "target_policy_pi": "softmax(ALS_score, tau_pi) over remaining candidates (the 'new' policy)",
+  "positivity": "CANDIDATE-POOL / SLATE-LEVEL positivity (not full-catalog): p_slot(a) = (1-eps)*softmax_mu + eps/|R| >= eps/|R| > 0 for items in the per-user top-50 pool; items outside the pool have zero logging probability. OPE validity holds over the logged candidate-pool support.",
+  "examination_model": "PBM: base=0.95, gamma=0.7",
+  "event_schema": [
+    "user_id",
+    "context_len",
+    "item_id",
+    "rank",
+    "position",
+    "propensity",
+    "exploration_flag",
+    "examined",
+    "reward",
+    "pi_propensity",
+    "true_rel(ORACLE/debug)"
+  ],
+  "split": {
+    "global_time_cutoffs": [
+      975768738,
+      978133376
+    ],
+    "n_train": 999000
+  },
+  "DOES_NOT": [
+    "estimate IPS/SNIPS/DR (Phase 5)",
+    "claim real online lift",
+    "use Goodreads/Amazon",
+    "build two-tower",
+    "produce a PDF"
+  ],
+  "ts": 1781557661
+}

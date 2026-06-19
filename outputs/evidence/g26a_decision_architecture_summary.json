@@ -1,0 +1,60 @@
+{
+  "project": "PulseDiscovery",
+  "gate": "G26A",
+  "title": "Recommender Decision Architecture + Claim-Unlock Spine",
+  "lane": "V2",
+  "verdict": "CONSOLIDATION_COMPLETE",
+  "safe_claim": "PulseDiscovery now has a unified recommender decision architecture connecting candidate generation, FAISS retrieval, ranking/reranking, fallback, serving, logging, exposure governance, claim boundaries, and future OPE logging, with interview-maximal but evidence-bounded claim wording.",
+  "artifacts": [
+    "docs/G26A_RECOMMENDER_DECISION_ARCHITECTURE.md",
+    "docs/G26A_MODEL_PROTOCOL_REGISTRY.md",
+    "docs/G26A_CLAIM_UNLOCK_TABLE.md",
+    "docs/G26A_OPE_LOGGING_SCHEMA.md",
+    "docs/G26A_INTERVIEW_DEFENSE_LINES.md",
+    "outputs/evidence/g26a_decision_architecture_summary.json"
+  ],
+  "decision_flow": [
+    "candidate_generation", "faiss_retrieval", "rank_rerank", "fallback",
+    "serving_api", "logging", "evaluation", "decision"
+  ],
+  "served_model_spine": "c2_als.pkl (ALS f64) — stages 1-5 all run on c2; d3aplus quarantined to V1 tuning",
+  "model_registry": {
+    "d3aplus_als_f64": {"lane": "V1", "headline": "R@20 0.0846", "protocol": "V1 tuning", "tag": "REAL_OFFLINE"},
+    "sasrec_canonical_v3": {"lane": "V1", "headline": "R@20 0.065", "tag": "PLOT_RECONSTRUCTED"},
+    "c2_als_f64": {"lane": "V2_SERVED", "headline": "R@20 ~0.0375", "protocol": "V2 full-catalog single-gold", "tag": "SERVED_MODEL"}
+  },
+  "comparability_rule": "d3aplus 0.0846 and c2 ~0.0375 are NOT_COMPARABLE_ACROSS_PROTOCOLS; never substitute.",
+  "claim_ladder": {
+    "locked_safe": ["offline recommender decision dossier", "ALS warm floor", "FAISS serving frontier", "fallback quality evaluated", "catalog exposure governance", "heuristic reranker (named honestly)"],
+    "safe_with_boundary": ["SASRec converged and lost (plot_reconstructed)", "production-like API (local load test)", "cold-start handled at system level (no live-launch evidence)", "OPE-ready by design (not yet valid)"],
+    "built_not_licensed": ["long-tail exposure mitigation (QUARANTINED_G26B_PENDING_G26A)"],
+    "planned": ["learned LTR / LambdaMART", "online experiment readiness card"],
+    "blocked": ["OPE readiness execution", "valid IPS/SNIPS/DR"],
+    "delete": ["cold-start solved", "fairness solved", "long-tail discovery solved", "online lift", "production deployment"]
+  },
+  "ope_logging": {
+    "status": "OPE_READY_BY_DESIGN_NOT_BY_DATA",
+    "required_missing_fields": ["pi_log", "position", "exploration_bucket", "reward"],
+    "already_emitted_fields": ["request_id", "model_id", "index_id", "fallback_reason", "latency_ms"],
+    "validity_rule": "No valid IPS/SNIPS/DR claim until pi_log and reward are populated from a logging-policy serving run with exploration.",
+    "first_estimator": "SNIPS (variance control), then DR after a reward model"
+  },
+  "g26_quarantine": {
+    "flag": "QUARANTINED_G26B_PENDING_G26A",
+    "rule": "G26 mitigation built & measured but NOT licensed; do not claim long-tail solved; do not call heuristic rerankers a learned LTR.",
+    "unlock_gate": "G26B"
+  },
+  "interview_answer_template": "I built X, measured Y, learned Z, decided W, and the next evidence needed for the production claim is Q.",
+  "forbidden_claims": [
+    "cold-start solved", "fairness solved / certified", "long-tail discovery solved",
+    "online lift", "online diversity improved", "production deployment", "real users",
+    "valid IPS/SNIPS/DR before propensities are logged", "learned LTR shipped in V2", "gold_complete"
+  ],
+  "next_gate": "G26B — unblock + integrate the built exposure-aware reranking onto the consolidated spine (offline-shaped); then OPE-logging execution gate.",
+  "v1_status": "gold_candidate 8.9 (terminal, untouched)",
+  "control_doc_mapping": {
+    "control_tower": "docs/78_CONTROL_TOWER.md",
+    "evidence_ledger": "docs/12_EVIDENCE_LEDGER.md",
+    "claim_boundary": "docs/69_G18_CLAIM_BOUNDARY_LOCK.md"
+  }
+}

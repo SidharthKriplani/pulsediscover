@@ -1,0 +1,55 @@
+{
+  "scope": "G12 Learning-to-Rank (LambdaMART) re-ranker over candidate sets",
+  "tag": "[BUILT \u2014 real data, CPU]",
+  "framing": "RE-RANKING recall within candidate set (warm top-60 + cold top-30), NOT full-catalog retrieval; comparable to baseline rankers on identical candidates only",
+  "n_train_queries": 7410,
+  "n_test_queries": 2590,
+  "candidate_recall_ceiling_test": 0.2019,
+  "features": [
+    "als_score",
+    "als_rank",
+    "content_rank",
+    "rrf",
+    "log_pop",
+    "cold_flag",
+    "author_match",
+    "series_match",
+    "pub_year",
+    "in_warm",
+    "in_cold"
+  ],
+  "feature_importance_gain": {
+    "als_score": 9810,
+    "log_pop": 7570,
+    "pub_year": 7171,
+    "als_rank": 6574,
+    "content_rank": 6014,
+    "author_match": 3886,
+    "rrf": 3768,
+    "series_match": 552,
+    "cold_flag": 0,
+    "in_warm": 0,
+    "in_cold": 0
+  },
+  "results_recall@20": {
+    "LambdaMART_LTR": 0.1286,
+    "ALS_score": 0.0274,
+    "ALS_rank": 0.0274,
+    "RRF": 0.0664,
+    "popularity": 0.0208
+  },
+  "results_ndcg@20": {
+    "LambdaMART_LTR": 0.0587,
+    "ALS_score": 0.0101,
+    "RRF": 0.0197,
+    "popularity": 0.0075
+  },
+  "lift_LTR_vs_best_single": 0.0622,
+  "honest_notes": [
+    "Re-ranking recall within candidate set; NOT comparable to ALS f64 full-catalog 0.085.",
+    "Candidate recall ceiling caps any ranker; LTR optimizes ordering within that ceiling.",
+    "SASRec/two-tower scores not yet added as features (GPU pending) \u2014 a documented v2 lift.",
+    "Label = single held-out gold per query (binary relevance)."
+  ],
+  "sec": 20.9
+}

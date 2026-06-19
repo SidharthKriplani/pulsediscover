@@ -1,0 +1,63 @@
+{
+  "artifact": "pulserank_monitoring_drift_report_v2",
+  "status": "pass",
+  "feature_drift": {
+    "display_rank": {
+      "kl_divergence": 0.0,
+      "psi": 0.0,
+      "train_mean": 5.5,
+      "holdout_mean": 5.5,
+      "mean_shift": 0.0
+    },
+    "clicked": {
+      "kl_divergence": 2.8e-05,
+      "psi": 5.6e-05,
+      "train_mean": 0.095225,
+      "holdout_mean": 0.097436,
+      "mean_shift": 0.002211
+    },
+    "added_to_cart": {
+      "kl_divergence": 8.5e-05,
+      "psi": 0.000171,
+      "train_mean": 0.045723,
+      "holdout_mean": 0.048492,
+      "mean_shift": 0.002768
+    }
+  },
+  "popularity_drift": {
+    "kl_divergence": 0.001365,
+    "psi": 0.002783,
+    "train_mean_rank": 185.01,
+    "holdout_mean_rank": 188.71,
+    "rank_shift": 3.7,
+    "train_unique_items": 641,
+    "holdout_unique_items": 626
+  },
+  "exposure_drift": {
+    "seller_drift": {
+      "gini_train": 0.269325,
+      "gini_holdout": 0.261883,
+      "unique_sellers_train": 80,
+      "unique_sellers_holdout": 80,
+      "hhi_train": 0.015492,
+      "hhi_holdout": 0.015385
+    },
+    "category_drift": {
+      "hhi_train": 0.125438,
+      "hhi_holdout": 0.125583,
+      "unique_categories_train": 8,
+      "unique_categories_holdout": 8
+    }
+  },
+  "drift_alerts": [],
+  "n_features_monitored": 3,
+  "psi_threshold": 0.25,
+  "evidence_statement": "Monitoring report comparing train vs holdout period distributions. Feature drift measured via KL divergence and PSI. Popularity drift tracks item rank distribution shift. Exposure drift measures seller/category concentration changes.",
+  "train_period": "days 1-60",
+  "holdout_period": "days 61-90",
+  "train_impressions": 28060,
+  "holdout_impressions": 13260,
+  "train_sessions": 2806,
+  "holdout_sessions": 1326,
+  "total_items": 650
+}

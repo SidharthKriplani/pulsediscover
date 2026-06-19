@@ -1,0 +1,76 @@
+{
+  "scope": "G13 candidate coverage sweep",
+  "tag": "[BUILT \u2014 real data, CPU]",
+  "n_users": 5000,
+  "warm_gold_users": 4346,
+  "cold_gold_users": 654,
+  "g12_baseline_ceiling": 0.157,
+  "sources": "ALS f64, SASRec-small(GPU ckpt), content-hybrid cold, popularity; cooc+LightGCN deferred (no cheap candidate artifact)",
+  "coverage_by_config": {
+    "ALS-60 (G12 warm part)": {
+      "coverage": 0.0808,
+      "avg_cands_per_user": 56.3
+    },
+    "ALS-120": {
+      "coverage": 0.1308,
+      "avg_cands_per_user": 112.6
+    },
+    "ALS-200": {
+      "coverage": 0.1804,
+      "avg_cands_per_user": 187.6
+    },
+    "ALS-400": {
+      "coverage": 0.2516,
+      "avg_cands_per_user": 375.2
+    },
+    "ALS-60+SAS-60+pop-30 (G12-like)": {
+      "coverage": 0.1694,
+      "avg_cands_per_user": 119.1
+    },
+    "ALS-200+SAS-100": {
+      "coverage": 0.2668,
+      "avg_cands_per_user": 260.6
+    },
+    "ALS-200+SAS-100+content-50": {
+      "coverage": 0.3206,
+      "avg_cands_per_user": 310.6
+    },
+    "WIDE ALS-400+SAS-200+content-100+pop-30": {
+      "coverage": 0.4242,
+      "avg_cands_per_user": 613.7
+    }
+  },
+  "sec": 17.0,
+  "ltr_conversion": {
+    "baseline": {
+      "avg_cands": 119.1,
+      "coverage": 0.1694,
+      "R@20": 0.0859,
+      "R@50": 0.1296,
+      "NDCG@20": 0.0431,
+      "table_rows": 595538
+    },
+    "mid": {
+      "avg_cands": 317.2,
+      "coverage": 0.3228,
+      "R@20": 0.1201,
+      "R@50": 0.1678,
+      "NDCG@20": 0.0556,
+      "table_rows": 1586079
+    },
+    "wide": {
+      "avg_cands": 613.7,
+      "coverage": 0.4242,
+      "R@20": 0.1241,
+      "R@50": 0.1869,
+      "NDCG@20": 0.0585,
+      "table_rows": 3068469
+    }
+  },
+  "g12_reference": {
+    "enriched_LTR_R@20": 0.0791,
+    "local_LTR_R@20": 0.0764,
+    "ceiling": 0.1569
+  },
+  "verdict": "ADOPT wider candidates: coverage 0.169->0.424 AND LTR R@20 0.086->0.124 (+44%, ~3.2 SE). KNEE at mid (~317 cands): captures 0.120 of the 0.124 max R@20 at half the WIDE cost; WIDE adds coverage but only +0.004 R@20."
+}

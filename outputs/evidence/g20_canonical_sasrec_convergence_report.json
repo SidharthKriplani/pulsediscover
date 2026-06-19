@@ -1,0 +1,42 @@
+{
+  "scope": "G20 v3 canonical full-softmax SASRec to convergence vs ALS f64",
+  "device": "cuda",
+  "gpu": "Tesla T4",
+  "config": {
+    "d": 64,
+    "nblocks": 2,
+    "nheads": 2,
+    "objective": "full-softmax over 40k",
+    "maxlen": 30,
+    "batch": 128
+  },
+  "monitor_set": "validation_monitor (held-out 5% of TRAINING sequences, next-item R@20)",
+  "final_eval_used_for_stopping": false,
+  "final_eval_runs_count": 1,
+  "convergence_criterion": "monitor-R@20 plateau (min_delta 0.001, patience 3 checks every 5 ep)",
+  "convergence_hit": "monitor-R@20 plateau",
+  "VALID_CONVERGENCE": true,
+  "resumed_from_ep": 40,
+  "total_epochs_approx": 95,
+  "total_epoch_cap": 160,
+  "canonical_metrics_final_eval": {
+    "R@20": 0.065,
+    "R@50": null,
+    "R@200": null,
+    "NDCG@10": null,
+    "NDCG@20": null
+  },
+  "als_f64_R@20": 0.0846,
+  "ratio_vs_als_R@20": 0.768,
+  "verdict": "clearly_loses",
+  "outcome": "A \u2014 converged & clearly loses to ALS -> TERMINAL method-depth closure",
+  "source_note": "Headline (VALID_CONVERGENCE, R@20 0.0650, verdict, ~95 total epochs) read from the v3-generated plot title/curve, which is authoritative. The uploaded JSON file was the stale v1 (val-loss plateau, 6 ep) \u2014 secondary metrics (R@50/R@200/NDCG) PENDING the correct v3 JSON.",
+  "monitor_r20_trend": "rose 0.037(ep41) -> ~0.0465(ep80) then plateaued (0.045/0.045/0.046) -> patience fired",
+  "seed": 20260616,
+  "eval": "final = 5k LLO eval_sample, full 40k scoring (used once)",
+  "earlier_attempts": {
+    "v1": "INVALID \u2014 val-loss NaN false early-stop (6 ep); outcome C",
+    "v2": "leakage+cap flaws, never run",
+    "second_v1_rerun": "stale-script, rejected"
+  }
+}

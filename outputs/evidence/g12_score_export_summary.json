@@ -1,0 +1,25 @@
+{
+  "n_users": 5000,
+  "n_candidate_rows": 613896,
+  "avg_candidates_per_user": 122.8,
+  "positive_coverage_rate": 0.1508,
+  "n_positives": 754,
+  "source_contribution_counts": {
+    "als": 281400,
+    "sasrec": 300000,
+    "pop": 150000
+  },
+  "warm_gold_users": 4346,
+  "leakage_checks": {
+    "gold_in_seen_history_rows": 0,
+    "expected": 0,
+    "note": "LLO holds out gold so it must not appear as a seen item"
+  },
+  "local_sasrec_model": "D3B sasrec_domain.pt (d48/1blk, R@20~0.036) \u2014 GPU canonical/small scores pending",
+  "limitations": [
+    "GPU canonical/small/two-tower scores are NaN placeholders (weights in Colab) \u2014 fill via score-export run.",
+    "Content/cold-lane candidate source not added (eval_sample is ~87% warm-gold); author/series match capture content signal.",
+    "Positive coverage caps any ranker's achievable recall."
+  ],
+  "sec": 26.7
+}

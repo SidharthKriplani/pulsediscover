@@ -1,0 +1,53 @@
+{
+  "columns": [
+    "user_id",
+    "item_id",
+    "label",
+    "als_score",
+    "als_rank",
+    "sasrec_cpu_d3b_score",
+    "sasrec_rank",
+    "log_pop",
+    "pub_year",
+    "warm_flag",
+    "seen_flag",
+    "author_match",
+    "series_match",
+    "came_from_als",
+    "came_from_sasrec",
+    "came_from_pop",
+    "sasrec_canonical_gpu_score",
+    "sasrec_small_gpu_score",
+    "twotower_gpu_score"
+  ],
+  "label": "1 if candidate==held-out gold else 0",
+  "local_features": [
+    "user_id",
+    "item_id",
+    "label",
+    "als_score",
+    "als_rank",
+    "sasrec_cpu_d3b_score",
+    "sasrec_rank",
+    "log_pop",
+    "pub_year",
+    "warm_flag",
+    "seen_flag",
+    "author_match",
+    "series_match",
+    "came_from_als",
+    "came_from_sasrec",
+    "came_from_pop"
+  ],
+  "pending_gpu_features": [
+    "sasrec_canonical_gpu_score",
+    "sasrec_small_gpu_score",
+    "twotower_gpu_score"
+  ],
+  "missing_handling": "als_score NaN for cold/no-factor items; sasrec score NaN if item not in 40k vocab; GPU columns all NaN (pending Colab export)",
+  "candidate_sources": {
+    "als_topN": 60,
+    "sasrec_cpu_topN": 60,
+    "pop_topN": 30
+  }
+}

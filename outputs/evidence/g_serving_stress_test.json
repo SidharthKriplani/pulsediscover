@@ -1,0 +1,49 @@
+{
+  "exercise": "serving_layer_stress_test",
+  "lane": "V2",
+  "modules": ["src/serving/recommender_service.py", "src/retrieval/bm25_lexical_index.py"],
+  "method": "empirical — each edge case executed, not reasoned about",
+  "edge_cases": {
+    "bm25_empty_whitespace_punctuation_query": {"result": "tokenizes to empty -> returns [] cleanly", "status": "handled"},
+    "bm25_seed_item_not_in_lookup": {"result": "returns [] cleanly", "status": "handled"},
+    "k_zero_or_negative": {"result": "invalid_k -> popularity fallback (20)", "status": "handled"},
+    "k_above_cap_200": {"result": "capped at 200 -> invalid_k fallback; k>n_items can never reach FAISS", "status": "handled_by_design"},
+    "k_equals_cap_200": {"result": "served exactly", "status": "handled"},
+    "unknown_or_missing_factor_user": {"result": "popularity fallback, non-empty", "status": "handled"},
+    "faiss_request_dim_mismatch": {"result": "caught -> faiss_error -> popularity fallback", "status": "handled"},
+    "corrupt_c2_als_pkl": {"result": "was returning 0 items (pop list unset)", "status": "FIXED"},
+    "missing_keys_in_pickle": {"result": "clean load_error, but had empty-fallback gap", "status": "FIXED"},
+    "x_y_factor_dim_mismatch": {"result": "passed startup ready=True, only surfaced per-request", "status": "FIXED"}
+  },
+  "fixes_applied": [
+    {
+      "id": "fix1_degraded_nonempty_fallback",
+      "break": "popularity loaded inside the model-load try -> any c2_als.pkl failure left pop_top unset -> index_load_failure returned 0 items, breaking the 0%-empty guarantee.",
+      "fix": "load popularity INDEPENDENTLY of (and before) the model; init pop_top/_head/_pop_pct/b2c as safe defaults; not-ready path serves _pop_fallback(k).",
+      "verified": "corrupt pickle -> ready=False but recommend returns 5 popularity items (source=popularity), not 0."
+    },
+    {
+      "id": "fix2_real_startup_dim_validation",
+      "break": "startup assert exact.d==dim is tautological (index built from Y); a real X/Y factor-dim mismatch passed startup as healthy and only surfaced per-request.",
+      "fix": "added assert X.shape[1]==Y.shape[1] and assert len(i_uniq)==n_items BEFORE building the index.",
+      "verified": "X(8)/Y(4) pickle -> ready=False with load_error 'X/Y factor-dim mismatch: X=8 Y=4'; degrades to popularity."
+    }
+  ],
+  "regression_check": "real c2 service: ready=True; warm k=20 -> 20; unknown -> 20; k=99999 -> 20. No regression.",
+  "memory_footprint_mb": {
+    "als_X_91732x64_f32": 23.5, "als_Y_40541x64_f32": 10.4, "faiss_flatip": 10.4, "faiss_hnsw_optional": 16,
+    "pop_creator_dicts": "30-80", "python_numpy_faiss_base": "150-250",
+    "als_service_subtotal_mb": "250-350",
+    "semantic_index_g27_add_mb": 128,
+    "with_semantic_lane_mb": "400-500"
+  },
+  "cloud_run_verdict": "512MB fits ALS-only service; 1GB if semantic lane co-loaded. Set min-instances>=1 and persist FAISS index to avoid rebuild on cold start.",
+  "documented_limitations": [
+    "BM25 ~63ms/query is a pure-Python rank_bm25 artifact; production = bm25s/Lucene/Elasticsearch (sub-ms).",
+    "Single-process / GIL-bound concurrency; multi-worker for real throughput.",
+    "In-memory metrics reset on restart; ship to Prometheus.",
+    "FAISS index rebuilt at startup (not persisted).",
+    "Degraded fallback depends on train.csv presence; if model AND train.csv both unreadable, fallback is empty (logged)."
+  ],
+  "net": "Request-path failure modes already graceful; stress test found and FIXED two load-path gaps that gave false confidence; serving layer is deployment-sane within documented limitations."
+}

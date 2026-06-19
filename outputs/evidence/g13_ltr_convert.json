@@ -1,0 +1,79 @@
+{
+  "baseline": {
+    "config": "baseline",
+    "candidate_spec": {
+      "als": 60,
+      "sas": 60,
+      "pop": 30
+    },
+    "n_test_users": 733,
+    "avg_cands_per_user": 119.1,
+    "table_rows": 595538,
+    "candidate_coverage_all": 0.1694,
+    "R@20": 0.0859,
+    "R@50": 0.1296,
+    "NDCG@20": 0.0431,
+    "best_iter": 28,
+    "top_feats": {
+      "log_pop": 2641,
+      "author_match": 2510,
+      "als_score": 2142,
+      "sas_score": 2017,
+      "als_rank": 1996,
+      "pub_year": 1756
+    },
+    "sec": 9.1
+  },
+  "wide": {
+    "config": "wide",
+    "candidate_spec": {
+      "als": 400,
+      "sas": 200,
+      "content": 100,
+      "pop": 30
+    },
+    "n_test_users": 733,
+    "avg_cands_per_user": 613.7,
+    "table_rows": 3068469,
+    "candidate_coverage_all": 0.4242,
+    "R@20": 0.1241,
+    "R@50": 0.1869,
+    "NDCG@20": 0.0585,
+    "best_iter": 21,
+    "top_feats": {
+      "als_rank": 8969,
+      "author_match": 7208,
+      "sas_score": 4133,
+      "pub_year": 3824,
+      "als_score": 3289,
+      "log_pop": 3023
+    },
+    "sec": 26.2
+  },
+  "mid": {
+    "config": "mid",
+    "candidate_spec": {
+      "als": 200,
+      "sas": 100,
+      "content": 50,
+      "pop": 30
+    },
+    "n_test_users": 733,
+    "avg_cands_per_user": 317.2,
+    "table_rows": 1586079,
+    "candidate_coverage_all": 0.3228,
+    "R@20": 0.1201,
+    "R@50": 0.1678,
+    "NDCG@20": 0.0556,
+    "best_iter": 16,
+    "top_feats": {
+      "author_match": 4890,
+      "als_rank": 4721,
+      "sas_score": 3281,
+      "pub_year": 2582,
+      "log_pop": 2273,
+      "als_score": 1714
+    },
+    "sec": 14.2
+  }
+}

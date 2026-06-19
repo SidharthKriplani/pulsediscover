@@ -1,0 +1,491 @@
+{
+  "gate": "G24",
+  "title": "Cold-Start + Sparse-Cohort Fallback Quality",
+  "lane": "V2",
+  "provenance": "computed_offline_real_data",
+  "scope_guardrails": [
+    "G24 uses the served G23 c2_als.pkl protocol (ALS f64 \u2014 the exact model G23 serving loads).",
+    "Absolute recall is NOT comparable to the V1 d3aplus headline (R@20 0.0846): different build/universe/protocol.",
+    "G24 measures serving/fallback cohort behaviour, NOT V1 model superiority; V1 is not re-litigated or upgraded.",
+    "Cold-start NOT solved; fairness NOT claimed; no online lift; no production deployment; V1 (gold_candidate 8.9) untouched."
+  ],
+  "dataset": "Goodreads fantasy/paranormal; ALS f64 warm floor",
+  "k_main": 20,
+  "k_wide": 50,
+  "cohort_sizes": {
+    "warm_6plus": 7360,
+    "unknown": 1062,
+    "low_3_5": 817,
+    "sparse_1_2": 761
+  },
+  "cohort_x_source": {
+    "low_3_5": {
+      "cold": 339,
+      "warm": 478
+    },
+    "sparse_1_2": {
+      "cold": 351,
+      "warm": 410
+    },
+    "unknown": {
+      "cold": 431,
+      "warm": 631
+    },
+    "warm_6plus": {
+      "cold": 3879,
+      "warm": 3481
+    }
+  },
+  "item_tier_thresholds": {
+    "p50": 17.0,
+    "p90": 88.0
+  },
+  "served_model": "c2_als.pkl (ALS f64) \u2014 the exact model G23 serving loads",
+  "recall_protocol_note": "Full-catalog ranking, single held-out gold per user, seen-item filtered, measured on the SERVED c2 ALS f64 model. Absolute recall (~0.03-0.05) is NOT directly comparable to the V1 d3aplus ALS tuning number (R@20 0.0846): different model build, user/item universe, and eval protocol. G24 does NOT re-litigate the V1 headline; it reports RELATIVE cross-cohort / cross-policy structure on the served model.",
+  "metric_table_by_cohort": {
+    "popularity": {
+      "unknown": {
+        "n": 1062,
+        "recall@20": 0.032,
+        "recall@50": 0.065,
+        "empty_rate": 0.0,
+        "fallback_rate": 1.0,
+        "fallback_hit@20": 0.032,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.0009
+      },
+      "sparse_1_2": {
+        "n": 761,
+        "recall@20": 0.0171,
+        "recall@50": 0.0381,
+        "empty_rate": 0.0,
+        "fallback_rate": 1.0,
+        "fallback_hit@20": 0.0171,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.0342
+      },
+      "low_3_5": {
+        "n": 817,
+        "recall@20": 0.0159,
+        "recall@50": 0.0294,
+        "empty_rate": 0.0,
+        "fallback_rate": 1.0,
+        "fallback_hit@20": 0.0159,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.0722
+      },
+      "warm_6plus": {
+        "n": 7360,
+        "recall@20": 0.0079,
+        "recall@50": 0.0159,
+        "empty_rate": 0.0,
+        "fallback_rate": 1.0,
+        "fallback_hit@20": 0.0079,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.1936
+      }
+    },
+    "content": {
+      "unknown": {
+        "n": 1062,
+        "recall@20": 0.0,
+        "recall@50": 0.0,
+        "empty_rate": 1.0,
+        "fallback_rate": 0.0,
+        "fallback_hit@20": 0.0,
+        "avg_slate_len": 0.0,
+        "slate_personalization": 0.0
+      },
+      "sparse_1_2": {
+        "n": 761,
+        "recall@20": 0.0171,
+        "recall@50": 0.0368,
+        "empty_rate": 0.0013,
+        "fallback_rate": 0.9987,
+        "fallback_hit@20": 0.0171,
+        "avg_slate_len": 48.73,
+        "slate_personalization": 0.1605
+      },
+      "low_3_5": {
+        "n": 817,
+        "recall@20": 0.0086,
+        "recall@50": 0.0159,
+        "empty_rate": 0.0012,
+        "fallback_rate": 0.9988,
+        "fallback_hit@20": 0.0086,
+        "avg_slate_len": 48.62,
+        "slate_personalization": 0.2218
+      },
+      "warm_6plus": {
+        "n": 7360,
+        "recall@20": 0.0041,
+        "recall@50": 0.013,
+        "empty_rate": 0.005,
+        "fallback_rate": 0.995,
+        "fallback_hit@20": 0.0041,
+        "avg_slate_len": 48.86,
+        "slate_personalization": 0.2578
+      }
+    },
+    "item_sim": {
+      "unknown": {
+        "n": 1062,
+        "recall@20": 0.0,
+        "recall@50": 0.0,
+        "empty_rate": 1.0,
+        "fallback_rate": 0.0,
+        "fallback_hit@20": 0.0,
+        "avg_slate_len": 0.0,
+        "slate_personalization": 0.0
+      },
+      "sparse_1_2": {
+        "n": 761,
+        "recall@20": 0.0158,
+        "recall@50": 0.0407,
+        "empty_rate": 0.0,
+        "fallback_rate": 1.0,
+        "fallback_hit@20": 0.0158,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.6032
+      },
+      "low_3_5": {
+        "n": 817,
+        "recall@20": 0.0379,
+        "recall@50": 0.0624,
+        "empty_rate": 0.0,
+        "fallback_rate": 1.0,
+        "fallback_hit@20": 0.0379,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.7785
+      },
+      "warm_6plus": {
+        "n": 7360,
+        "recall@20": 0.0126,
+        "recall@50": 0.0228,
+        "empty_rate": 0.0,
+        "fallback_rate": 1.0,
+        "fallback_hit@20": 0.0126,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.6323
+      }
+    },
+    "als_warm": {
+      "unknown": {
+        "n": 1062,
+        "recall@20": 0.049,
+        "recall@50": 0.0989,
+        "empty_rate": 0.0,
+        "fallback_rate": 0.0,
+        "fallback_hit@20": 0.0,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.7015
+      },
+      "sparse_1_2": {
+        "n": 761,
+        "recall@20": 0.0289,
+        "recall@50": 0.0591,
+        "empty_rate": 0.0,
+        "fallback_rate": 0.0,
+        "fallback_hit@20": 0.0,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.7267
+      },
+      "low_3_5": {
+        "n": 817,
+        "recall@20": 0.0367,
+        "recall@50": 0.0649,
+        "empty_rate": 0.0,
+        "fallback_rate": 0.0,
+        "fallback_hit@20": 0.0,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.836
+      },
+      "warm_6plus": {
+        "n": 7360,
+        "recall@20": 0.0137,
+        "recall@50": 0.0306,
+        "empty_rate": 0.0,
+        "fallback_rate": 0.0,
+        "fallback_hit@20": 0.0,
+        "avg_slate_len": 49.97,
+        "slate_personalization": 0.6758
+      }
+    },
+    "blended": {
+      "unknown": {
+        "n": 1062,
+        "recall@20": 0.049,
+        "recall@50": 0.0989,
+        "empty_rate": 0.0,
+        "fallback_rate": 0.0,
+        "fallback_hit@20": 0.0,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.7015
+      },
+      "sparse_1_2": {
+        "n": 761,
+        "recall@20": 0.0289,
+        "recall@50": 0.0591,
+        "empty_rate": 0.0,
+        "fallback_rate": 0.0,
+        "fallback_hit@20": 0.0,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.7267
+      },
+      "low_3_5": {
+        "n": 817,
+        "recall@20": 0.0367,
+        "recall@50": 0.0649,
+        "empty_rate": 0.0,
+        "fallback_rate": 0.0,
+        "fallback_hit@20": 0.0,
+        "avg_slate_len": 50.0,
+        "slate_personalization": 0.836
+      },
+      "warm_6plus": {
+        "n": 7360,
+        "recall@20": 0.0137,
+        "recall@50": 0.0306,
+        "empty_rate": 0.0,
+        "fallback_rate": 0.0,
+        "fallback_hit@20": 0.0,
+        "avg_slate_len": 49.97,
+        "slate_personalization": 0.6758
+      }
+    }
+  },
+  "exposure_summary": {
+    "popularity": {
+      "long_tail_exposure_share": 0.0,
+      "head_exposure_share": 1.0,
+      "mid_exposure_share": 0.0,
+      "unseen_exposure_share": 0.0,
+      "catalog_coverage": 0.00148,
+      "unique_items_recommended": 60
+    },
+    "content": {
+      "long_tail_exposure_share": 0.01,
+      "head_exposure_share": 0.9389,
+      "mid_exposure_share": 0.0511,
+      "unseen_exposure_share": 0.0,
+      "catalog_coverage": 0.0497,
+      "unique_items_recommended": 2015
+    },
+    "item_sim": {
+      "long_tail_exposure_share": 0.0063,
+      "head_exposure_share": 0.8902,
+      "mid_exposure_share": 0.097,
+      "unseen_exposure_share": 0.0065,
+      "catalog_coverage": 0.09706,
+      "unique_items_recommended": 3935
+    },
+    "als_warm": {
+      "long_tail_exposure_share": 0.0042,
+      "head_exposure_share": 0.9314,
+      "mid_exposure_share": 0.0591,
+      "unseen_exposure_share": 0.0054,
+      "catalog_coverage": 0.08712,
+      "unique_items_recommended": 3532
+    },
+    "blended": {
+      "long_tail_exposure_share": 0.0042,
+      "head_exposure_share": 0.9314,
+      "mid_exposure_share": 0.0591,
+      "unseen_exposure_share": 0.0054,
+      "catalog_coverage": 0.08712,
+      "unique_items_recommended": 3532
+    }
+  },
+  "blended_route_by_cohort": {
+    "unknown": {
+      "als": 1062
+    },
+    "sparse_1_2": {
+      "als": 761
+    },
+    "low_3_5": {
+      "als": 817
+    },
+    "warm_6plus": {
+      "als": 7360
+    }
+  },
+  "recall_degradation_vs_warm_blended": {
+    "unknown": -2.5766,
+    "sparse_1_2": -1.1095,
+    "low_3_5": -1.6788,
+    "warm_6plus": 0.0
+  },
+  "recall_inversion_note": "Per-cohort Recall@20 is NOT monotonic in history length: cold/sparse cohorts score equal-or-higher because their next item is more popularity-correlated and thus easier to retrieve. This is reported honestly; recall alone UNDERSTATES the cold-start cost. The real cost is the personalization/coverage/long-tail collapse below.",
+  "fallback_cost": {
+    "metric": "ALS-served (warm) vs popularity-fallback (cold/unknown)",
+    "catalog_coverage_als": 0.08712,
+    "catalog_coverage_popularity": 0.00148,
+    "coverage_collapse_factor": 58.9,
+    "unique_items_als": 3532,
+    "unique_items_popularity": 60,
+    "long_tail_exposure_als": 0.0042,
+    "long_tail_exposure_popularity": 0.0,
+    "personalization_warm_als": 0.6758,
+    "personalization_unknown_popularity": 0.0009,
+    "interpretation": "Falling back to popularity for cold/unknown users collapses catalog coverage ~59.0x and drives long-tail exposure to ~0 with a single non-personalized slate for all users. THIS is the measured cold-start cost, not a recall drop."
+  },
+  "item_coldstart": {
+    "gold_items_unseen_in_train": 5715,
+    "gold_items_total": 10000,
+    "share_unseen": 0.5715,
+    "definition": "held-out gold items unseen in train under this offline split",
+    "note": "A large share of held-out gold items are unseen in train under this offline split (item cold-start in the offline-split sense). This is NOT a claim about real newly launched catalog items being solved or unsolved in production. No policy here is trained to retrieve unseen items by content, so recall on these is structurally near zero; reported as a known limitation, NOT solved."
+  },
+  "selected_fallback_policy": {
+    "policy": "blended",
+    "definition": "ALS (warm) -> item-similarity -> genre/content -> popularity",
+    "why": "Highest warm recall via ALS, graceful degradation for sparse/unknown users, 0 expected empty responses; popularity is the terminal floor."
+  },
+  "limitations": [
+    "Offline held-out recall, not online behaviour; warm vs fallback reported separately.",
+    "Per-cohort recall is non-monotonic (cold gold is more popularity-predictable); recall UNDERSTATES the cold-start cost \u2014 coverage/personalization collapse is the real cost.",
+    "Absolute recall on the served c2 ALS f64 model differs from the V1 d3aplus tuning number (different build/protocol); G24 reports relative structure, not a new headline.",
+    "Content fallback uses Goodreads shelves as a genre proxy; partial coverage.",
+    "Item cold-start (unseen gold) is measured but NOT solved \u2014 no content-to-embedding retrieval is built.",
+    "No 'no_factor' cohort materialised (all train users with history have ALS factors).",
+    "Diversity/novelty beyond tier-exposure shares not computed.",
+    "Unknown users receive popularity: a non-personalized fallback, explicitly not personalization."
+  ],
+  "claim_boundary": {
+    "cold_start_solved": false,
+    "unknown_user_personalization_claimed": false,
+    "fallback_quality_measured": true,
+    "degradation_quantified": true,
+    "exposure_tradeoff_measured": true,
+    "item_coldstart_claimed_solved": false,
+    "fairness_claimed": false,
+    "safe_claim": "Evaluated cold-start and sparse-user fallback policies across defined cohorts, measuring quality degradation, coverage, fallback hit rate, and head/tail exposure tradeoffs.",
+    "unsafe_claim": "PulseDiscovery solved cold-start."
+  },
+  "runtime_sec": 16.5,
+  "serving_integration": {
+    "service_ready": true,
+    "metadata": {
+      "model_id": "als_f64_fbaa29668f",
+      "index_id": "faiss_flatip_fbaa2966",
+      "build_ts": "2026-06-17T03:03:35Z",
+      "n_items": 40541,
+      "embedding_dim": 64,
+      "retrieval_modes": [
+        "exact",
+        "scale"
+      ],
+      "default_mode": "exact",
+      "ready": true
+    },
+    "cases": [
+      {
+        "case": "warm_known_user",
+        "retrieval_mode": "exact",
+        "fallback_used": false,
+        "error_code": null,
+        "response_count": 20,
+        "candidate_count": 20,
+        "source0": "als",
+        "items_with_null_creator": 0,
+        "nonempty": true
+      },
+      {
+        "case": "sparse_user",
+        "retrieval_mode": "exact",
+        "fallback_used": false,
+        "error_code": null,
+        "response_count": 20,
+        "candidate_count": 20,
+        "source0": "als",
+        "items_with_null_creator": 0,
+        "nonempty": true
+      },
+      {
+        "case": "unknown_user",
+        "retrieval_mode": "fallback_popularity",
+        "fallback_used": true,
+        "error_code": "unknown_user",
+        "response_count": 20,
+        "candidate_count": 0,
+        "source0": "popularity",
+        "items_with_null_creator": 0,
+        "nonempty": true
+      },
+      {
+        "case": "missing_factor_user",
+        "retrieval_mode": "fallback_popularity",
+        "fallback_used": true,
+        "error_code": "unknown_user",
+        "response_count": 20,
+        "candidate_count": 0,
+        "source0": "popularity",
+        "items_with_null_creator": 0,
+        "nonempty": true
+      },
+      {
+        "case": "scale_mode_warm",
+        "retrieval_mode": "scale_hnsw",
+        "fallback_used": false,
+        "error_code": null,
+        "response_count": 20,
+        "candidate_count": 20,
+        "source0": "als",
+        "items_with_null_creator": 0,
+        "nonempty": true
+      },
+      {
+        "case": "invalid_k_zero",
+        "retrieval_mode": "fallback_popularity",
+        "fallback_used": true,
+        "error_code": "invalid_k",
+        "response_count": 20,
+        "candidate_count": 0,
+        "source0": "popularity",
+        "items_with_null_creator": 0,
+        "nonempty": true
+      },
+      {
+        "case": "invalid_k_huge",
+        "retrieval_mode": "fallback_popularity",
+        "fallback_used": true,
+        "error_code": "invalid_k",
+        "response_count": 20,
+        "candidate_count": 0,
+        "source0": "popularity",
+        "items_with_null_creator": 0,
+        "nonempty": true
+      }
+    ],
+    "all_cases_nonempty": true,
+    "metrics_after": {
+      "request_count": 7,
+      "error_count": 4,
+      "error_rate": 0.5714,
+      "fallback_count": 4,
+      "fallback_rate": 0.5714,
+      "empty_response_count": 0,
+      "empty_response_rate": 0.0,
+      "unknown_user_count": 2,
+      "unknown_user_rate": 0.2857,
+      "latency_p50_ms": 0.021,
+      "latency_p95_ms": 0.687,
+      "latency_p99_ms": 0.802,
+      "by_mode": {
+        "exact": 2,
+        "fallback_popularity": 4,
+        "scale_hnsw": 1
+      },
+      "model_id": "als_f64_fbaa29668f",
+      "index_id": "faiss_flatip_fbaa2966"
+    },
+    "assertions": {
+      "warm_user_uses_als": true,
+      "unknown_user_falls_back_to_popularity": true,
+      "scale_mode_uses_hnsw": true,
+      "invalid_k_handled_gracefully": true,
+      "zero_empty_responses": true
+    }
+  }
+}

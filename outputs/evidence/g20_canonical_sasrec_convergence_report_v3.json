@@ -1,0 +1,52 @@
+{
+  "scope": "G20 v3 canonical full-softmax SASRec to convergence vs ALS f64 (CLEAN repaired artifact)",
+  "device": "cuda",
+  "gpu": "Tesla T4",
+  "config": {
+    "d": 64,
+    "nblocks": 2,
+    "nheads": 2,
+    "objective": "full-softmax over 40k",
+    "maxlen": 30,
+    "batch": 128
+  },
+  "VALID_CONVERGENCE": true,
+  "monitor_set": "validation_monitor",
+  "monitor_set_detail": "held-out 5% of TRAINING sequences, next-item R@20; disjoint from final 5k LLO eval_sample",
+  "final_eval_used_for_stopping": false,
+  "final_eval_runs_count": 1,
+  "convergence_criterion": "monitor-R@20 plateau",
+  "convergence_criterion_detail": "min_delta 0.001, patience 3 checks, every 5 epochs, total cap 160",
+  "convergence_hit": "monitor-R@20 plateau",
+  "resumed_from_ep": 40,
+  "total_epochs_approx": 95,
+  "total_epoch_cap": 160,
+  "canonical_metrics_final_eval": {
+    "R@20": 0.065,
+    "R@50": null,
+    "R@200": null,
+    "NDCG@10": null,
+    "NDCG@20": null
+  },
+  "secondary_metrics_status": "pending_correct_v3_json (R@50/R@200/NDCG@10/NDCG@20 NOT invented; awaiting the direct v3-script JSON)",
+  "als_f64_R@20": 0.0846,
+  "ratio_vs_als_R@20": 0.768,
+  "verdict": "clearly_loses",
+  "outcome": "A \u2014 canonical full-softmax SASRec converged (valid) and still clearly loses to ALS -> TERMINAL method-depth closure",
+  "monitor_r20_trend": "rose ~0.037 (ep41) -> ~0.0465 (ep80) then plateaued (0.045/0.045/0.046) -> patience fired ~ep95",
+  "train_loss_trend": "7.55 (ep41) -> ~6.80 (ep95), descending throughout (real training, not the v1 6-epoch stub)",
+  "source_note": "RECONSTRUCTED from the v3-script-generated plot (title/curves), which is authoritative for VALID_CONVERGENCE, R@20 0.0650, verdict, and ~95 total epochs. The JSON file the user uploaded was the STALE v1 (val-loss plateau, 6 epochs) and was REJECTED. This artifact is NOT the direct v3 script JSON dump; it is provenance-tagged as plot-reconstructed. The direct v3 JSON would carry exact secondary metrics.",
+  "provenance": "plot_reconstructed",
+  "checkpoint": "outputs/_models/gpu/ckpt_canonical_converged_v3.pt",
+  "seed": 20260616,
+  "eval": "final = 5k LLO eval_sample, full 40k scoring (used once)",
+  "claim_boundary": "Terminal OFFLINE within-protocol result vs ALS. No online lift, no production, no live A/B, no gold_complete unlocked by G20 alone (G21 required). LightGCN remains optional/deferred (second family; terminal sequence result stands without it).",
+  "earlier_attempts": {
+    "v1": "INVALID \u2014 val-loss NaN false early-stop (6 ep); outcome C",
+    "v2": "leakage (final eval used for stopping) + ambiguous cap; never run; fixed in v3",
+    "second_v1_rerun": "stale cached script ran; rejected",
+    "v3": "VALID \u2014 separate monitor set, exact cap, monitor-R@20 plateau"
+  },
+  "checkpoint_verification": "LOCAL CPU eval of the uploaded ckpt_canonical_converged-458211a8.pt gave R@20 0.0500 (R@50 0.0732, R@200 0.1256, NDCG@10 0.0219, NDCG@20 0.0254) = the v1 ~ep46 level, NOT the v3 ep95 0.065. => the uploaded CHECKPOINT is also stale v1; the v3 checkpoint+JSON were not transferred (only the v3 plot was). Exact v3 secondary metrics still require the real v3 JSON from the Colab session.",
+  "recovery_instruction": "In the live v3 Colab session run: print(open(\"g20_canonical_sasrec_convergence_report.json\").read()) and paste the text. That is the direct v3 JSON."
+}

@@ -1,0 +1,25 @@
+{
+  "phase": 2,
+  "seed": 20260616,
+  "schema": [
+    "user_id",
+    "item_id",
+    "creator_id",
+    "series_id",
+    "event_ts",
+    "rating",
+    "event_type"
+  ],
+  "split_design": {
+    "primary": "global_time_split(0.8/0.9)",
+    "secondary": "leave_last_out_constrained(t>=t2)"
+  },
+  "ci_method_notes": "docs/04_CI_METHOD_NOTES.md",
+  "status": "DATA_PRESENT",
+  "source": "movielens-1m",
+  "n_interactions": 1000209,
+  "n_users": 6040,
+  "n_items": 3706,
+  "ts_min": 956703932,
+  "ts_max": 1046454590
+}

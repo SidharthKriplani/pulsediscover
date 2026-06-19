@@ -1,0 +1,50 @@
+{
+  "gate": "G28",
+  "pass": "Gold Pass 1/3",
+  "provenance": "served_c2_offline",
+  "candidate_rows": 1033793,
+  "users": 6213,
+  "candidates_per_user": {
+    "mean": 166.4,
+    "p50": 117,
+    "p90": 238,
+    "max": 3565
+  },
+  "source_overlap": {
+    "semantic_only": 440151,
+    "als_only": 438140,
+    "popularity_only": 148753,
+    "both": 6749
+  },
+  "label_positives": 515,
+  "label_sparsity": 0.000498,
+  "users_with_a_positive_candidate": 446,
+  "coldstart_candidate_share": 0.0103,
+  "tier_distribution": {
+    "head": 595420,
+    "mid": 218930,
+    "long_tail": 208822,
+    "coldstart": 10621
+  },
+  "split_users": {
+    "train": 4331,
+    "val": 938,
+    "test": 944
+  },
+  "split_rows": {
+    "train": 723999,
+    "val": 150332,
+    "test": 159462
+  },
+  "leakage_controls": [
+    "split by user-hash (user wholly in one split)",
+    "test labels unused for train/selection",
+    "served-c2 protocol only; not mixed with V1 d3aplus"
+  ],
+  "n_per_source": {
+    "als": 50,
+    "semantic": 50,
+    "popularity": 20
+  },
+  "runtime_sec": 26.8
+}

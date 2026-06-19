@@ -1,0 +1,281 @@
+{
+  "model": "SASRec",
+  "dataset": "movielens-1m",
+  "is_evidence": true,
+  "tag": "[BUILT \u2014 real data]",
+  "role": "SMOKE TEST (MovieLens-1M) \u2014 not the domain headline (Goodreads/Amazon pending)",
+  "seed": 20260616,
+  "config": {
+    "d": 48,
+    "blocks": 2,
+    "heads": 1,
+    "maxlen": 30,
+    "dropout": 0.2,
+    "batch": 256,
+    "lr": 0.001
+  },
+  "train": {
+    "epochs_done": 30,
+    "loss_history": [
+      23.9978,
+      18.1111,
+      15.7437,
+      14.1394,
+      12.9835,
+      12.0618,
+      11.3088,
+      10.7081,
+      10.1835,
+      9.7601,
+      9.395,
+      9.1126,
+      8.8562,
+      8.6518,
+      8.4635,
+      8.321,
+      8.1852,
+      8.082,
+      7.9759,
+      7.888,
+      7.8135,
+      7.7464,
+      7.6889,
+      7.6427,
+      7.5893,
+      7.5538,
+      7.514,
+      7.4923,
+      7.4582,
+      7.4332
+    ],
+    "n_train_users": 6040,
+    "n_train_examples": 6040
+  },
+  "split": {
+    "global_time_cutoffs": [
+      975768738,
+      978133376
+    ],
+    "n_test_heldout": 1209
+  },
+  "sasrec": {
+    "@5": {
+      "recall_mean": 0.0405,
+      "recall_ci95_boot": [
+        0.0298,
+        0.0521
+      ],
+      "recall_ci95_wilson": [
+        0.0308,
+        0.0532
+      ],
+      "ndcg_mean": 0.0266,
+      "ndcg_ci95_boot": [
+        0.0188,
+        0.0346
+      ],
+      "n_eval_users": 1209
+    },
+    "@10": {
+      "recall_mean": 0.0662,
+      "recall_ci95_boot": [
+        0.0521,
+        0.0811
+      ],
+      "recall_ci95_wilson": [
+        0.0535,
+        0.0816
+      ],
+      "ndcg_mean": 0.035,
+      "ndcg_ci95_boot": [
+        0.0269,
+        0.0439
+      ],
+      "n_eval_users": 1209
+    },
+    "@20": {
+      "recall_mean": 0.1026,
+      "recall_ci95_boot": [
+        0.0852,
+        0.1199
+      ],
+      "recall_ci95_wilson": [
+        0.0867,
+        0.1209
+      ],
+      "ndcg_mean": 0.0441,
+      "ndcg_ci95_boot": [
+        0.0357,
+        0.0534
+      ],
+      "n_eval_users": 1209
+    }
+  },
+  "baselines_for_comparison": {
+    "popularity": {
+      "@5": {
+        "recall_mean": 0.0132,
+        "recall_ci95_boot": [
+          0.0074,
+          0.0199
+        ],
+        "recall_ci95_wilson": [
+          0.0082,
+          0.0214
+        ],
+        "ndcg_mean": 0.0098,
+        "ndcg_ci95_boot": [
+          0.0051,
+          0.0152
+        ],
+        "n_eval_users": 1209
+      },
+      "@10": {
+        "recall_mean": 0.0182,
+        "recall_ci95_boot": [
+          0.0116,
+          0.0256
+        ],
+        "recall_ci95_wilson": [
+          0.012,
+          0.0274
+        ],
+        "ndcg_mean": 0.0113,
+        "ndcg_ci95_boot": [
+          0.0066,
+          0.0166
+        ],
+        "n_eval_users": 1209
+      },
+      "@20": {
+        "recall_mean": 0.0207,
+        "recall_ci95_boot": [
+          0.0132,
+          0.0289
+        ],
+        "recall_ci95_wilson": [
+          0.014,
+          0.0303
+        ],
+        "ndcg_mean": 0.0119,
+        "ndcg_ci95_boot": [
+          0.0071,
+          0.0173
+        ],
+        "n_eval_users": 1209
+      }
+    },
+    "cooccurrence": {
+      "@5": {
+        "recall_mean": 0.0017,
+        "recall_ci95_boot": [
+          0.0,
+          0.0041
+        ],
+        "recall_ci95_wilson": [
+          0.0005,
+          0.006
+        ],
+        "ndcg_mean": 0.0007,
+        "ndcg_ci95_boot": [
+          0.0,
+          0.0019
+        ],
+        "n_eval_users": 1209
+      },
+      "@10": {
+        "recall_mean": 0.0033,
+        "recall_ci95_boot": [
+          0.0008,
+          0.0066
+        ],
+        "recall_ci95_wilson": [
+          0.0013,
+          0.0085
+        ],
+        "ndcg_mean": 0.0012,
+        "ndcg_ci95_boot": [
+          0.0002,
+          0.0027
+        ],
+        "n_eval_users": 1209
+      },
+      "@20": {
+        "recall_mean": 0.0033,
+        "recall_ci95_boot": [
+          0.0008,
+          0.0066
+        ],
+        "recall_ci95_wilson": [
+          0.0013,
+          0.0085
+        ],
+        "ndcg_mean": 0.0012,
+        "ndcg_ci95_boot": [
+          0.0002,
+          0.0027
+        ],
+        "n_eval_users": 1209
+      }
+    },
+    "als": {
+      "@5": {
+        "recall_mean": 0.0182,
+        "recall_ci95_boot": [
+          0.0108,
+          0.0265
+        ],
+        "recall_ci95_wilson": [
+          0.012,
+          0.0274
+        ],
+        "ndcg_mean": 0.0107,
+        "ndcg_ci95_boot": [
+          0.0063,
+          0.0159
+        ],
+        "n_eval_users": 1209
+      },
+      "@10": {
+        "recall_mean": 0.0339,
+        "recall_ci95_boot": [
+          0.024,
+          0.0447
+        ],
+        "recall_ci95_wilson": [
+          0.0251,
+          0.0457
+        ],
+        "ndcg_mean": 0.0158,
+        "ndcg_ci95_boot": [
+          0.0109,
+          0.0214
+        ],
+        "n_eval_users": 1209
+      },
+      "@20": {
+        "recall_mean": 0.0761,
+        "recall_ci95_boot": [
+          0.0612,
+          0.091
+        ],
+        "recall_ci95_wilson": [
+          0.0625,
+          0.0924
+        ],
+        "ndcg_mean": 0.0263,
+        "ndcg_ci95_boot": [
+          0.0208,
+          0.0324
+        ],
+        "n_eval_users": 1209
+      }
+    }
+  },
+  "honest_note": "A win is not required; result reported as-is with CIs. Epochs limited by CPU/time budget; re-run continues training.",
+  "ci_methods": {
+    "recall_ci95_boot": "per-user bootstrap (2000)",
+    "recall_ci95_wilson": "Wilson"
+  },
+  "ts": 1781557278
+}

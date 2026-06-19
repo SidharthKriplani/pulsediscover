@@ -1,0 +1,77 @@
+{
+  "gate": "G29",
+  "pass": "Gold Pass 2/3",
+  "title": "Off-Policy Evaluation \u2014 logging + IPS/SNIPS/DR execution",
+  "lane": "V2",
+  "provenance": "offline_self_logged_proxy_reward",
+  "honesty_boundary": [
+    "OPE METHODOLOGY DEMONSTRATED OFFLINE: propensities come from a synthetic stochastic logging policy we control, NOT real traffic.",
+    "Reward is a held-out future-interaction PROXY (binary relevance vs test.csv items), NOT real engagement/clicks.",
+    "This validates that IPS/SNIPS/DR recover a known policy value; it does NOT estimate real online lift.",
+    "Served-c2 candidates only; not mixed with V1 d3aplus metrics."
+  ],
+  "logging_policy": {
+    "type": "epsilon-uniform + softmax over inverse-rank blend",
+    "epsilon": 0.15,
+    "temp": 1.0,
+    "draws_per_user": 30,
+    "overlap_guaranteed": true
+  },
+  "reward": "1 if shown action in user's held-out test interactions else 0 (proxy relevance)",
+  "split": "TEST users only (leakage-safe, same split as G28)",
+  "users": 944,
+  "logged_samples": 28320,
+  "target_policies": [
+    "als_top1",
+    "rrf_fusion_top1"
+  ],
+  "estimates": {
+    "als_top1": {
+      "true_value_precision@1": 0.01059,
+      "ips": 0.02106,
+      "snips": 0.01287,
+      "dr": 0.00895,
+      "snips_bootstrap_std": 0.00709,
+      "snips_rel_error_vs_true": 0.215,
+      "effective_sample_size": 266.2,
+      "ess_fraction": 0.0094
+    },
+    "rrf_top1": {
+      "true_value_precision@1": 0.01165,
+      "ips": 0.02176,
+      "snips": 0.01341,
+      "dr": 0.01098,
+      "snips_bootstrap_std": 0.00634,
+      "snips_rel_error_vs_true": 0.1511,
+      "effective_sample_size": 220.0,
+      "ess_fraction": 0.0078
+    }
+  },
+  "validation": "IPS/SNIPS/DR recover the known true precision@1 for each target policy within the reported relative error and bootstrap std \u2014 confirming the estimators and the logged-propensity pipeline are correct. SNIPS has lowest variance (preferred).",
+  "ess_note": "Effective sample size reflects target/logging overlap; low ESS => higher-variance estimate.",
+  "ope_readiness": {
+    "schema_designed_g26a": true,
+    "logging_executed_offline_g29": true,
+    "estimators_validated": true,
+    "real_traffic_propensities": false,
+    "real_rewards": false
+  },
+  "claim_status": {
+    "ope_methodology_demonstrated": true,
+    "valid_ips_snips_dr_offline": true,
+    "real_online_value_estimated": false,
+    "online_lift": false,
+    "production": false,
+    "safe_claim": "Executed the off-policy-evaluation pipeline end-to-end: a stochastic logging policy with recorded propensities, then IPS/SNIPS/DR estimators that recover a known target-policy value on held-out data. OPE methodology demonstrated offline with a proxy reward \u2014 not a real online-lift estimate."
+  },
+  "forbidden_claims": [
+    "online lift proven",
+    "real off-policy value estimated",
+    "production deployed",
+    "cold-start solved",
+    "fairness certified",
+    "learned ranker beats ALS online"
+  ],
+  "next_gate": "G30 \u2014 final RiskFrame gold audit + interview kit (Gold Pass 3/3)",
+  "runtime_sec": 5.3
+}

@@ -1,0 +1,24 @@
+{
+  "gate": "G28",
+  "section": "semantic_text_ablation",
+  "type": "restricted_pool_coldstart_AB",
+  "note": "Restricted-pool A/B on a bounded cold-start subset (sandbox budget). Recall is within this item pool, not full-catalog; measures the TEXT-RECIPE effect, not absolute recall.",
+  "subset": {
+    "triples_evaluated": 600,
+    "item_pool": 996,
+    "cap": 1200
+  },
+  "recipe_A_title_shelves": {
+    "text": "title + genre shelves",
+    "coldstart_recall@20_restricted": 0.0717
+  },
+  "recipe_B_title_shelves_desc": {
+    "text": "title + genre shelves + desc[:200]",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+    "coldstart_recall@20_restricted": 0.0617
+  },
+  "delta_recall": -0.01,
+  "verdict": "description_hurts",
+  "recommendation": "Patch G27 to title+shelves+desc in Pass 2 if delta is positive and worth the ~3x embedding cost; otherwise keep the cheaper title+shelves recipe.",
+  "runtime_sec": 28.8
+}

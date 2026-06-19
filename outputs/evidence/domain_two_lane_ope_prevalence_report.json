@@ -1,0 +1,152 @@
+{
+  "dataset": "goodreads_fantasy_paranormal",
+  "scope": "prevalence-correct two-lane OPE",
+  "tag": "[BUILT][SYNTHETIC \u2014 known-propensity OPE]",
+  "prevalence": {
+    "warm": 0.765,
+    "cold": 0.235
+  },
+  "logger": "cold-support (eps=0.35,Mc=10,Mw=20)",
+  "n_warm": 5000,
+  "n_cold": 5000,
+  "policies": {
+    "als_only": {
+      "GT_prevalence": 0.00057,
+      "GT_50_50": 0.00037,
+      "IPS": 0.00071,
+      "SNIPS": 0.0007,
+      "DM": 0.00038,
+      "DR": 0.00071,
+      "bias_DR": 0.00013,
+      "bias_IPS": 0.00014,
+      "ESS": 2016.8,
+      "w_max": 372.44,
+      "w_mean": 31.652,
+      "DR_ci95": [
+        0.00019,
+        0.001317
+      ],
+      "DR_std": 0.00028,
+      "IPS_ci95": [
+        0.000127,
+        0.001325
+      ]
+    },
+    "q90_10": {
+      "GT_prevalence": 0.00062,
+      "GT_50_50": 0.00051,
+      "IPS": 0.00071,
+      "SNIPS": 0.00069,
+      "DM": 0.00046,
+      "DR": 0.0007,
+      "bias_DR": 7e-05,
+      "bias_IPS": 9e-05,
+      "ESS": 2914.8,
+      "w_max": 249.65,
+      "w_mean": 28.785,
+      "DR_ci95": [
+        0.000179,
+        0.001247
+      ],
+      "DR_std": 0.000293,
+      "IPS_ci95": [
+        0.000255,
+        0.001313
+      ]
+    },
+    "q80_20": {
+      "GT_prevalence": 0.00067,
+      "GT_50_50": 0.00063,
+      "IPS": 0.00084,
+      "SNIPS": 0.00082,
+      "DM": 0.00057,
+      "DR": 0.00084,
+      "bias_DR": 0.00017,
+      "bias_IPS": 0.00018,
+      "ESS": 3932.7,
+      "w_max": 167.35,
+      "w_mean": 26.631,
+      "DR_ci95": [
+        0.000368,
+        0.001581
+      ],
+      "DR_std": 0.000323,
+      "IPS_ci95": [
+        0.000347,
+        0.0016
+      ]
+    },
+    "rrf": {
+      "GT_prevalence": 0.00091,
+      "GT_50_50": 0.00141,
+      "IPS": 0.00106,
+      "SNIPS": 0.00107,
+      "DM": 0.00118,
+      "DR": 0.00106,
+      "bias_DR": 0.00015,
+      "bias_IPS": 0.00016,
+      "ESS": 7594.7,
+      "w_max": 50.4,
+      "w_mean": 21.724,
+      "DR_ci95": [
+        0.000601,
+        0.00155
+      ],
+      "DR_std": 0.000264,
+      "IPS_ci95": [
+        0.000659,
+        0.001645
+      ]
+    }
+  },
+  "GT_ranking_prevalence": [
+    "rrf",
+    "q80_20",
+    "q90_10",
+    "als_only"
+  ],
+  "DR_ranking_prevalence": [
+    "rrf",
+    "q80_20",
+    "als_only",
+    "q90_10"
+  ],
+  "ranking_match": false,
+  "dr_separates_90_10_from_als": false,
+  "c2_guardrails": {
+    "als_only": {
+      "warm_R@20": 0.052,
+      "cold_R@20": 0.0,
+      "warm_rel_loss@20": 0.0,
+      "distinct_cold_top20": 0,
+      "creator_gini_top20": 0.8609
+    },
+    "q90_10": {
+      "warm_R@20": 0.0478,
+      "cold_R@20": 0.0504,
+      "warm_rel_loss@20": 0.0808,
+      "distinct_cold_top20": 735,
+      "creator_gini_top20": 0.8801
+    },
+    "q80_20": {
+      "warm_R@20": 0.043,
+      "cold_R@20": 0.0924,
+      "warm_rel_loss@20": 0.1731,
+      "distinct_cold_top20": 1020,
+      "creator_gini_top20": 0.8753
+    },
+    "rrf": {
+      "warm_R@20": 0.029,
+      "cold_R@20": 0.1714,
+      "warm_rel_loss@20": 0.4423,
+      "distinct_cold_top20": 1299,
+      "creator_gini_top20": 0.8419
+    }
+  },
+  "honest_notes": [
+    "Prevalence-weighted (warm 76.5% / cold 23.5%, from D2). Offline proxy reward; NOT business lift.",
+    "Cold-support logger used (O1: ALS-heavy logger had weak cold positivity).",
+    "Stratified bootstrap (resample within warm & cold strata)."
+  ],
+  "sec": 6.7
+}

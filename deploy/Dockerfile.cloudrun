@@ -1,0 +1,24 @@
+# PulseDiscover — Cloud Run image (minimal ALS-only exact-FlatIP serving path)
+# Build context = repo root:  docker build -f deploy/Dockerfile.cloudrun -t <img> .
+FROM python:3.10-slim
+
+WORKDIR /app
+# minimal serving deps (no scikit-learn/scipy needed for the exact ALS+FAISS path)
+RUN pip install --no-cache-dir "fastapi" "uvicorn[standard]" "faiss-cpu" "numpy" "pandas"
+
+COPY src/ /app/src/
+# Bake ONLY the lean serving assets (small): ALS factors + precomputed popularity/creator bundle.
+# Run scripts/build_serving_assets.py first so c2_serving_assets.pkl exists.
+COPY data/interim/c2_als.pkl            /app/data/interim/c2_als.pkl
+COPY data/interim/c2_serving_assets.pkl /app/data/interim/c2_serving_assets.pkl
+
+ENV PYTHONPATH=/app/src \
+    PD_DATADIR=/app/data/interim \
+    PD_DEFAULT_MODE=exact \
+    PD_BUILD_HNSW=0 \
+    PD_ENABLE_RERANK=0 \
+    OMP_NUM_THREADS=1
+
+# Cloud Run injects $PORT (default 8080). Bind uvicorn to it (single worker — GIL-bound; scale by instances).
+EXPOSE 8080
+CMD exec uvicorn serving.api:app --host 0.0.0.0 --port ${PORT:-8080} --workers 1

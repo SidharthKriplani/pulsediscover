@@ -1,0 +1,154 @@
+{
+  "gate": "G28",
+  "section": "learned_ranker_tournament",
+  "libs": {
+    "lightgbm": true,
+    "xgboost": false,
+    "sklearn": true
+  },
+  "split_rows": {
+    "train": 723999,
+    "val": 150332,
+    "test": 159462
+  },
+  "label_positives": {
+    "train": 360,
+    "val": 74,
+    "test": 81
+  },
+  "models": {
+    "lightgbm_lambdamart": {
+      "objective": "lambdarank(ndcg@20)",
+      "trees": 5,
+      "feature_importance": {
+        "pop_rank_pct": 46,
+        "als_score": 28,
+        "sem_score": 22,
+        "sem_rank": 20,
+        "als_rank": 19,
+        "is_coldstart": 5,
+        "is_mid": 3,
+        "n_sources": 3
+      },
+      "test_metrics": {
+        "recall@20": 0.036,
+        "recall@50": 0.0572,
+        "ndcg@20": 0.0235,
+        "recall@20_by_cohort": {
+          "sparse_1_2": 0.0353,
+          "warm_6plus": 0.0324,
+          "low_3_5": 0.069
+        },
+        "recall@20_by_gold_tier": {
+          "head": 0.0661,
+          "unseen": 0.0323,
+          "long_tail": 0.0,
+          "mid": 0.0183
+        },
+        "catalog_coverage": 0.07645,
+        "unique_items": 3173,
+        "gini": 0.9703,
+        "long_tail_share": 0.10736,
+        "head_share": 0.83612,
+        "coldstart_recall@20": 0.0323,
+        "coldstart_reachability": 0.8889
+      }
+    },
+    "logistic": {
+      "objective": "binary classifier score as rerank",
+      "note": "no native ranking objective",
+      "test_metrics": {
+        "recall@20": 0.0392,
+        "recall@50": 0.054,
+        "ndcg@20": 0.0213,
+        "recall@20_by_cohort": {
+          "sparse_1_2": 0.0471,
+          "warm_6plus": 0.0324,
+          "low_3_5": 0.092
+        },
+        "recall@20_by_gold_tier": {
+          "head": 0.0881,
+          "unseen": 0.0323,
+          "long_tail": 0.0,
+          "mid": 0.0
+        },
+        "catalog_coverage": 0.05373,
+        "unique_items": 2230,
+        "gini": 0.9829,
+        "long_tail_share": 0.09444,
+        "head_share": 0.90302,
+        "coldstart_recall@20": 0.0323,
+        "coldstart_reachability": 0.8889
+      }
+    },
+    "random_forest": {
+      "objective": "binary classifier score as rerank",
+      "note": "no native ranking objective",
+      "feature_importance": {
+        "pop_rank_pct": 0.24600972237950514,
+        "als_score": 0.16789613500672992,
+        "is_coldstart": 0.13066239629304932,
+        "als_rank": 0.09622796359717901,
+        "sem_rank": 0.08269619768953476,
+        "sem_score": 0.07809231628286828,
+        "from_als": 0.062137669857822056,
+        "is_long_tail": 0.04641355553661444
+      },
+      "test_metrics": {
+        "recall@20": 0.0307,
+        "recall@50": 0.0498,
+        "ndcg@20": 0.018,
+        "recall@20_by_cohort": {
+          "sparse_1_2": 0.0353,
+          "warm_6plus": 0.0259,
+          "low_3_5": 0.069
+        },
+        "recall@20_by_gold_tier": {
+          "head": 0.0793,
+          "unseen": 0.0209,
+          "long_tail": 0.0,
+          "mid": 0.0
+        },
+        "catalog_coverage": 0.04804,
+        "unique_items": 1994,
+        "gini": 0.985,
+        "long_tail_share": 0.05011,
+        "head_share": 0.94857,
+        "coldstart_recall@20": 0.0209,
+        "coldstart_reachability": 0.6667
+      }
+    },
+    "sklearn_gbm": {
+      "objective": "binary classifier score as rerank",
+      "note": "no native ranking objective",
+      "test_metrics": {
+        "recall@20": 0.0371,
+        "recall@50": 0.0551,
+        "ndcg@20": 0.0211,
+        "recall@20_by_cohort": {
+          "sparse_1_2": 0.0471,
+          "warm_6plus": 0.0298,
+          "low_3_5": 0.092
+        },
+        "recall@20_by_gold_tier": {
+          "head": 0.0749,
+          "unseen": 0.0323,
+          "long_tail": 0.0,
+          "mid": 0.0092
+        },
+        "catalog_coverage": 0.06968,
+        "unique_items": 2892,
+        "gini": 0.977,
+        "long_tail_share": 0.10487,
+        "head_share": 0.86478,
+        "coldstart_recall@20": 0.0323,
+        "coldstart_reachability": 0.8889
+      }
+    }
+  },
+  "leakage_controls": [
+    "train on train only",
+    "early-stop/select on val",
+    "test untouched for training/selection"
+  ]
+}

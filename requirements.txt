@@ -1,0 +1,20 @@
+# Core serving (minimal Cloud Run path also pins these in deploy/Dockerfile.cloudrun)
+fastapi
+uvicorn[standard]
+faiss-cpu
+numpy
+pandas
+
+# Research / evaluation
+scipy
+scikit-learn
+lightgbm
+matplotlib
+pyarrow
+
+# Retrieval lanes
+sentence-transformers   # G27 dense semantic content embeddings (MiniLM)
+rank-bm25               # G31 lexical retrieval
+
+# Docs
+reportlab               # defense PDF builder

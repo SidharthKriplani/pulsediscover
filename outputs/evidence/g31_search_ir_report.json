@@ -1,0 +1,106 @@
+{
+  "gate": "G31",
+  "title": "Search/IR \u2014 BM25 + dense hybrid retrieval (query-by-document)",
+  "lane": "V2",
+  "provenance": "served_c2_offline_seed_item_query",
+  "honesty_guards": [
+    "(a) Retrieval is QUERY-BY-DOCUMENT: the query is the user's last-read item text (more-like-this / related-item search), NOT a free-text query.",
+    "(b) NDCG@K and MRR are SINGLE-RELEVANT: one held-out gold per user, no graded relevance. NDCG@20=1/log2(rank+1) if gold in top-K; MRR=1/rank.",
+    "(c) Served-c2 metrics only; V1 RecSys claims and V1 status are untouched."
+  ],
+  "k_main": 20,
+  "k_wide": 50,
+  "seed_item_users": 600,
+  "index_universe_items": 41866,
+  "bm25": {
+    "index_type": "BM25Okapi inverted index",
+    "text": "title + genre shelves (max_desc=0)",
+    "library": "rank_bm25"
+  },
+  "dense": {
+    "index_type": "FAISS IndexFlatIP",
+    "model": "sentence-transformers/all-MiniLM-L6-v2",
+    "dim": 384
+  },
+  "hybrid": {
+    "fusion": "Reciprocal Rank Fusion (RRF, c=60) over BM25 + dense"
+  },
+  "metrics": {
+    "bm25": {
+      "recall@20": 0.0133,
+      "recall@50": 0.025,
+      "ndcg@20_single_relevant": 0.0062,
+      "mrr_single_relevant": 0.0042,
+      "recall@20_by_gold_tier": {
+        "unseen": 0.0147,
+        "long_tail": 0.0,
+        "mid": 0.0392,
+        "head": 0.0
+      },
+      "coldstart_recall@20": 0.0147,
+      "catalog_coverage@20": 0.1954,
+      "unique_items@20": 8182,
+      "latency_p50_ms": 41.06,
+      "latency_p95_ms": 62.851
+    },
+    "dense": {
+      "recall@20": 0.0067,
+      "recall@50": 0.0183,
+      "ndcg@20_single_relevant": 0.0022,
+      "mrr_single_relevant": 0.001,
+      "recall@20_by_gold_tier": {
+        "unseen": 0.0074,
+        "long_tail": 0.0,
+        "mid": 0.0196,
+        "head": 0.0
+      },
+      "coldstart_recall@20": 0.0074,
+      "catalog_coverage@20": 0.1881,
+      "unique_items@20": 7875,
+      "latency_p50_ms": 2.881,
+      "latency_p95_ms": 3.243
+    },
+    "hybrid": {
+      "recall@20": 0.0117,
+      "recall@50": 0.0217,
+      "ndcg@20_single_relevant": 0.0048,
+      "mrr_single_relevant": 0.003,
+      "recall@20_by_gold_tier": {
+        "unseen": 0.0147,
+        "long_tail": 0.0,
+        "mid": 0.0196,
+        "head": 0.0
+      },
+      "coldstart_recall@20": 0.0147,
+      "catalog_coverage@20": 0.1937,
+      "unique_items@20": 8111,
+      "latency_p50_ms": 0.046,
+      "latency_p95_ms": 0.065
+    }
+  },
+  "best_by_recall@20": "bm25",
+  "interpretation": "On seed-item (query-by-document) retrieval, BM25 lexical is the STRONGEST single lane (R@20 0.0133 vs dense 0.0067): shared series/genre tokens on short title+shelves text are a strong more-like-this signal. RRF hybrid is a ROBUST MIDDLE (0.0117) \u2014 it does NOT beat BM25 alone here, because fusing the weaker dense lane dilutes the stronger lexical signal. Both reach item-cold-start (BM25 0.0147, dense 0.0074). This is the standard two-stage-search lexical+dense+RRF front end, reported with search-standard NDCG@K + MRR (single-relevant). Honest reading: lexical wins on short-text query-by-document; hybrid buys robustness, not a recall win.",
+  "search_ir_unlocked": true,
+  "claim_status": {
+    "two_stage_search_retrieval_demonstrated": true,
+    "lexical_dense_hybrid_built": true,
+    "ndcg_mrr_reported": true,
+    "free_text_query_search": false,
+    "in_ranker_position_bias_correction": false,
+    "online_lift": false,
+    "production": false,
+    "v1_recsys_claims_changed": false,
+    "safe_claim": "Built a two-stage-search-style retrieval front end on the item catalog: BM25 lexical + dense semantic retrieval fused with RRF, evaluated with search-standard NDCG@K and MRR alongside Recall@K, using seed-item (query-by-document) queries. Offline, served-c2 \u2014 not free-text query search and not online."
+  },
+  "forbidden_claims": [
+    "free-text query search engine",
+    "in-ranker position-bias correction (only evaluation)",
+    "online lift",
+    "production search deployed",
+    "changed V1 RecSys claims"
+  ],
+  "runtime_sec": 30.7,
+  "bm25_latency_caveat": "BM25 p95 ~63ms is a pure-Python rank_bm25 artifact; a production lexical index (Lucene/Elasticsearch/bm25s) serves this in sub-millisecond. Latency here is not a production benchmark.",
+  "sample_note": "600 seed-item users (BM25 get_scores ~43ms/query bounds the sample); relative comparison, not a precision benchmark.",
+  "best_by_recall@20_note": "bm25 strongest single lane on this seed-item task; hybrid is robust-middle, not a winner."
+}

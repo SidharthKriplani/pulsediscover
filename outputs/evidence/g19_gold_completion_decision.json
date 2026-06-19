@@ -1,0 +1,41 @@
+{
+  "scope": "G19 Gold Completion Bridge / Method-Depth Resolution",
+  "decision": "requires_lightgcn_or_canonical_sasrec_run",
+  "decision_detail": "Canonical full-softmax SASRec trained to CONVERGENCE is the necessary run (closest competitor was still improving at stop). LightGCN is optional/strongly-desirable (graph-family closure). No new models run in this gate.",
+  "current_status": "gold_candidate",
+  "mean_score": 8.7,
+  "gold_threshold": 9.0,
+  "blocking_section": "Template §9 Technique Tournament (method depth) — canonical SASRec not trained to convergence; LightGCN deferred",
+  "method_depth_argument": {
+    "is_senior_finding": true,
+    "is_terminal": false,
+    "why_senior": ["serious multi-family tournament (ALS/pop/co-occ/content/SASRec x3/GRU/two-tower/LTR)", "full-softmax confound controlled (6.7x lift, still < ALS)", "matches domain priors (weak sequential signal)", "found the real lever: candidate coverage (G13 +44%)"],
+    "why_not_terminal": ["canonical full-softmax SASRec loss still descending at 40 ep (R@20 0.0456)", "LightGCN never run", "two-tower item-ID-only"],
+    "methodological_closure_alone_sufficient": false,
+    "reason": "Cannot assert MF wins TERMINALLY while the nearest competitor was provably mid-descent; doing so would loosen the claim boundary."
+  },
+  "template_audit_summary": {
+    "complete": 19, "needs_meat_nonblocking": 5, "missing": 0, "blocks_gold": 1,
+    "needs_meat_items": ["JD/buyer archetype map", "synthetic-data realism audit doc", "negative-cost $ model", "rendered demo/deck", "free-vs-paid infra-tier doc"],
+    "blocks_gold_items": ["Technique tournament: canonical-SASRec convergence (+ optional LightGCN)"]
+  },
+  "achievement_moments": [
+    "Deep models attractive but ALS won (honest negative)",
+    "Feature importance high but marginal contribution ~zero (ablation)",
+    "Candidate coverage not ranking was the bottleneck (G13 +44%)",
+    "Slate governance sophisticated but upstream candidates the better lever (pure LTR default)",
+    "FAISS scoped as latency not quality (recall retention measured)"
+  ],
+  "required_run_spec": {
+    "model": "canonical full-softmax SASRec d64/2blk/2head over 40k vocab",
+    "action": "resume ckpt_canonical.pt, train to loss plateau, re-eval 5k LLO vs ALS f64",
+    "preregistered_outcomes": {
+      "still_below_ALS": "MF win becomes TERMINAL -> eligible for gold_complete",
+      "contends_or_beats_ALS": "advanced model moves the floor -> also gold-eligible (different honest result)"
+    },
+    "optional": "LightGCN candidate/scorer for graph-family closure"
+  },
+  "claim_safety_unchanged": ["no online lift", "no production", "no live A/B", "no deep-beats-ALS claim", "no cold-start/fairness/health solved", "no FAISS quality claim", "no 90/10 proven-best", "no full-catalog for within-candidate", "no gold_complete claim"],
+  "gold_complete_now": false,
+  "final_recommendation": "Remain gold_candidate. One bounded honest run (canonical SASRec to convergence; LightGCN optional) closes the only blocking section and makes the 'MF wins' finding terminal -> then gold_complete is defensible. Do not declare gold_complete via documentation alone."
+}

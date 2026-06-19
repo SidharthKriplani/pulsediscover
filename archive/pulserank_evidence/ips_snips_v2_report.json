@@ -1,0 +1,125 @@
+{
+  "artifact": "pulserank_ips_snips_v2_report",
+  "version": "v2",
+  "status": "pass",
+  "method": "SNIPS (Self-Normalized Inverse Propensity Scoring)",
+  "train_period": "days 1-60",
+  "holdout_period": "days 61-90",
+  "propensity_floor": 0.01,
+  "k": 10,
+  "snips_ndcg_at_10": 0.107129,
+  "raw_ndcg_at_10": 0.527509,
+  "ips_ndcg_at_10": 0.522235,
+  "bias_delta_ips_minus_raw": -0.005273,
+  "evaluated_sessions": 139,
+  "propensity_by_rank": [
+    {
+      "rank": 1,
+      "empirical_propensity": 0.180328,
+      "clipped_propensity": 0.180328,
+      "ips_weight": 5.545455
+    },
+    {
+      "rank": 2,
+      "empirical_propensity": 0.15645,
+      "clipped_propensity": 0.15645,
+      "ips_weight": 6.3918
+    },
+    {
+      "rank": 3,
+      "empirical_propensity": 0.132573,
+      "clipped_propensity": 0.132573,
+      "ips_weight": 7.543011
+    },
+    {
+      "rank": 4,
+      "empirical_propensity": 0.11119,
+      "clipped_propensity": 0.11119,
+      "ips_weight": 8.99359
+    },
+    {
+      "rank": 5,
+      "empirical_propensity": 0.092302,
+      "clipped_propensity": 0.092302,
+      "ips_weight": 10.833977
+    },
+    {
+      "rank": 6,
+      "empirical_propensity": 0.069494,
+      "clipped_propensity": 0.069494,
+      "ips_weight": 14.389744
+    },
+    {
+      "rank": 7,
+      "empirical_propensity": 0.066287,
+      "clipped_propensity": 0.066287,
+      "ips_weight": 15.086022
+    },
+    {
+      "rank": 8,
+      "empirical_propensity": 0.052388,
+      "clipped_propensity": 0.052388,
+      "ips_weight": 19.088435
+    },
+    {
+      "rank": 9,
+      "empirical_propensity": 0.044904,
+      "clipped_propensity": 0.044904,
+      "ips_weight": 22.269841
+    },
+    {
+      "rank": 10,
+      "empirical_propensity": 0.046329,
+      "clipped_propensity": 0.046329,
+      "ips_weight": 21.584615
+    }
+  ],
+  "clipping_sensitivity": {
+    "5": {
+      "ips_ndcg": 0.527509,
+      "clipped_fraction": 1.0,
+      "mean_weight": 5.0,
+      "max_weight": 5,
+      "evaluated_sessions": 139
+    },
+    "10": {
+      "ips_ndcg": 0.525039,
+      "clipped_fraction": 0.6,
+      "mean_weight": 8.847385,
+      "max_weight": 10,
+      "evaluated_sessions": 139
+    },
+    "20": {
+      "ips_ndcg": 0.522396,
+      "clipped_fraction": 0.2,
+      "mean_weight": 12.787203,
+      "max_weight": 20,
+      "evaluated_sessions": 139
+    },
+    "50": {
+      "ips_ndcg": 0.522235,
+      "clipped_fraction": 0.0,
+      "mean_weight": 13.172649,
+      "max_weight": 22.269841,
+      "evaluated_sessions": 139
+    },
+    "100": {
+      "ips_ndcg": 0.522235,
+      "clipped_fraction": 0.0,
+      "mean_weight": 13.172649,
+      "max_weight": 22.269841,
+      "evaluated_sessions": 139
+    }
+  },
+  "gini_interpretation": {
+    "gini_direction": "Standard Gini coefficient: 0 = perfect equality, 1 = maximum inequality. Higher Gini means MORE unequal distribution.",
+    "pulserank_observation": "Gini went from 0.404 (baseline ranker) to 0.582 (governed reranker). This means seller exposure became MORE unequal after reranking.",
+    "explanation": "This is NOT contradictory. The governed reranker diversifies by CATEGORY (via category_top10_max_share cap) and limits per-seller slots (max_per_seller=2), but it does NOT equalize total exposure across all sellers. The seller Gini is computed only over sellers that appear in top-10 lists. After reranking: (1) The reranker enforces max 2 items per seller per session, which prevents any single seller from dominating a single list. (2) However, some high-quality sellers consistently place 1-2 items in many sessions, while niche sellers appear in fewer sessions. (3) The MMR diversity term pushes for content diversity (category + embedding), which can concentrate seller exposure on sellers that happen to have items spanning diverse categories. (4) The category diversification may actually reduce the number of distinct sellers in top-10 (if popular categories have fewer sellers), increasing Gini.",
+    "correct_interpretation": "Seller Gini increasing from 0.404 to 0.582 means the reranker made seller exposure MORE concentrated, even though it improved category diversity and intra-list diversity. This is a known tradeoff: diversifying on one axis (category/content) can concentrate another axis (seller). A production system would need explicit seller-fairness constraints to address this.",
+    "metric_definition": "seller_gini() in reranking.py computes the standard Gini coefficient over the seller exposure distribution. Exposure = count of times a seller's items appear in top-k across all sessions. The formula is the standard: G = (2 * sum((i+1)*x_i)) / (n * sum(x_i)) - (n+1)/n, where x_i are sorted exposure counts. This matches the textbook Gini."
+  },
+  "narrative_correction": "The 0.134 -> 0.522 comparison reflects an evaluation methodology correction, not a model improvement. 0.134 is NDCG computed with binary purchase labels on the baseline ranker output. 0.522 is IPS-weighted NDCG computed with attributed purchase labels and propensity correction. The IPS delta (raw_holdout_ndcg - ips_holdout_ndcg) is approximately -0.005, confirming that position bias had minimal effect on this synthetic corpus. The large gap (0.134 vs 0.522) is primarily driven by the difference in label definition (binary purchase vs attributed purchase with IPS weighting) and evaluation framework, not by the IPS correction itself.",
+  "train_impressions": 28060,
+  "holdout_impressions": 13260,
+  "evidence_statement": "V2 IPS/SNIPS evaluation with clipping sensitivity. SNIPS reduces IPS variance via self-normalization. Clipping sensitivity shows variance-bias tradeoff at caps [5, 10, 20, 50, 100]. Includes corrected narrative for the 0.134 vs 0.522 comparison and documented Gini interpretation."
+}

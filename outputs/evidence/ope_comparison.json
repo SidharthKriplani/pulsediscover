@@ -1,0 +1,180 @@
+{
+  "phase": 5,
+  "dataset": "movielens-1m",
+  "is_evidence": true,
+  "tag": "[BUILT][SYNTHETIC \u2014 OPE on known-propensity simulator]",
+  "role": "OPE estimator validation on MovieLens-1M smoke (NOT real online lift)",
+  "seed": 20260616,
+  "config": {
+    "epsilon": 0.1,
+    "slate_L": 10,
+    "pool_N": 50,
+    "tau_mu": 1.0,
+    "tau_pi": 0.7,
+    "pbm_base": 0.95,
+    "pbm_gamma": 0.7,
+    "rel_alpha": 1.2,
+    "rel_bias": -0.8,
+    "qhat_good_alpha": 1.0,
+    "qhat_good_bias": -0.6
+  },
+  "support_note": "Validity over the logged candidate-pool support (top-50 per user); not full-catalog.",
+  "headline_no_clip": {
+    "ground_truth_V_pi": 0.219103,
+    "IPS": {
+      "est": 0.20656,
+      "bias": -0.012543
+    },
+    "SNIPS": {
+      "est": 0.208343,
+      "bias": -0.010761
+    },
+    "DM_good_qhat": {
+      "est": 0.220372,
+      "bias": 0.001268
+    },
+    "DR_good_qhat": {
+      "est": 0.211655,
+      "bias": -0.007449
+    },
+    "DM_bad_qhat": {
+      "est": 0.35126,
+      "bias": 0.132157
+    },
+    "DR_bad_qhat": {
+      "est": 0.213268,
+      "bias": -0.005836
+    },
+    "ESS": 12325.1,
+    "n_events": 60400,
+    "n_users": 6040,
+    "w_max": 65.809,
+    "w_mean": 0.9914
+  },
+  "bootstrap_ci95_no_clip": {
+    "good_qhat": {
+      "IPS": {
+        "ci95": [
+          0.19839,
+          0.21448
+        ],
+        "boot_std": 0.004169
+      },
+      "SNIPS": {
+        "ci95": [
+          0.20126,
+          0.21581
+        ],
+        "boot_std": 0.003753
+      },
+      "DM": {
+        "ci95": [
+          0.22,
+          0.22078
+        ],
+        "boot_std": 0.000199
+      },
+      "DR": {
+        "ci95": [
+          0.20483,
+          0.21837
+        ],
+        "boot_std": 0.003446
+      }
+    },
+    "bad_qhat": {
+      "IPS": {
+        "ci95": [
+          0.19909,
+          0.21381
+        ],
+        "boot_std": 0.003875
+      },
+      "SNIPS": {
+        "ci95": [
+          0.20138,
+          0.21536
+        ],
+        "boot_std": 0.003514
+      },
+      "DM": {
+        "ci95": [
+          0.35116,
+          0.35136
+        ],
+        "boot_std": 4.9e-05
+      },
+      "DR": {
+        "ci95": [
+          0.20664,
+          0.21987
+        ],
+        "boot_std": 0.003426
+      }
+    },
+    "B": 400,
+    "method": "user-cluster bootstrap (resample the (nu,L) slate rows)"
+  },
+  "clipping_sweep": [
+    {
+      "clip": null,
+      "ESS": 12325.1,
+      "w_max": 65.809,
+      "IPS_bias": -0.012543,
+      "SNIPS_bias": -0.010761,
+      "DR_good_bias": -0.007449,
+      "DR_bad_bias": -0.005836
+    },
+    {
+      "clip": 5,
+      "ESS": 23677.8,
+      "w_max": 5.0,
+      "IPS_bias": -0.042875,
+      "SNIPS_bias": -0.013988,
+      "DR_good_bias": -0.002859,
+      "DR_bad_bias": 0.010638
+    },
+    {
+      "clip": 10,
+      "ESS": 17746.3,
+      "w_max": 10.0,
+      "IPS_bias": -0.024223,
+      "SNIPS_bias": -0.011589,
+      "DR_good_bias": -0.004802,
+      "DR_bad_bias": 0.000574
+    },
+    {
+      "clip": 20,
+      "ESS": 14187.2,
+      "w_max": 20.0,
+      "IPS_bias": -0.014441,
+      "SNIPS_bias": -0.009933,
+      "DR_good_bias": -0.005738,
+      "DR_bad_bias": -0.003429
+    },
+    {
+      "clip": 50,
+      "ESS": 12423.8,
+      "w_max": 50.0,
+      "IPS_bias": -0.012543,
+      "SNIPS_bias": -0.010683,
+      "DR_good_bias": -0.007342,
+      "DR_bad_bias": -0.005716
+    },
+    {
+      "clip": 100,
+      "ESS": 12325.1,
+      "w_max": 65.809,
+      "IPS_bias": -0.012543,
+      "SNIPS_bias": -0.010761,
+      "DR_good_bias": -0.007449,
+      "DR_bad_bias": -0.005836
+    }
+  ],
+  "qhat_variants": {
+    "good": "sigmoid(1.0*z - 0.6) (mildly misspecified vs truth 1.2*z-0.8)",
+    "bad": "good qhat + 0.4 overconfidence offset (severely misspecified, biased high)"
+  },
+  "honesty": "DR is EXPECTED to reduce variance vs IPS and stay ~unbiased even under the bad qhat (double robustness, since propensities are exact); reported as OBSERVED, not asserted.",
+  "ts": 1781558352
+}

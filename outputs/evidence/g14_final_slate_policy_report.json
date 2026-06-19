@@ -1,0 +1,81 @@
+{
+  "scope": "G14 final slate policy layer (on G13-mid candidates + LTR)",
+  "tag": "[BUILT \u2014 real data, CPU]",
+  "candidate_config": "mid (ALS200+SAS100+content50+pop30)",
+  "n_test_users": 733,
+  "split": "deterministic md5 user 70/15/15",
+  "guardrail": "<=10% warm-relevance (R@20) loss vs pure LTR",
+  "policies": {
+    "pure_ltr": {
+      "R@20": 0.1201,
+      "R@50": 0.1678,
+      "NDCG@20": 0.0556,
+      "cold_exp_share": 0.2821,
+      "distinct_cold_items": 586,
+      "distinct_creators": 573,
+      "creator_gini": 0.8642,
+      "long_tail_share": 0.7705,
+      "mean_novelty": 0.6182,
+      "policy_violation_rate": 0.0,
+      "warm_rel_loss_vs_pureLTR": 0.0004
+    },
+    "mmr": {
+      "R@20": 0.1146,
+      "R@50": 0.1501,
+      "NDCG@20": 0.0527,
+      "cold_exp_share": 0.2042,
+      "distinct_cold_items": 516,
+      "distinct_creators": 677,
+      "creator_gini": 0.8642,
+      "long_tail_share": 0.7304,
+      "mean_novelty": 0.5253,
+      "policy_violation_rate": 0.0,
+      "warm_rel_loss_vs_pureLTR": -0.0454
+    },
+    "cold_reserve": {
+      "R@20": 0.1187,
+      "R@50": 0.1678,
+      "NDCG@20": 0.0553,
+      "cold_exp_share": 0.2926,
+      "distinct_cold_items": 613,
+      "distinct_creators": 598,
+      "creator_gini": 0.8642,
+      "long_tail_share": 0.773,
+      "mean_novelty": 0.6301,
+      "policy_violation_rate": 0.0027,
+      "warm_rel_loss_vs_pureLTR": -0.0113
+    },
+    "creator_cap": {
+      "R@20": 0.1091,
+      "R@50": 0.1678,
+      "NDCG@20": 0.0529,
+      "cold_exp_share": 0.2215,
+      "distinct_cold_items": 544,
+      "distinct_creators": 673,
+      "creator_gini": 0.8465,
+      "long_tail_share": 0.7117,
+      "mean_novelty": 0.5528,
+      "policy_violation_rate": 0.0,
+      "warm_rel_loss_vs_pureLTR": -0.0912
+    },
+    "combined": {
+      "R@20": 0.1132,
+      "R@50": 0.1678,
+      "NDCG@20": 0.0531,
+      "cold_exp_share": 0.2266,
+      "distinct_cold_items": 550,
+      "distinct_creators": 714,
+      "creator_gini": 0.851,
+      "long_tail_share": 0.6989,
+      "mean_novelty": 0.5527,
+      "policy_violation_rate": 0.2074,
+      "warm_rel_loss_vs_pureLTR": -0.0571
+    }
+  },
+  "honest_notes": [
+    "Offline re-ranking within candidates; no online/production/RiskFrame-gold claim.",
+    "Governance metrics on top-20 slates over test users; reuses H1/H2 tradeoff on the LTR slate.",
+    "Deterministic split; no FAISS/new candidate sources."
+  ],
+  "sec": 16.7
+}

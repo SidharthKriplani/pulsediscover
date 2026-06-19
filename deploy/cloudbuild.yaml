@@ -1,0 +1,9 @@
+# Cloud Build: build the PulseDiscover Cloud Run image from deploy/Dockerfile.cloudrun
+# Invoked by deploy/cloudrun_deploy.sh:  gcloud builds submit --config=deploy/cloudbuild.yaml --substitutions=_IMAGE=...
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ["build", "-f", "deploy/Dockerfile.cloudrun", "-t", "${_IMAGE}", "."]
+images:
+  - "${_IMAGE}"
+options:
+  machineType: E2_HIGHCPU_8

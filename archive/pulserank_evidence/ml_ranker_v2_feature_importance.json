@@ -1,0 +1,97 @@
+{
+  "artifact": "pulserank_ml_ranker_v2_feature_importance",
+  "feature_names": [
+    "category_affinity",
+    "price_fit",
+    "freshness_score",
+    "latent_quality",
+    "popularity_score",
+    "category_train_rate",
+    "seller_train_rate",
+    "price_bucket_train_rate",
+    "als_score",
+    "cooc_score",
+    "affinity_x_price_fit",
+    "popularity_x_freshness",
+    "latent_quality_sq",
+    "log_popularity_rank"
+  ],
+  "importance_gain": {
+    "category_affinity": 288.2018003463745,
+    "price_fit": 0.0,
+    "freshness_score": 183.55979919433594,
+    "latent_quality": 4032.0230140686035,
+    "popularity_score": 0.0,
+    "category_train_rate": 629.6780033111572,
+    "seller_train_rate": 1026.506100654602,
+    "price_bucket_train_rate": 0.0,
+    "als_score": 0.0,
+    "cooc_score": 0.0,
+    "affinity_x_price_fit": 111.03230094909668,
+    "popularity_x_freshness": 12.00570011138916,
+    "latent_quality_sq": 0.0,
+    "log_popularity_rank": 387.9682960510254
+  },
+  "sorted_by_importance": [
+    {
+      "feature": "latent_quality",
+      "importance": 4032.0230140686035
+    },
+    {
+      "feature": "seller_train_rate",
+      "importance": 1026.506100654602
+    },
+    {
+      "feature": "category_train_rate",
+      "importance": 629.6780033111572
+    },
+    {
+      "feature": "log_popularity_rank",
+      "importance": 387.9682960510254
+    },
+    {
+      "feature": "category_affinity",
+      "importance": 288.2018003463745
+    },
+    {
+      "feature": "freshness_score",
+      "importance": 183.55979919433594
+    },
+    {
+      "feature": "affinity_x_price_fit",
+      "importance": 111.03230094909668
+    },
+    {
+      "feature": "popularity_x_freshness",
+      "importance": 12.00570011138916
+    },
+    {
+      "feature": "price_fit",
+      "importance": 0.0
+    },
+    {
+      "feature": "popularity_score",
+      "importance": 0.0
+    },
+    {
+      "feature": "price_bucket_train_rate",
+      "importance": 0.0
+    },
+    {
+      "feature": "als_score",
+      "importance": 0.0
+    },
+    {
+      "feature": "cooc_score",
+      "importance": 0.0
+    },
+    {
+      "feature": "latent_quality_sq",
+      "importance": 0.0
+    }
+  ],
+  "excluded_features": [
+    "display_rank"
+  ],
+  "exclusion_reason": "display_rank would leak the ranking position into labels"
+}

@@ -1,0 +1,89 @@
+{
+  "gate": "G26B",
+  "title": "Heuristic Reranker Integration (in-service)",
+  "lane": "V2",
+  "reranker_type": "heuristic",
+  "rerank_policy": "head_cap (cap_frac=0.3, pool_mult=4)",
+  "config_default": "off",
+  "served_model": "c2_als.pkl (ALS f64) \u2014 same served spine as G22-G26",
+  "scope_guardrails": [
+    "Heuristic exposure control (head-cap), NOT learned ranking / NOT LTR.",
+    "Warm ALS retrieval path only; cold/unknown users keep popularity fallback (rerank does not touch them).",
+    "Served c2 metrics only; NOT comparable to V1 d3aplus (0.0846).",
+    "In-service offline eval; no online lift, no OPE execution."
+  ],
+  "baseline_metrics": {
+    "n": 4000,
+    "recall@20": 0.0095,
+    "empty_rate": 0.0,
+    "catalog_coverage": 0.06899,
+    "unique_items": 2797,
+    "gini": 0.9829,
+    "head_share": 0.93731,
+    "mid_share": 0.05592,
+    "long_tail_share": 0.00676,
+    "zero_exposure_share": 0.93101,
+    "top_1pct_share": 0.7218,
+    "latency_p50_ms": 0.265,
+    "latency_p95_ms": 0.398,
+    "slates_changed_by_rerank": 0
+  },
+  "reranked_metrics": {
+    "n": 4000,
+    "recall@20": 0.01,
+    "empty_rate": 0.0,
+    "catalog_coverage": 0.09793,
+    "unique_items": 3970,
+    "gini": 0.9767,
+    "head_share": 0.74854,
+    "mid_share": 0.22219,
+    "long_tail_share": 0.02928,
+    "zero_exposure_share": 0.90207,
+    "top_1pct_share": 0.6617,
+    "latency_p50_ms": 0.335,
+    "latency_p95_ms": 0.713,
+    "slates_changed_by_rerank": 2849
+  },
+  "relevance_delta": {
+    "recall@20_abs": 0.0005,
+    "recall@20_pct": 5.3
+  },
+  "exposure_delta": {
+    "catalog_coverage_abs": 0.02894,
+    "unique_items_abs": 1173,
+    "long_tail_share_abs": 0.02252,
+    "gini_abs": -0.0062
+  },
+  "latency_delta": {
+    "p50_abs_ms": 0.07,
+    "p95_abs_ms": 0.315
+  },
+  "cohort_results_if_available": {
+    "warm_6plus": {
+      "recall@20_reranked": 0.01,
+      "n": 4000
+    }
+  },
+  "ship_decision": "enable_as_config_option_default_off",
+  "claim_status": {
+    "quarantine_closed": true,
+    "reranker_is_heuristic_not_learned": true,
+    "long_tail_solved": false,
+    "cold_start_solved": false,
+    "online_lift": false,
+    "ope_executed": false,
+    "v1_v2_metrics_mixed": false,
+    "safe_claim": "Integrated a config-flagged heuristic reranker into the served recommender path and measured the relevance/exposure/latency tradeoff against the served c2 baseline; interpretable exposure control, not learned ranking."
+  },
+  "forbidden_claims": [
+    "learned LTR deployed",
+    "cold-start solved",
+    "long-tail discovery solved",
+    "online lift proven",
+    "OPE executed",
+    "fairness certified",
+    "mixing V1 d3aplus with served c2 metrics"
+  ],
+  "next_gate": "G27_SEMANTIC_CONTENT_RETRIEVAL",
+  "runtime_sec": 7.1
+}

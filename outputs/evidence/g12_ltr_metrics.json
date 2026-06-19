@@ -1,0 +1,74 @@
+{
+  "scope": "G12-B LambdaMART LTR on GPU-enriched candidate table",
+  "tag": "[BUILT \u2014 real data, CPU LightGBM]",
+  "framing": "re-ranking recall WITHIN candidate set (coverage ceiling below); NOT full-catalog; user-level split",
+  "n_test_users": 733,
+  "candidate_coverage_ceiling_test": 0.1569,
+  "split": "user-level 70/15/15 (train/val/test)",
+  "results": {
+    "ALS_only_ranking": {
+      "R@20": 0.0382,
+      "R@50": 0.0737,
+      "NDCG@20": 0.0114
+    },
+    "local_no_gpu": {
+      "R@20": 0.0764,
+      "R@50": 0.1105,
+      "NDCG@20": 0.0388,
+      "best_iter": 39
+    },
+    "enriched_gpu": {
+      "R@20": 0.0791,
+      "R@50": 0.1146,
+      "NDCG@20": 0.0425,
+      "best_iter": 20
+    },
+    "enriched_no_twotower": {
+      "R@20": 0.0791,
+      "R@50": 0.116,
+      "NDCG@20": 0.0413,
+      "best_iter": 40
+    }
+  },
+  "lift_enriched_vs_ALSonly_R@20": 0.0409,
+  "lift_enriched_vs_local_R@20": 0.0027,
+  "twotower_effect_R@20": 0.0,
+  "feature_importance_gain": {
+    "author_match": 2829,
+    "sasrec_small_gpu_score": 2200,
+    "twotower_gpu_score": 1795,
+    "als_score": 1370,
+    "log_pop": 1264,
+    "series_match": 1081,
+    "sasrec_cpu_d3b_score": 951,
+    "sasrec_canonical_gpu_score": 935,
+    "pub_year": 925,
+    "seen_flag": 877,
+    "history_len": 643,
+    "als_rank": 579,
+    "sasrec_rank": 312,
+    "warm_flag": 0,
+    "came_from_als": 0,
+    "came_from_sasrec": 0,
+    "came_from_pop": 0,
+    "has_sequence_history": 0,
+    "has_sasrec_canonical_gpu_score": 0
+  },
+  "segment_enriched": {
+    "canonical_covered_hist_ge30": {
+      "R@20": 0.0332,
+      "n": 241
+    },
+    "canonical_absent_hist_lt30": {
+      "R@20": 0.1016,
+      "n": 492
+    },
+    "note": "no zero-history users exist in eval LLO (all >=2 history items); split is by canonical coverage (history_len>=30)"
+  },
+  "honest_notes": [
+    "Candidate coverage ~15.7% caps achievable recall \u2014 ranker cannot recover golds absent from candidates.",
+    "canonical GPU score present only for users with history (NaN else, surfaced via has_sasrec_canonical_gpu_score).",
+    "Re-ranking recall, NOT full-catalog retrieval; no online/production/RiskFrame-gold claim."
+  ],
+  "sec": 7.1
+}

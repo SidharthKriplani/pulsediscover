@@ -1,0 +1,59 @@
+{
+  "gate": "G28",
+  "champion_policy": "lightgbm_lambdamart",
+  "als_primary_for": "warm/head users \u2014 ALS-only preserves the best head relevance (R@20 0.0222)",
+  "semantic_prioritized_fallback_for": "item-cold-start & sparse/thin-ALS users \u2014 semantic is the only source reaching unseen items",
+  "semantic_injection_when": "coverage/long-tail is a goal AND head relevance loss stays within 10% of ALS (use source_balanced/rrf, NOT als_first)",
+  "popularity_fallback_when": "no ALS factor AND no query item (true zero-history users)",
+  "heuristic_rerank_enabled_when": "catalog-health/exposure goal on the warm path (G26B head-cap, config-flagged)",
+  "learned_fusion_status": "champion",
+  "evidence_basis": {
+    "als_only": {
+      "recall@20": 0.0222,
+      "recall@50": 0.0413,
+      "ndcg@20": 0.0068,
+      "recall@20_by_cohort": {
+        "sparse_1_2": 0.0235,
+        "warm_6plus": 0.0194,
+        "low_3_5": 0.046
+      },
+      "recall@20_by_gold_tier": {
+        "head": 0.0837,
+        "unseen": 0.0,
+        "long_tail": 0.0,
+        "mid": 0.0183
+      },
+      "catalog_coverage": 0.04494,
+      "unique_items": 1865,
+      "gini": 0.9863,
+      "long_tail_share": 0.00646,
+      "head_share": 0.9563,
+      "coldstart_recall@20": 0.0,
+      "coldstart_reachability": 0.0
+    },
+    "champion_metrics": {
+      "recall@20": 0.036,
+      "recall@50": 0.0572,
+      "ndcg@20": 0.0235,
+      "recall@20_by_cohort": {
+        "sparse_1_2": 0.0353,
+        "warm_6plus": 0.0324,
+        "low_3_5": 0.069
+      },
+      "recall@20_by_gold_tier": {
+        "head": 0.0661,
+        "unseen": 0.0323,
+        "long_tail": 0.0,
+        "mid": 0.0183
+      },
+      "catalog_coverage": 0.07645,
+      "unique_items": 3173,
+      "gini": 0.9703,
+      "long_tail_share": 0.10736,
+      "head_share": 0.83612,
+      "coldstart_recall@20": 0.0323,
+      "coldstart_reachability": 0.8889
+    }
+  },
+  "decision_rule": "preserve head relevance (>=90% ALS-only) AND maximize cold-start recall then coverage"
+}

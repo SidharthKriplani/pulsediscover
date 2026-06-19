@@ -1,0 +1,29 @@
+{
+  "n_candidate_rows": 613896,
+  "n_users": 5000,
+  "device": "cuda",
+  "gpu": "Tesla T4",
+  "missing_score_counts": {
+    "sasrec_canonical_gpu_score": 411880,
+    "sasrec_small_gpu_score": 0,
+    "twotower_gpu_score": 0
+  },
+  "rows_total": 613896,
+  "model_configs": {
+    "canonical": "SASRec d64/2blk/2head full-softmax 40ep",
+    "small": "SASRec d48/1blk/1head last-pos 20ep",
+    "twotower": "pooled-history in-batch-neg d64 30ep"
+  },
+  "checkpoints_saved": [
+    "ckpt_canonical.pt",
+    "ckpt_small.pt",
+    "ckpt_twotower.pt"
+  ],
+  "leakage_check_gold_in_seen": 0,
+  "honest_notes": [
+    "TwoTower was weak standalone (R@20~0.002) but included as a candidate feature \u2014 the ranker can down-weight it.",
+    "Scores are dot(user_repr, item_emb); NaN if item outside the 40k SASRec vocab.",
+    "Eval protocol unchanged; no LTR trained here."
+  ],
+  "runtime_sec": 1516.4
+}

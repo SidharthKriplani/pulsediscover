@@ -1,0 +1,66 @@
+{
+  "dataset": "goodreads_fantasy_paranormal",
+  "scope": "G6 full/larger-scale stability evaluation",
+  "tag": "[BUILT \u2014 real data, larger scale]",
+  "warm_fullpop": {
+    "scale": {
+      "heldout_total": 42683,
+      "heldout_warm_gold": 36754,
+      "heldout_cold_gold": 5929,
+      "warm_eval_valid": 34539,
+      "sampled_warm_eval": 5000,
+      "expansion_x": 6.91
+    },
+    "warm_recall_fullpop": {
+      "als_only_R@20": 0.0507,
+      "als_only_R@50": 0.1019,
+      "q90_10_warmlane_R@20": 0.0461,
+      "q90_10_warmlane_R@50": 0.0988,
+      "warm_rel_loss@20": -0.0908,
+      "warm_rel_loss@50": -0.0307
+    },
+    "sec": 28.3
+  },
+  "cold_fullpop": {
+    "scale": {
+      "full_cold_gold_users": 5929,
+      "sampled_cold_eval": 5000,
+      "note": "cold-gold population is only 5929; the 5,000 sample was ~84% of full cold population"
+    },
+    "cold_lane_fullpop": {
+      "content_lane_R@20": 0.2125,
+      "content_lane_R@50": 0.2898,
+      "q90_10_policy_cold_R@20(2 slots)": 0.0653,
+      "q80_20_policy_cold_R@20(4 slots)": 0.1071
+    },
+    "cold_creator_reach_q90": {
+      "distinct_cold_items_in_2slots": 931,
+      "distinct_cold_creators": 650,
+      "cold_slot_creator_gini": 0.7586
+    },
+    "sec": 15.4
+  },
+  "warm_reach_fullpop": {
+    "scale": {
+      "warm_users": 34539,
+      "h1_sample_users": 2400,
+      "expansion_x": 14.39
+    },
+    "warm_reach_fullpop": {
+      "als_only": {
+        "distinct_items": 4324,
+        "distinct_creators": 1292,
+        "creator_gini": 0.9081,
+        "eff_creators": 132.9
+      },
+      "q90_10_warmlane": {
+        "distinct_items": 4102,
+        "distinct_creators": 1238,
+        "creator_gini": 0.9074,
+        "eff_creators": 128.3
+      }
+    },
+    "sec": 24.0
+  },
+  "verdict": "PASS \u2014 sampled conclusions directionally stable; warm guardrail holds at full scale (-9.08% < 10%)"
+}

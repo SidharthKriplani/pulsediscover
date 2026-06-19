@@ -1,0 +1,106 @@
+{
+  "scope": "G16 FAISS ANN serving-latency demo (ALS f64 embedding slice)",
+  "tag": "[BUILT \u2014 real data, CPU in-sandbox latency (NOT production)]",
+  "embedding_slice": "ALS f64 item factors only; content/co-occ/popularity are non-dense lanes, excluded from ANN (served separately)",
+  "n_items_indexed": 40541,
+  "dim": 64,
+  "n_query_users": 2000,
+  "K_values": [
+    100,
+    200,
+    400
+  ],
+  "brute_force": {
+    "latency": {
+      "p50_ms": 0.641,
+      "p95_ms": 0.781,
+      "mean_ms": 0.625
+    },
+    "throughput_qps_batch": null,
+    "note": "exact reference"
+  },
+  "faiss_flat_ip_exact": {
+    "latency": {
+      "p50_ms": 0.377,
+      "p95_ms": 0.475,
+      "mean_ms": 0.435
+    },
+    "build_sec": 0.005,
+    "index_MB": 10.38,
+    "recall_retention": {
+      "recall_retention@100": 1.0,
+      "recall_retention@200": 1.0,
+      "recall_retention@400": 1.0
+    },
+    "throughput_qps_batch": 11581
+  },
+  "faiss_ivf_approx": {
+    "nlist": 256,
+    "build_sec": 0.342,
+    "index_MB": 10.77,
+    "nprobe_sweep": {
+      "1": {
+        "recall_retention@100": 0.1765,
+        "recall_retention@200": 0.1301,
+        "recall_retention@400": 0.0928,
+        "p50_ms": 0.023,
+        "p95_ms": 0.045,
+        "mean_ms": 0.027
+      },
+      "4": {
+        "recall_retention@100": 0.4093,
+        "recall_retention@200": 0.3344,
+        "recall_retention@400": 0.2629,
+        "p50_ms": 0.051,
+        "p95_ms": 0.086,
+        "mean_ms": 0.055
+      },
+      "8": {
+        "recall_retention@100": 0.5517,
+        "recall_retention@200": 0.474,
+        "recall_retention@400": 0.3918,
+        "p50_ms": 0.071,
+        "p95_ms": 0.1,
+        "mean_ms": 0.072
+      },
+      "16": {
+        "recall_retention@100": 0.6877,
+        "recall_retention@200": 0.6215,
+        "recall_retention@400": 0.5439,
+        "p50_ms": 0.1,
+        "p95_ms": 0.139,
+        "mean_ms": 0.103
+      },
+      "32": {
+        "recall_retention@100": 0.8082,
+        "recall_retention@200": 0.7602,
+        "recall_retention@400": 0.6992,
+        "p50_ms": 0.136,
+        "p95_ms": 0.191,
+        "mean_ms": 0.142
+      },
+      "64": {
+        "recall_retention@100": 0.9004,
+        "recall_retention@200": 0.8724,
+        "recall_retention@400": 0.8353,
+        "p50_ms": 0.188,
+        "p95_ms": 0.254,
+        "mean_ms": 0.196
+      }
+    },
+    "throughput_qps_batch_nprobe8": 56473
+  },
+  "failure_cases": {
+    "cold_items_no_embedding": "cold/new items have no ALS factor -> NOT ANN-retrievable; served by content lane (by design)",
+    "users_without_ALS_factor": 310,
+    "small_catalog_note": "only 40541 items: brute-force p50 0.641 ms already fast -> FAISS is a scale-demonstration, not a current-size win",
+    "aggressive_approx": "low nprobe (1) loses recall retention -> see sweep"
+  },
+  "claim_boundaries": [
+    "FAISS RETAINS brute-force recall at best; cannot improve ranking quality.",
+    "CPU in-sandbox latency, not a production benchmark.",
+    "No online lift / production / RiskFrame-gold claim.",
+    "Candidate strategy / ranker / slate / G15 interpretation unchanged."
+  ],
+  "sec": 9.4
+}

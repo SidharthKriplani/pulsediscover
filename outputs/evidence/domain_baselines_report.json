@@ -1,0 +1,167 @@
+{
+  "dataset": "goodreads_fantasy_paranormal",
+  "scope": "DOMAIN (Goodreads fantasy/paranormal)",
+  "tag": "[BUILT \u2014 real data (domain)]",
+  "eval": "leave-last-out, 5,000-user sample of 42,683 held-out test users",
+  "baselines": {
+    "popularity": {
+      "@5": {
+        "recall_mean": 0.0066,
+        "recall_ci95": [
+          0.0044,
+          0.0088
+        ],
+        "ndcg_mean": 0.004,
+        "ndcg_ci95": [
+          0.0026,
+          0.0055
+        ],
+        "n": 5000
+      },
+      "@10": {
+        "recall_mean": 0.0202,
+        "recall_ci95": [
+          0.0164,
+          0.024
+        ],
+        "ndcg_mean": 0.0085,
+        "ndcg_ci95": [
+          0.0067,
+          0.0102
+        ],
+        "n": 5000
+      },
+      "@20": {
+        "recall_mean": 0.0322,
+        "recall_ci95": [
+          0.0276,
+          0.0372
+        ],
+        "ndcg_mean": 0.0116,
+        "ndcg_ci95": [
+          0.0097,
+          0.0135
+        ],
+        "n": 5000
+      }
+    },
+    "cooccurrence": {
+      "@5": {
+        "recall_mean": 0.0252,
+        "recall_ci95": [
+          0.0208,
+          0.0296
+        ],
+        "ndcg_mean": 0.0172,
+        "ndcg_ci95": [
+          0.0141,
+          0.0204
+        ],
+        "n": 5000
+      },
+      "@10": {
+        "recall_mean": 0.036,
+        "recall_ci95": [
+          0.0308,
+          0.0412
+        ],
+        "ndcg_mean": 0.0207,
+        "ndcg_ci95": [
+          0.0174,
+          0.024
+        ],
+        "n": 5000
+      },
+      "@20": {
+        "recall_mean": 0.0532,
+        "recall_ci95": [
+          0.0472,
+          0.0592
+        ],
+        "ndcg_mean": 0.025,
+        "ndcg_ci95": [
+          0.0217,
+          0.0282
+        ],
+        "n": 5000
+      }
+    },
+    "als": {
+      "@5": {
+        "recall_mean": 0.0178,
+        "recall_ci95": [
+          0.0144,
+          0.0216
+        ],
+        "ndcg_mean": 0.0113,
+        "ndcg_ci95": [
+          0.009,
+          0.0139
+        ],
+        "n": 5000
+      },
+      "@10": {
+        "recall_mean": 0.03,
+        "recall_ci95": [
+          0.0254,
+          0.035
+        ],
+        "ndcg_mean": 0.0152,
+        "ndcg_ci95": [
+          0.0126,
+          0.018
+        ],
+        "n": 5000
+      },
+      "@20": {
+        "recall_mean": 0.057,
+        "recall_ci95": [
+          0.0506,
+          0.0638
+        ],
+        "ndcg_mean": 0.0219,
+        "ndcg_ci95": [
+          0.0191,
+          0.0248
+        ],
+        "n": 5000
+      }
+    }
+  },
+  "cooccurrence_config": {
+    "vocab_top": 5000,
+    "min_co": 5
+  },
+  "als_config": {
+    "factors": 16,
+    "iters": 4,
+    "fit_sec": 10.8
+  },
+  "coldstart_eval_gold": {
+    "eval_gold_items_warm": 4999,
+    "eval_gold_items_new": 1,
+    "note": "leave-last-out golds on a k-cored set are ~all warm; the substantive cold-start is the D2 global-time test window (restated below)."
+  },
+  "coldstart_global_time_D2": {
+    "val_vs_train": {
+      "new_items": 2152,
+      "new_users": 4065,
+      "new_creators": 562,
+      "new_series": 1388,
+      "pct_interactions_on_new_items": 10.23
+    },
+    "test_vs_train": {
+      "new_items": 3378,
+      "new_users": 5914,
+      "new_creators": 852,
+      "new_series": 2151,
+      "pct_interactions_on_new_items": 23.48
+    }
+  },
+  "honest_notes": [
+    "co-occurrence capped to top-5k items (M^T M at 20k OOM'd on 3.8GB) \u2014 a real CPU-scale limit, reported.",
+    "ALS uses constant confidence (all user-book pairs unique). bounded iters=4 for CPU.",
+    "evaluated on a 5,000-user random sample (seeded) of the 42,683 leave-last-out users; bootstrap CIs reflect that.",
+    "no SASRec/OPE/position-bias/feedback in D3A."
+  ]
+}

@@ -1,0 +1,37 @@
+# Cloud Build context — DENYLIST. The image (deploy/Dockerfile.cloudrun) needs only:
+#   src/, deploy/, data/interim/c2_als.pkl, data/interim/c2_serving_assets.pkl
+# Everything heavy below is excluded so the context is ~45MB, not 2.7GB.
+
+.git/
+.gitignore
+
+# raw data dumps (~1.5GB) — never needed for serving
+data/raw/
+
+# model checkpoints, arrays, archives, compressed dumps
+outputs/
+*.pt
+*.npz
+*.zip
+*.json.gz
+*.csv.gz
+*.parquet
+
+# scratch / upload dirs from earlier gates
+g11c_upload/
+g12a2_upload/
+g20_upload/
+uploads/
+
+# notebooks, docs, python caches (not needed in the image)
+docs/
+*.ipynb
+**/__pycache__/
+**/*.pyc
+
+# data/interim: ignore ALL contents (CSVs, embeddings, subdirs) EXCEPT the two serving files.
+# (Safe idiom: ignore the directory's contents one level, re-include specific files — never
+#  re-include the directory itself, which is what pulled everything back in before.)
+data/interim/*
+!data/interim/c2_als.pkl
+!data/interim/c2_serving_assets.pkl

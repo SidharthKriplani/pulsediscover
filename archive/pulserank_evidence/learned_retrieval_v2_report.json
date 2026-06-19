@@ -1,0 +1,43 @@
+{
+  "artifact": "pulserank_learned_retrieval_v2_comparison",
+  "status": "pass",
+  "candidate_k": 100,
+  "train_days": [
+    1,
+    60
+  ],
+  "holdout_days": [
+    61,
+    90
+  ],
+  "train_sessions": 2806,
+  "holdout_sessions": 1326,
+  "holdout_sessions_with_purchases": 150,
+  "als_config": {
+    "n_factors": 32,
+    "regularization": 0.1,
+    "iterations": 15,
+    "confidence_weight": 40.0,
+    "seed": 20260505,
+    "n_users": 779,
+    "n_items": 535,
+    "n_interactions": 2759
+  },
+  "cooccurrence_items_with_neighbors": 112,
+  "recall_at_k": {
+    "popularity": 0.58667,
+    "content_heuristic": 0.64667,
+    "als": 0.34667,
+    "cooccurrence": 0.04,
+    "hybrid_v2": 0.62667
+  },
+  "coverage_at_k": {
+    "popularity": 0.15385,
+    "content_heuristic": 1.0,
+    "als": 0.07692,
+    "cooccurrence": 0.16923,
+    "hybrid_v2": 0.92615
+  },
+  "best_channel": "content_heuristic",
+  "evidence_statement": "Learned retrieval V2 adds ALS collaborative filtering and item co-occurrence channels to the existing popularity and content-heuristic baselines. The hybrid V2 merges all four channels for maximum recall."
+}

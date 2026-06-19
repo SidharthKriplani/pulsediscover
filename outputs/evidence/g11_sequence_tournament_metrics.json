@@ -1,0 +1,154 @@
+{
+  "scope": "DOMAIN Goodreads fantasy/paranormal",
+  "tag": "[BUILT \u2014 real data, CPU-limited]",
+  "eval": "leave-last-out, 5,000-user sample, full 40k scoring",
+  "hardware": "CPU (4 threads), no GPU",
+  "n_items": 40001,
+  "maxlen": 30,
+  "seed": 20260616,
+  "reproducibility": "run_g11_sequence_tournament.py build|train gru|train sas|eval; checkpoints in outputs/_models",
+  "configs": {
+    "GRU4Rec": {
+      "d": 64,
+      "layers": 1,
+      "dropout": 0.2,
+      "batch": 1024,
+      "nneg": 100,
+      "lr": 0.001,
+      "training": "full-position sampled-softmax BCE"
+    },
+    "SASRec_v2": {
+      "d": 64,
+      "maxlen": 30,
+      "nblocks": 2,
+      "nheads": 2,
+      "dropout": 0.2,
+      "batch": 512,
+      "nneg": 100,
+      "lr": 0.001,
+      "training": "full-position sampled-softmax BCE"
+    },
+    "SASRec_v2_gpu_ready": {
+      "d": 64,
+      "maxlen": 50,
+      "nblocks": 2,
+      "nheads": 2,
+      "dropout": 0.2,
+      "batch": 128,
+      "full_softmax": true,
+      "lr": 0.001,
+      "epochs": 200,
+      "note": "run on GPU; full softmax over vocab; popularity-corrected negatives"
+    }
+  },
+  "results": {
+    "ALS_f64_floor": {
+      "R@20": {
+        "mean": 0.0846,
+        "ci95": [
+          0.0766,
+          0.0922
+        ]
+      },
+      "R@50": {
+        "mean": 0.1466,
+        "ci95": [
+          0.1366,
+          0.156
+        ]
+      },
+      "N@20": {
+        "mean": 0.0344
+      }
+    },
+    "SASRec_v1_d3b_lastpos": {
+      "R@20": {
+        "mean": 0.0362,
+        "ci95": [
+          0.031,
+          0.0412
+        ]
+      },
+      "R@50": {
+        "mean": 0.0804,
+        "ci95": [
+          0.0728,
+          0.088
+        ]
+      },
+      "N@20": {
+        "mean": 0.0122
+      }
+    },
+    "GRU4Rec": {
+      "R@20": {
+        "mean": 0.0306,
+        "ci95": [
+          0.026,
+          0.0356
+        ]
+      },
+      "R@50": {
+        "mean": 0.067,
+        "ci95": [
+          0.0598,
+          0.074
+        ]
+      },
+      "N@20": {
+        "mean": 0.0122
+      },
+      "epochs_done": 9,
+      "loss_curve": [
+        1.836,
+        1.3586,
+        1.2949,
+        1.1906,
+        1.0616,
+        0.9709,
+        0.9268,
+        0.9055,
+        0.8955
+      ],
+      "gold_in_vocab": 4948,
+      "n_eval": 5000
+    },
+    "SASRec_v2_fullpos": {
+      "R@20": {
+        "mean": 0.0076,
+        "ci95": [
+          0.0054,
+          0.01
+        ]
+      },
+      "R@50": {
+        "mean": 0.0162,
+        "ci95": [
+          0.0128,
+          0.0196
+        ]
+      },
+      "N@20": {
+        "mean": 0.0023
+      },
+      "epochs_done": 8,
+      "loss_curve": [
+        3.9005,
+        1.5438,
+        1.1057,
+        1.0032,
+        0.9701,
+        0.9567,
+        0.951,
+        0.9478
+      ],
+      "gold_in_vocab": 4948,
+      "n_eval": 5000
+    }
+  },
+  "deltas_vs_als_f64": {
+    "GRU4Rec_R@20": -0.054,
+    "SASRec_v2_R@20": -0.077,
+    "SASRec_v2_vs_v1_R@20": -0.0286
+  }
+}

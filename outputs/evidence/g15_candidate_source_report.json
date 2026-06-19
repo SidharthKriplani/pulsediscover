@@ -1,0 +1,59 @@
+{
+  "scope": "G15 co-occurrence candidate source",
+  "tag": "[BUILT \u2014 real data, CPU]",
+  "cooc_vocab": 6000,
+  "topN_neighbors": 40,
+  "cooc_topN": 100,
+  "min_cooccount": 5,
+  "g13_mid_coverage": 0.3228,
+  "cooc_only_coverage": 0.1454,
+  "mid_plus_cooc_coverage": 0.3604,
+  "marginal_coverage_added_by_cooc": 0.0376,
+  "mean_overlap_cooc_with_mid": 0.6972,
+  "lightgcn": "DEFERRED \u2014 graph-embedding training not cheap on CPU at 40k items; documented future source",
+  "sec": 5.4,
+  "ltr_mid_baseline": {
+    "R@20": 0.1201,
+    "R@50": 0.1678,
+    "NDCG@20": 0.0556,
+    "coverage": 0.2974,
+    "avg_cands": 314.0,
+    "rows": 1586079,
+    "top_feats": {
+      "author_match": 4890,
+      "als_rank": 4721,
+      "sas_score": 3281,
+      "pub_year": 2582,
+      "log_pop": 2273,
+      "als_score": 1714
+    }
+  },
+  "ltr_mid_plus_cooc": {
+    "R@20": 0.1378,
+    "R@50": 0.1924,
+    "NDCG@20": 0.0659,
+    "coverage": 0.3329,
+    "avg_cands": 339.7,
+    "rows": 1715907,
+    "top_feats": {
+      "author_match": 10031,
+      "als_rank": 8913,
+      "sas_score": 5729,
+      "log_pop": 5566,
+      "als_score": 4998,
+      "pub_year": 3643
+    }
+  },
+  "R@20_lift_cooc": 0.0177,
+  "noise_threshold_1.96SE": 0.0233,
+  "verdict": "WEAK/CONDITIONAL ADOPT \u2014 co-occurrence adds genuine marginal coverage (+3.76pp) and consistent directional lifts (R@20 +0.0177~1.5SE, R@50 +0.025~1.7SE, NDCG +0.010) at low cost (+26 cands/user). NOT a clean honest-negative (unlike GPU features +0.0027) and NOT 95%-significant at n=733. Adopt as a low-cost complementary source; re-confirm significance at larger N. LightGCN deferred.",
+  "R@50_lift_cooc": 0.0246,
+  "NDCG_lift_cooc": 0.0103,
+  "significance": {
+    "R@20_lift": 0.0177,
+    "R@20_SE_mult": 1.47,
+    "R@50_lift": 0.0246,
+    "R@50_SE_mult": 1.7,
+    "note": "n=733; ~1.5-1.7 SE, directional not 95%-significant"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "phase": 6,
+  "dataset": "movielens-1m",
+  "is_evidence": true,
+  "tag": "[BUILT][SYNTHETIC \u2014 position-bias correction on simulator logs]",
+  "role": "position-bias correction validation (simulator-scoped; NOT real online lift)",
+  "n_events": 60400,
+  "n_items_compared": 124,
+  "min_impr": 20,
+  "examination_propensity_empirical": {
+    "0": 0.9477,
+    "1": 0.5876,
+    "2": 0.4331,
+    "3": 0.3719,
+    "4": 0.3187,
+    "5": 0.2781,
+    "6": 0.2412,
+    "7": 0.2202,
+    "8": 0.1975,
+    "9": 0.1932
+  },
+  "examination_propensity_known_pbm": {
+    "0": 0.95,
+    "1": 0.5848,
+    "2": 0.4403,
+    "3": 0.36,
+    "4": 0.3079,
+    "5": 0.271,
+    "6": 0.2433,
+    "7": 0.2216,
+    "8": 0.2041,
+    "9": 0.1895
+  },
+  "metrics_vs_ground_truth": {
+    "naive_rel": {
+      "mse_vs_true": 0.053406,
+      "pearson_vs_true": 0.7547,
+      "spearman_vs_true": 0.7076,
+      "corr_with_avg_rank": -0.4707
+    },
+    "ips_rel": {
+      "mse_vs_true": 0.01145,
+      "pearson_vs_true": 0.6284,
+      "spearman_vs_true": 0.6329,
+      "corr_with_avg_rank": -0.2534
+    }
+  },
+  "pal_route_b": {
+    "status": "BUILT (additive logit tower, BCE loss=0.4064)",
+    "spearman_vs_true": 0.6992
+  },
+  "item_movement": {
+    "biggest_up_under_ips": [
+      {
+        "item_id": 588,
+        "avg_rank": 4.81,
+        "naive_rel": 0.1163,
+        "ips_rel": 0.4114,
+        "rank_change": 36
+      },
+      {
+        "item_id": 750,
+        "avg_rank": 4.27,
+        "naive_rel": 0.1091,
+        "ips_rel": 0.3689,
+        "rank_change": 30
+      },
+      {
+        "item_id": 1089,
+        "avg_rank": 5.92,
+        "naive_rel": 0.08,
+        "ips_rel": 0.3146,
+        "rank_change": 28
+      },
+      {
+        "item_id": 908,
+        "avg_rank": 4.53,
+        "naive_rel": 0.1186,
+        "ips_rel": 0.3877,
+        "rank_change": 27
+      },
+      {
+        "item_id": 1219,
+        "avg_rank": 4.97,
+        "naive_rel": 0.069,
+        "ips_rel": 0.2806,
+        "rank_change": 24
+      }
+    ],
+    "biggest_down_under_ips": [
+      {
+        "item_id": 2406,
+        "avg_rank": 4.52,
+        "naive_rel": 0.1034,
+        "ips_rel": 0.1524,
+        "rank_change": -36
+      },
+      {
+        "item_id": 1247,
+        "avg_rank": 4.0,
+        "naive_rel": 0.1071,
+        "ips_rel": 0.1592,
+        "rank_change": -35
+      },
+      {
+        "item_id": 1136,
+        "avg_rank": 4.48,
+        "naive_rel": 0.1308,
+        "ips_rel": 0.2659,
+        "rank_change": -34
+      },
+      {
+        "item_id": 1584,
+        "avg_rank": 4.44,
+        "naive_rel": 0.1341,
+        "ips_rel": 0.3074,
+        "rank_change": -28
+      },
+      {
+        "item_id": 1220,
+        "avg_rank": 4.56,
+        "naive_rel": 0.1556,
+        "ips_rel": 0.3501,
+        "rank_change": -25
+      }
+    ]
+  },
+  "honesty": "naive is position-confounded (correlates with avg_rank); IPS removes most of that confounding and tracks ground truth better. All simulator-scoped; per-item relevance aggregated over impressions; examination propensity estimated from logged exposure.",
+  "ts": 1781558921
+}

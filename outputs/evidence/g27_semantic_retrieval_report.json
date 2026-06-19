@@ -1,0 +1,187 @@
+{
+  "gate": "G27",
+  "title": "Semantic Content Retrieval (cold-start candidate lane)",
+  "lane": "V2",
+  "provenance": "computed_offline_real_data",
+  "scope_guardrails": [
+    "Dense content-embedding candidate generation on the served-c2 protocol; NOT chat/RAG/LLM-reranker, NOT 'semantic taste', NOT learned LTR.",
+    "Item-to-item semantic retrieval needs a query item -> evaluated on users with >=1 history; true zero-history users still use popularity fallback.",
+    "Served c2 / content metrics only; NOT comparable to V1 d3aplus (0.0846).",
+    "Offline candidate-generation evidence; no online lift, no solved cold-start, no OPE execution."
+  ],
+  "embedding_model": "sentence-transformers/all-MiniLM-L6-v2",
+  "embedding_dimension": 384,
+  "item_count_total": 41866,
+  "semantic_index_item_count": 41866,
+  "faiss_index_type": "IndexFlatIP (normalized vectors, cosine-equivalent)",
+  "retrieval_latency_p50_ms": 0.2287,
+  "retrieval_latency_p95_ms": 0.2287,
+  "evaluated_cohorts": {
+    "users_semantic_queryable": 8938,
+    "by_cohort": {
+      "sparse_1_2": 761,
+      "warm_6plus": 7360,
+      "low_3_5": 817
+    },
+    "by_gold_tier": {
+      "head": 1636,
+      "unseen": 5885,
+      "mid": 820,
+      "long_tail": 597
+    }
+  },
+  "baseline_popularity_metrics": {
+    "recall@20_by_cohort": {
+      "sparse_1_2": 0.0171,
+      "warm_6plus": 0.0079,
+      "low_3_5": 0.0159
+    },
+    "recall@20_by_gold_tier": {
+      "head": 0.0513,
+      "unseen": 0.0,
+      "mid": 0.0,
+      "long_tail": 0.0
+    },
+    "catalog_coverage": 0.00143,
+    "unique_items": 60,
+    "gini": 0.9995,
+    "long_tail_share": 0.0,
+    "head_share": 1.0,
+    "zero_exposure_share": 0.99857
+  },
+  "served_c2_metrics": {
+    "recall@20_by_cohort": {
+      "sparse_1_2": 0.0289,
+      "warm_6plus": 0.0137,
+      "low_3_5": 0.0367
+    },
+    "recall@20_by_gold_tier": {
+      "head": 0.0874,
+      "unseen": 0.0,
+      "mid": 0.0122,
+      "long_tail": 0.0
+    },
+    "catalog_coverage": 0.08119,
+    "unique_items": 3399,
+    "gini": 0.9825,
+    "long_tail_share": 0.00875,
+    "head_share": 0.9332,
+    "zero_exposure_share": 0.91881
+  },
+  "sparse_content_metrics": "not_run_this_gate (V1 had a TF-IDF/metadata content-hybrid lane; dense MiniLM supersedes it here; sparse SVD fallback available in module if needed)",
+  "dense_semantic_metrics": {
+    "recall@20_by_cohort": {
+      "sparse_1_2": 0.0105,
+      "warm_6plus": 0.0092,
+      "low_3_5": 0.0208
+    },
+    "recall@20_by_gold_tier": {
+      "head": 0.0098,
+      "unseen": 0.0107,
+      "mid": 0.0134,
+      "long_tail": 0.005
+    },
+    "catalog_coverage": 0.62636,
+    "unique_items": 26223,
+    "gini": 0.7312,
+    "long_tail_share": 0.48059,
+    "head_share": 0.12318,
+    "zero_exposure_share": 0.37364
+  },
+  "fusion_policy_metrics": {
+    "recall@20_by_cohort": {
+      "sparse_1_2": 0.0289,
+      "warm_6plus": 0.0137,
+      "low_3_5": 0.0367
+    },
+    "recall@20_by_gold_tier": {
+      "head": 0.0874,
+      "unseen": 0.0,
+      "mid": 0.0122,
+      "long_tail": 0.0
+    },
+    "catalog_coverage": 0.08214,
+    "unique_items": 3439,
+    "gini": 0.9824,
+    "long_tail_share": 0.00893,
+    "head_share": 0.93295,
+    "zero_exposure_share": 0.91786
+  },
+  "fusion_policy": "ALS candidates UNION semantic candidates (dedup, ALS first); heuristic, NOT learned fusion",
+  "cold_start_recovery_metrics": {
+    "item_cold_start_golds_total": 1696,
+    "semantic_recall@20_on_coldstart_golds": 0.0107,
+    "als_recall@20_on_coldstart_golds": 0.0,
+    "popularity_recall@20_on_coldstart_golds": 0.0,
+    "fusion_recall@20_on_coldstart_golds": 0.0,
+    "distinct_coldstart_golds_reached_by_semantic": 926,
+    "coldstart_reachability_rate": 0.546,
+    "note": "ALS recall on item-cold-start golds is ~0 by construction (unseen items are not in the ALS catalog); semantic retrieval can reach them because it indexes content."
+  },
+  "catalog_exposure_metrics": {
+    "popularity": {
+      "coverage": 0.00143,
+      "gini": 0.9995,
+      "long_tail_share": 0.0
+    },
+    "als_c2": {
+      "coverage": 0.08119,
+      "gini": 0.9825,
+      "long_tail_share": 0.00875
+    },
+    "semantic": {
+      "coverage": 0.62636,
+      "gini": 0.7312,
+      "long_tail_share": 0.48059
+    },
+    "fusion": {
+      "coverage": 0.08214,
+      "gini": 0.9824,
+      "long_tail_share": 0.00893
+    }
+  },
+  "failure_cases": [
+    "Zero-history users have no query item -> semantic item-to-item not applicable (popularity fallback retained).",
+    "Semantic surfaces content-similar items, which may be series/dup-like near-neighbours rather than novel discovery.",
+    "Recall is single held-out gold; absolute values are low (served c2 protocol), comparisons are relative.",
+    "Genre-noisy shelves can pull off-topic neighbours; text = title+genre-shelves (no desc) by build-time budget."
+  ],
+  "metadata_coverage_audit": {
+    "item_count_total_universe": 41866,
+    "catalog_items": 40541,
+    "eval_gold_items": 4336,
+    "item_count_with_text": 41866,
+    "item_text_coverage_rate": 1.0,
+    "cold_start_item_count": 1325,
+    "cold_start_items_with_text": 1325,
+    "cold_start_text_coverage_rate": 1.0,
+    "text_recipe": "title + cleaned-genre-shelves(<=8) + desc[:200]",
+    "embedding_model": "sentence-transformers/all-MiniLM-L6-v2 (transformer) | tfidf_svd fallback"
+  },
+  "ship_decision": "cold_start_fallback_and_supplemental_candidate_source",
+  "claim_status": {
+    "semantic_candidate_lane_built": true,
+    "cold_start_recovery_measured": true,
+    "cold_start_solved": false,
+    "llm_recommender": false,
+    "semantic_taste_understanding": false,
+    "online_lift": false,
+    "learned_ranker": false,
+    "ope_executed": false,
+    "v1_v2_mixed": false,
+    "safe_claim": "Added a semantic content-retrieval lane (dense MiniLM item embeddings + FAISS content index) as a candidate source for item-cold-start and sparse-catalog scenarios; evaluated vs popularity and served c2 on cold/sparse/warm cohorts; measured relevance, coverage, long-tail exposure, concentration, latency, and cold-start recovery. Offline candidate-generation evidence, not online lift or solved cold-start."
+  },
+  "forbidden_claims": [
+    "cold-start solved",
+    "LLM recommender",
+    "semantic taste understanding",
+    "online lift proven",
+    "production recommender deployed",
+    "learned ranker deployed",
+    "OPE executed",
+    "fairness certified",
+    "two-tower/GNN/bandit built"
+  ],
+  "next_gate_recommendation": "G28 learned ranker tournament (if fusion adds useful candidate diversity) OR G29 OPE logging execution; patch G27 if recall too weak.",
+  "runtime_sec": 10.6
+}

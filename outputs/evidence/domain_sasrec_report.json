@@ -1,0 +1,430 @@
+{
+  "method": "SASRec",
+  "scope": "DOMAIN (Goodreads fantasy/paranormal)",
+  "tag": "[BUILT \u2014 real data (domain)]",
+  "eval": "leave-last-out, 5,000-user sample (full 40k scoring)",
+  "n_eval": 5000,
+  "gold_in_vocab": 4948,
+  "gold_in_vocab_pct": 98.96,
+  "training_config": {
+    "d": 48,
+    "maxlen": 30,
+    "nblocks": 1,
+    "nheads": 1,
+    "dropout": 0.2,
+    "batch": 2048,
+    "nneg": 50,
+    "lr": 0.001,
+    "optimizer": "Adam",
+    "loss": "sampled-softmax BCE"
+  },
+  "epochs_done": 20,
+  "loss_curve": [
+    5.2853,
+    4.2696,
+    3.4114,
+    2.7744,
+    2.2787,
+    1.888,
+    1.6151,
+    1.4253,
+    1.2926,
+    1.1969,
+    1.1279,
+    1.077,
+    1.0371,
+    1.0058,
+    0.9793,
+    0.9575,
+    0.9371,
+    0.92,
+    0.9033,
+    0.8893
+  ],
+  "epoch_times_sec": [
+    9.0,
+    8.2,
+    8.2,
+    8.2,
+    8.3,
+    7.8,
+    7.9,
+    8.1,
+    8.8,
+    8.2,
+    8.5,
+    8.4,
+    8.2,
+    8.1,
+    8.7,
+    8.5,
+    9.9,
+    9.8,
+    8.5,
+    8.1
+  ],
+  "early_stopping": "none (fixed time-budget, resumable; loss still mildly decreasing at stop)",
+  "metrics_SASRec": {
+    "R@5": {
+      "mean": 0.0084,
+      "ci95": [
+        0.006,
+        0.011
+      ]
+    },
+    "R@10": {
+      "mean": 0.0188,
+      "ci95": [
+        0.015,
+        0.023
+      ]
+    },
+    "R@20": {
+      "mean": 0.0362,
+      "ci95": [
+        0.031,
+        0.0412
+      ]
+    },
+    "R@50": {
+      "mean": 0.0804,
+      "ci95": [
+        0.0728,
+        0.088
+      ]
+    },
+    "R@100": {
+      "mean": 0.1292,
+      "ci95": [
+        0.12,
+        0.1388
+      ]
+    },
+    "R@200": {
+      "mean": 0.1872,
+      "ci95": [
+        0.1756,
+        0.1982
+      ]
+    },
+    "N@10": {
+      "mean": 0.0078
+    },
+    "N@20": {
+      "mean": 0.0122
+    },
+    "N@50": {
+      "mean": 0.021
+    }
+  },
+  "comparison": {
+    "ALS_f64_primary_floor": {
+      "R@5": {
+        "mean": 0.0312,
+        "ci95": [
+          0.0266,
+          0.036
+        ]
+      },
+      "R@10": {
+        "mean": 0.0508,
+        "ci95": [
+          0.0448,
+          0.057
+        ]
+      },
+      "R@20": {
+        "mean": 0.0846,
+        "ci95": [
+          0.0766,
+          0.0922
+        ]
+      },
+      "R@50": {
+        "mean": 0.1466,
+        "ci95": [
+          0.1366,
+          0.156
+        ]
+      },
+      "R@100": {
+        "mean": 0.2154,
+        "ci95": [
+          0.204,
+          0.2264
+        ]
+      },
+      "R@200": {
+        "mean": 0.2978,
+        "ci95": [
+          0.2852,
+          0.31
+        ]
+      },
+      "N@10": {
+        "mean": 0.0259
+      },
+      "N@20": {
+        "mean": 0.0344
+      },
+      "N@50": {
+        "mean": 0.0466
+      }
+    },
+    "hybrid_f16_secondary": {
+      "R@5": {
+        "mean": 0.026,
+        "ci95": [
+          0.0218,
+          0.0306
+        ]
+      },
+      "R@10": {
+        "mean": 0.0406,
+        "ci95": [
+          0.0354,
+          0.0462
+        ]
+      },
+      "R@20": {
+        "mean": 0.0614,
+        "ci95": [
+          0.055,
+          0.0682
+        ]
+      },
+      "R@50": {
+        "mean": 0.1036,
+        "ci95": [
+          0.0954,
+          0.1124
+        ]
+      },
+      "R@100": {
+        "mean": 0.1596,
+        "ci95": [
+          0.1498,
+          0.1696
+        ]
+      },
+      "R@200": {
+        "mean": 0.2362,
+        "ci95": [
+          0.2242,
+          0.2478
+        ]
+      },
+      "N@10": {
+        "mean": 0.0214
+      },
+      "N@20": {
+        "mean": 0.0266
+      },
+      "N@50": {
+        "mean": 0.0349
+      }
+    },
+    "popularity": {
+      "R@5": {
+        "mean": 0.0066,
+        "ci95": [
+          0.0044,
+          0.0088
+        ]
+      },
+      "R@10": {
+        "mean": 0.0202,
+        "ci95": [
+          0.0164,
+          0.024
+        ]
+      },
+      "R@20": {
+        "mean": 0.035,
+        "ci95": [
+          0.03,
+          0.0402
+        ]
+      },
+      "R@50": {
+        "mean": 0.063,
+        "ci95": [
+          0.0564,
+          0.0696
+        ]
+      },
+      "R@100": {
+        "mean": 0.1196,
+        "ci95": [
+          0.1102,
+          0.128
+        ]
+      },
+      "R@200": {
+        "mean": 0.1654,
+        "ci95": [
+          0.155,
+          0.1756
+        ]
+      },
+      "N@10": {
+        "mean": 0.0085
+      },
+      "N@20": {
+        "mean": 0.0122
+      },
+      "N@50": {
+        "mean": 0.0177
+      }
+    },
+    "cooccurrence_5k": {
+      "R@5": {
+        "mean": 0.0224,
+        "ci95": [
+          0.0186,
+          0.0266
+        ]
+      },
+      "R@10": {
+        "mean": 0.0344,
+        "ci95": [
+          0.0294,
+          0.0394
+        ]
+      },
+      "R@20": {
+        "mean": 0.0464,
+        "ci95": [
+          0.0404,
+          0.052
+        ]
+      },
+      "R@50": {
+        "mean": 0.0762,
+        "ci95": [
+          0.0686,
+          0.0834
+        ]
+      },
+      "R@100": {
+        "mean": 0.112,
+        "ci95": [
+          0.1028,
+          0.1208
+        ]
+      },
+      "R@200": {
+        "mean": 0.1594,
+        "ci95": [
+          0.1494,
+          0.1694
+        ]
+      },
+      "N@10": {
+        "mean": 0.0199
+      },
+      "N@20": {
+        "mean": 0.0229
+      },
+      "N@50": {
+        "mean": 0.0288
+      }
+    },
+    "ALS_f16": {
+      "R@5": {
+        "mean": 0.0178,
+        "ci95": [
+          0.0144,
+          0.0216
+        ]
+      },
+      "R@10": {
+        "mean": 0.03,
+        "ci95": [
+          0.0254,
+          0.035
+        ]
+      },
+      "R@20": {
+        "mean": 0.057,
+        "ci95": [
+          0.0506,
+          0.0638
+        ]
+      },
+      "R@50": {
+        "mean": 0.1088,
+        "ci95": [
+          0.1,
+          0.1172
+        ]
+      },
+      "R@100": {
+        "mean": 0.1742,
+        "ci95": [
+          0.1636,
+          0.1842
+        ]
+      },
+      "R@200": {
+        "mean": 0.2548,
+        "ci95": [
+          0.2426,
+          0.267
+        ]
+      },
+      "N@10": {
+        "mean": 0.0152
+      },
+      "N@20": {
+        "mean": 0.0219
+      },
+      "N@50": {
+        "mean": 0.0321
+      }
+    }
+  },
+  "verdict_vs_floor": {
+    "R@5": {
+      "sasrec": 0.0084,
+      "als_f64": 0.0312,
+      "delta": -0.0228
+    },
+    "R@10": {
+      "sasrec": 0.0188,
+      "als_f64": 0.0508,
+      "delta": -0.032
+    },
+    "R@20": {
+      "sasrec": 0.0362,
+      "als_f64": 0.0846,
+      "delta": -0.0484
+    },
+    "R@50": {
+      "sasrec": 0.0804,
+      "als_f64": 0.1466,
+      "delta": -0.0662
+    },
+    "R@100": {
+      "sasrec": 0.1292,
+      "als_f64": 0.2154,
+      "delta": -0.0862
+    },
+    "R@200": {
+      "sasrec": 0.1872,
+      "als_f64": 0.2978,
+      "delta": -0.1106
+    }
+  },
+  "verdict": "SASRec UNDERPERFORMS all collaborative baselines on the domain (below f64 ALS, f16 ALS, co-occurrence; ~popularity-level at R@10). Reported as-is, not hidden.",
+  "diagnosis_likely_causes": [
+    "PRIME SUSPECT \u2014 last-position training: trained on next-item-at-sequence-end (1 example/user = 94k) instead of canonical full-position SASRec (supervision at every position = millions). ~30x less training signal \u2014 a CPU-budget choice that cripples SASRec vs ALS.",
+    "Under-training: 20 epochs, loss still mildly decreasing (0.889, not plateaued); canonical SASRec trains 100s of epochs.",
+    "Small CPU config: d=48, 1 block, 1 head, maxlen=30 \u2014 well below typical SASRec (d 64-128, 2 blocks, 2 heads, maxlen 50-200) \u2192 capacity-limited.",
+    "Uniform negative sampling (50): popularity-corrected negatives often help on skewed catalogs.",
+    "Sequence predictability: next-book in fiction is weakly sequence-predictable vs strong collaborative/popularity signal that ALS captures.",
+    "NOT cold-start: 99.0% of golds are in the top-40k vocab, so vocab coverage is not the cause.",
+    "CPU/45s-call limits prevented the canonical setup (full-position + more epochs + bigger model) -> external pack / GPU."
+  ],
+  "fix_path": "external pack: canonical full-position SASRec, d>=64, 2 blocks/2 heads, maxlen>=50, 100+ epochs, popularity-corrected negatives, on a free Colab/Kaggle GPU; re-evaluate vs the f64 ALS floor."
+}

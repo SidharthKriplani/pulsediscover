@@ -1,0 +1,17 @@
+# PulseDiscover V2 serving — local production-shaped run (NOT production deployment)
+services:
+  pulsediscover-serving:
+    build: .
+    image: pulsediscover-serving:v2
+    ports:
+      - "8000:8000"
+    environment:
+      - PD_DATADIR=/app/data/interim
+      - PD_DEFAULT_MODE=exact   # exact = FAISS FlatIP (lossless default); "scale" = HNSW ef64
+    volumes:
+      - ./data/interim:/app/data/interim:ro   # ALS factors, train.csv, content meta (read-only)
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
