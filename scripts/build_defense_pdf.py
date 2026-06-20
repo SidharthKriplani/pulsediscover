@@ -1,266 +1,487 @@
-"""Build the PulseDiscover interview-defense PDF (9-section format)."""
+"""Build the PulseDiscover interview-defense PDF — comprehensive, dark, portfolio-styled."""
+import os, matplotlib
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_LEFT, TA_CENTER
 from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle,
-                                PageBreak, HRFlowable, ListFlowable, ListItem)
-from reportlab.lib.enums import TA_LEFT
+                                PageBreak, Image, KeepTogether, ListFlowable, ListItem, Flowable)
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-import os, matplotlib
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
+
 _F = os.path.join(os.path.dirname(matplotlib.__file__), "mpl-data", "fonts", "ttf")
 pdfmetrics.registerFont(TTFont("DJ", os.path.join(_F, "DejaVuSans.ttf")))
 pdfmetrics.registerFont(TTFont("DJ-Bold", os.path.join(_F, "DejaVuSans-Bold.ttf")))
 pdfmetrics.registerFont(TTFont("DJ-Italic", os.path.join(_F, "DejaVuSans-Oblique.ttf")))
-from reportlab.pdfbase.pdfmetrics import registerFontFamily
 registerFontFamily("DJ", normal="DJ", bold="DJ-Bold", italic="DJ-Italic", boldItalic="DJ-Bold")
 
-NAVY = colors.HexColor("#1f3a5f"); ACCENT = colors.HexColor("#c0392b")
-GREY = colors.HexColor("#555555"); LIGHT = colors.HexColor("#eef2f7")
+# palette
+BG      = colors.HexColor("#0d1b2c")
+CARD    = colors.HexColor("#13243a")
+LINE    = colors.HexColor("#24405e")
+INK     = colors.HexColor("#dbe6f3")
+MUTE    = colors.HexColor("#90a5c0")
+BLUE    = colors.HexColor("#6db0e8")
+GREEN   = colors.HexColor("#5fc46e")
+AMBER   = colors.HexColor("#f0a93a")
+RED     = colors.HexColor("#e1685f")
+PURPLE  = colors.HexColor("#b3a8ee")
 
 ss = getSampleStyleSheet()
-H1 = ParagraphStyle("H1", parent=ss["Heading1"], fontName="DJ-Bold", textColor=NAVY, fontSize=15, spaceBefore=14, spaceAfter=6)
-H2 = ParagraphStyle("H2", parent=ss["Heading2"], fontName="DJ-Bold", textColor=ACCENT, fontSize=11.5, spaceBefore=9, spaceAfter=3)
-BODY = ParagraphStyle("Body", parent=ss["BodyText"], fontName="DJ", fontSize=9.3, leading=13, spaceAfter=5, alignment=TA_LEFT)
-SMALL = ParagraphStyle("Small", parent=BODY, fontName="DJ", fontSize=8.4, leading=11, textColor=GREY)
-BOLDLEAD = ParagraphStyle("BoldLead", parent=BODY, fontName="DJ", fontSize=9.3, leading=13)
-TITLE = ParagraphStyle("TT", parent=ss["Title"], fontName="DJ-Bold", textColor=NAVY, fontSize=22, spaceAfter=2)
-SUB = ParagraphStyle("Sub", parent=ss["Normal"], fontName="DJ", fontSize=10.5, textColor=GREY, spaceAfter=2)
+def st(name, **kw):
+    base = kw.pop("parent", ss["BodyText"])
+    return ParagraphStyle(name, parent=base, fontName=kw.pop("fontName", "DJ"), **kw)
+
+TITLE = st("t", fontName="DJ-Bold", fontSize=30, textColor=INK, alignment=TA_CENTER, leading=34)
+SUBT  = st("s", fontSize=12.5, textColor=MUTE, alignment=TA_CENTER, leading=17)
+H1    = st("h1", fontName="DJ-Bold", fontSize=17, textColor=INK, spaceBefore=4, spaceAfter=8, leading=21)
+H2    = st("h2", fontName="DJ-Bold", fontSize=12.5, textColor=BLUE, spaceBefore=10, spaceAfter=3, leading=15)
+BODY  = st("b", fontSize=9.6, textColor=INK, leading=14, spaceAfter=6, alignment=TA_LEFT)
+SMALL = st("sm", fontSize=8.5, textColor=MUTE, leading=11.5, spaceAfter=4)
+LEADQ = st("q", fontName="DJ-Bold", fontSize=10, textColor=BLUE, leading=13, spaceBefore=6, spaceAfter=1)
+ANS   = st("a", fontSize=9.3, textColor=INK, leading=12.8, spaceAfter=4)
+CELL  = st("c", fontSize=8.4, textColor=INK, leading=11)
+CELLm = st("cm", fontSize=8.4, textColor=MUTE, leading=11)
+CHIP  = st("chip", fontName="DJ-Bold", fontSize=8.5, textColor=colors.white, alignment=TA_CENTER, leading=11)
 
 def P(t, s=BODY): return Paragraph(t, s)
-def bullets(items, s=BODY):
-    return ListFlowable([ListItem(P(x, s), leftIndent=6) for x in items],
-                        bulletType="bullet", bulletColor=NAVY, leftIndent=12, bulletFontSize=6)
-def rule(): return HRFlowable(width="100%", thickness=0.8, color=colors.HexColor("#cfd8e3"), spaceBefore=2, spaceAfter=8)
+def cell(t, s=CELL): return Paragraph(t, s)
 
-def tbl(data, widths, header=True, font=8.2):
+def bullets(items, s=BODY, color=BLUE):
+    return ListFlowable([ListItem(P(x, s), leftIndent=4) for x in items],
+                        bulletType="bullet", bulletColor=color, leftIndent=14, bulletFontSize=6, spaceAfter=0)
+
+def divider(color=LINE):
+    t = Table([[""]], colWidths=[7.3*inch], rowHeights=[1.2])
+    t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,-1),color)])); return t
+
+def callout(title, body, accent=AMBER, fill=colors.HexColor("#2c1f0b")):
+    inner = [P(f"<font color='#{accent.hexval()[2:8]}'><b>{title}</b></font>", st("ct", fontSize=10, leading=13)),
+             P(body, st("cb", fontSize=9, textColor=INK, leading=12.5))]
+    t = Table([[inner]], colWidths=[7.3*inch])
+    t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,-1),fill),("BOX",(0,0),(-1,-1),1,accent),
+                           ("LEFTPADDING",(0,0),(-1,-1),10),("RIGHTPADDING",(0,0),(-1,-1),10),
+                           ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7)]))
+    return t
+
+def card(title, body, accent=BLUE):
+    inner = [P(f"<font color='#{accent.hexval()[2:8]}'><b>{title}</b></font>", st("k", fontSize=10.5, leading=13, spaceAfter=2)),
+             P(body, st("kb", fontSize=9, textColor=INK, leading=12.4))]
+    t = Table([[inner]], colWidths=[7.3*inch])
+    t.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,-1),CARD),("LINEBEFORE",(0,0),(0,-1),3,accent),
+                           ("BOX",(0,0),(-1,-1),0.5,LINE),
+                           ("LEFTPADDING",(0,0),(-1,-1),11),("RIGHTPADDING",(0,0),(-1,-1),10),
+                           ("TOPPADDING",(0,0),(-1,-1),7),("BOTTOMPADDING",(0,0),(-1,-1),7)]))
+    return KeepTogether([t, Spacer(1,7)])
+
+def dtable(rows, widths, header=True, font=8.4):
+    data = [[cell(c, CELL if (not header or i>0) else st("ch", fontName="DJ-Bold", fontSize=8.6, textColor=colors.white, leading=11)) for c in r] for i,r in enumerate(rows)]
     t = Table(data, colWidths=widths, repeatRows=1 if header else 0)
-    style = [("FONTSIZE",(0,0),(-1,-1),font),("VALIGN",(0,0),(-1,-1),"TOP"),
-             ("GRID",(0,0),(-1,-1),0.4,colors.HexColor("#c7d0db")),
-             ("LEFTPADDING",(0,0),(-1,-1),5),("RIGHTPADDING",(0,0),(-1,-1),5),
-             ("TOPPADDING",(0,0),(-1,-1),3),("BOTTOMPADDING",(0,0),(-1,-1),3),
-             ("ROWBACKGROUNDS",(0,1),(-1,-1),[colors.white, LIGHT])]
-    if header:
-        style += [("BACKGROUND",(0,0),(-1,0),NAVY),("TEXTCOLOR",(0,0),(-1,0),colors.white),
-                  ("FONTNAME",(0,0),(-1,0),"DJ-Bold")]
+    style = [("VALIGN",(0,0),(-1,-1),"TOP"),("GRID",(0,0),(-1,-1),0.4,LINE),
+             ("LEFTPADDING",(0,0),(-1,-1),6),("RIGHTPADDING",(0,0),(-1,-1),6),
+             ("TOPPADDING",(0,0),(-1,-1),4),("BOTTOMPADDING",(0,0),(-1,-1),4),
+             ("ROWBACKGROUNDS",(0,1 if header else 0),(-1,-1),[BG, CARD])]
+    if header: style += [("BACKGROUND",(0,0),(-1,0),colors.HexColor("#1c3553"))]
     t.setStyle(TableStyle(style)); return t
 
-def cell(t): return Paragraph(t, ParagraphStyle("c", parent=BODY, fontSize=8.2, leading=10.5))
+def chips(items):
+    cs = {"blue":BLUE,"green":GREEN,"amber":AMBER,"red":RED,"purple":PURPLE,"grey":colors.HexColor("#46607f")}
+    cells = [Paragraph(txt, CHIP) for txt,_ in items]
+    t = Table([cells], colWidths=[7.3*inch/len(items)]*len(items))
+    sty = [("TOPPADDING",(0,0),(-1,-1),5),("BOTTOMPADDING",(0,0),(-1,-1),5),
+           ("LEFTPADDING",(0,0),(-1,-1),3),("RIGHTPADDING",(0,0),(-1,-1),3)]
+    for i,(_,c) in enumerate(items): sty.append(("BACKGROUND",(i,0),(i,0),cs[c]))
+    t.setStyle(TableStyle(sty)); return t
 
 story = []
 
-# ---------- Cover ----------
-story += [Spacer(1, 40), P("PulseDiscover", TITLE),
-          P("Interview Defense Dossier", SUB),
-          P("Offline, honesty-gated recommender decision system &mdash; 2.56M Goodreads interactions", SUB),
-          Spacer(1, 8), rule(),
-          P("<b>Status:</b> V1 <font color='#1f3a5f'>gold_candidate 8.9</font> (locked, terminal) &middot; "
-            "V2 lane <font color='#1f3a5f'>offline gold-complete</font> (RiskFrame 9.1) &middot; "
-            "serving API <b>deployed to Google Cloud Run</b>.", BODY),
-          P("<b>Live endpoint:</b> https://pulsediscover-serving-98058433335.us-central1.run.app "
-            "(<font face='Courier'>/health</font> &rarr; ready:true, <font face='Courier'>/recommend</font> &rarr; source:als).", SMALL),
-          P("<b>Reading rule:</b> every number here is offline and protocol-tagged. Served-c2 metrics and V1 "
-            "d3aplus metrics are <b>different protocols and not comparable</b> (see &sect;6). No online-lift claim appears anywhere.", SMALL),
+# ============ COVER ============
+story += [Spacer(1, 24), P("PulseDiscover", TITLE),
+          P("Interview Defense Dossier", SUBT),
+          P("Offline, honesty-gated recommender <b>decision</b> system &mdash; 2.56M Goodreads interactions", SUBT),
+          Spacer(1, 14),
+          chips([("Python","blue"),("FastAPI","green"),("FAISS","blue"),("LambdaMART","green"),("OPE: IPS/SNIPS/DR","purple"),("Cloud Run: LIVE","green")]),
+          Spacer(1, 14),
+          Image("defense/_arch.png", width=7.0*inch, height=7.0*inch*660/1000),
+          Spacer(1, 12),
+          callout("STATUS",
+                  "V1 <b>gold_candidate 8.9</b> (locked, terminal) &middot; V2 lane <b>offline gold-complete</b> (RiskFrame 9.1) &middot; "
+                  "serving API <b>deployed to Google Cloud Run</b> (live HTTPS).", accent=GREEN, fill=colors.HexColor("#12301c")),
+          Spacer(1,6),
+          callout("READING RULE",
+                  "Every number in this dossier is <b>offline and protocol-tagged</b>. The V1 d3aplus result (R@20 0.0846) and the served-c2 "
+                  "result (R@20 ~0.0375) are <b>different builds and protocols &mdash; NOT comparable</b>. No online-lift, real-user, or "
+                  "production-quality claim appears anywhere.", accent=RED, fill=colors.HexColor("#2a1414")),
           PageBreak()]
 
-# ---------- 1. Project Summary ----------
-story += [P("1 &nbsp; Project Summary", H1), rule(),
-          P("PulseDiscover is an offline, honesty-disciplined <b>recommender decision system</b> built on a real "
-            "2.56M-interaction Goodreads fantasy/paranormal dataset (94k users, 42k items). It does not chase a single "
-            "metric &mdash; it <b>decides which retrieval, serving, fallback, fusion and exposure policy should ship, and "
-            "proves which must not</b>, by catching offline-metric bias, candidate-coverage gaps, latency&ndash;quality "
-            "trade-offs, cold-start degradation, and catalog concentration before they would reach users."),
-          P("It was built as a gated experimentation program (gates G11&ndash;G31) under strict claim discipline: every "
-            "claim maps to an artifact, every metric carries a protocol tag, and negatives are documented rather than "
-            "buried. V1 established the offline modelling floor; the V2 lane (G22&ndash;G31) added production-shaped "
-            "serving, cold-start and exposure governance, a learned ALS+semantic fusion ranker, executed off-policy "
-            "evaluation, and a Search/IR retrieval front end &mdash; then the serving path was deployed to Cloud Run."),
-          P("<b>What it is not:</b> not an online/production-quality system, not a solved-cold-start system, not a "
-            "fairness-certified system, and not an LLM recommender. Those boundaries are explicit and load-bearing.", SMALL)]
+# ============ 0. CONTENTS ============
+story += [P("Contents", H1), divider(),
+          dtable([["#","Section"],
+                  ["1","Project summary &amp; thesis"],["2","System architecture"],
+                  ["3","Fundamentals bridge &mdash; 14 method cards"],["4","Decision log"],
+                  ["5","Failures I'm proud of (8 post-mortems)"],["6","Eval results &amp; model/protocol registry"],
+                  ["7","Gate-by-gate walkthrough (G22&ndash;G31)"],["8","Off-policy evaluation deep dive"],
+                  ["9","Cold-start &amp; exposure deep dive"],["10","Truth boundary &amp; claim ladder"],
+                  ["11","Product &amp; business reasoning"],["12","Hard Q&amp;A (22 questions)"],
+                  ["13","What I'd build next"],["14","Evidence artifact index"]],
+                 [0.5*inch, 6.8*inch]),
+          PageBreak()]
 
-# ---------- 2. System Architecture ----------
-story += [P("2 &nbsp; System Architecture", H1), rule(),
-          P("A two-stage retrieve&rarr;rank pipeline wrapped in a decision/serving spine. Every stage is versioned on the "
-            "<b>served c2 ALS model</b>; V1's d3aplus tuning model is quarantined to V1 evidence only."),
-          tbl([["Stage","What it does","Artifact / evidence"],
-               [cell("1. Candidate generation"), cell("ALS (warm) + semantic content (MiniLM) + popularity + co-occurrence"), cell("c2_als.pkl, g27 semantic index")],
-               [cell("2. Retrieval"), cell("FAISS top-K by inner product; FlatIP exact (default), HNSW (scale), IVF rejected"), cell("src/serving/faiss_retriever.py (G22)")],
-               [cell("3. Fusion / rank"), cell("RRF heuristic fusion; LightGBM LambdaMART learned fusion over ALS+semantic features"), cell("src/ranking/g28_fusion_ranker.py (G28)")],
-               [cell("4. Rerank"), cell("Config-flagged head-cap exposure rerank (default OFF)"), cell("recommender_service.py (G26B)")],
-               [cell("5. Fallback"), cell("unknown/sparse/error &rarr; popularity; never empty (0% empty verified)"), cell("fallback tree (G23/G24)")],
-               [cell("6. Serving"), cell("FastAPI: /recommend /health /metadata /metrics; versioned loader; structured logs"), cell("src/serving/api.py (G23)")],
-               [cell("7. Logging"), cell("Per-request JSON; OPE-ready propensity schema designed"), cell("G26A schema, G29 logging")],
-               [cell("8. Evaluation"), cell("Cohort recall, exposure (Gini/coverage), IPS/SNIPS/DR, NDCG/MRR"), cell("g24&ndash;g31 reports")],
-               [cell("9. Decision"), cell("ship / hold / reject per gate, behind a locked claim ladder"), cell("control tower + claim boundary")],
-              ], [1.25*inch, 3.0*inch, 2.0*inch]),
-          Spacer(1,6),
-          P("<b>Deployed:</b> the ALS+FlatIP serving path runs on Google Cloud Run (512&nbsp;MiB / 1&nbsp;vCPU / "
-            "min-instances 1 / concurrency 8, exact mode, HNSW off). A lean image (only c2_als.pkl + a 4&nbsp;MB "
-            "precomputed assets bundle) loads in ~0.8&nbsp;s and serves live HTTPS.", SMALL)]
+# ============ 1. SUMMARY ============
+story += [P("1 &nbsp; Project Summary &amp; Thesis", H1), divider(),
+          P("<b>Thesis.</b> Recommenders rarely fail because the model was wrong. They fail because a metric improved while catalog health, "
+            "candidate fidelity, or cold-start coverage silently collapsed &mdash; and nobody measured the gap. PulseDiscover is the "
+            "measurement-and-decision layer that catches that gap before it reaches users."),
+          P("<b>What it is.</b> An offline, honesty-gated two-stage recommender decision system on a real 2.56M-interaction Goodreads "
+            "fantasy/paranormal corpus (94k users, 42k items). Four candidate sources (ALS, dense semantic, BM25, popularity) feed a FAISS "
+            "retrieval layer, a learned ALS+semantic fusion ranker, a config-flagged exposure rerank, and a graceful fallback tree, served "
+            "by a FastAPI app deployed on Cloud Run &mdash; with cohort, exposure, and off-policy evaluation governing every ship decision."),
+          P("<b>How it was built.</b> As a gated experimentation program (G11&ndash;G31). Each stage was added, measured, and either adopted "
+            "or rejected with an artifact in <font face='Courier'>outputs/evidence/</font>. V1 established the offline modelling floor; the V2 "
+            "lane (G22&ndash;G31) added serving, cold-start/fallback quality, exposure governance, a heuristic exposure rerank, dense semantic "
+            "retrieval, a learned fusion tournament, executed off-policy evaluation, and a search/IR front end &mdash; then the serving path "
+            "shipped to Cloud Run."),
+          P("<b>Why V1 is gold_candidate, not gold_complete.</b> The canonical SASRec convergence headline is provenance-tagged "
+            "<i>plot_reconstructed</i> (the direct artifact was lost with a Colab session). The decision it supports (MF beats a converged "
+            "SASRec) is artifact-backed; the packaging is one artifact short of clean &mdash; so the status is honestly held at candidate."),
+          P("<b>What it deliberately is NOT.</b> Not an online/production-quality system, not solved cold-start, not fairness-certified, not "
+            "an LLM recommender. Those boundaries are load-bearing and stated throughout.", SMALL),
+          PageBreak()]
 
-# ---------- 3. Fundamentals Bridge ----------
-story += [PageBreak(), P("3 &nbsp; Fundamentals Bridge &mdash; concept extraction", H1), rule(),
-          P("Each technique, from first principles, with its role in PulseDiscover.")]
-concepts = [
- ("ALS (implicit-feedback matrix factorization)",
-  "Minimises &Sigma; c<sub>ui</sub>(p<sub>ui</sub> &minus; x<sub>u</sub>&middot;y<sub>i</sub>)&sup2; + &lambda;&#8214;&middot;&#8214;&sup2; with confidence c=1+&alpha;r, solved by alternating closed-form ridge regressions. Captures collaborative co-read structure directly. <b>Role:</b> the warm-retrieval floor and the served model."),
- ("FAISS (ANN retrieval)",
-  "Sub-linear top-K over item vectors. FlatIP = exact exhaustive inner product; HNSW = navigable small-world graph (efSearch trades recall/latency); IVF = coarse quantiser (nprobe). <b>Role:</b> serving retrieval &mdash; FlatIP exact default, HNSW as a scale option, IVF rejected."),
- ("SASRec (self-attentive sequential rec)",
-  "Causal self-attention over the user's item-sequence to predict the next item; full-softmax vs sampled-softmax loss matters. <b>Role:</b> tested to convergence as the deep-model challenger &mdash; it lost to ALS (an honest negative)."),
- ("LambdaMART (learning-to-rank)",
-  "Gradient-boosted trees optimising a listwise NDCG surrogate with per-query (per-user) groups. <b>Role:</b> the learned fusion ranker over ALS+semantic+popularity candidate features (G28); also the V1 within-candidate ranker."),
- ("IPS / SNIPS (off-policy estimators)",
-  "IPS = mean[ 1{a=&pi;<sub>e</sub>(x)} / &pi;<sub>log</sub>(a|x) &middot; r ] &mdash; unbiased but high-variance importance weighting. SNIPS self-normalises by &Sigma; weights to cut variance at a little bias. <b>Role:</b> executed offline in G29 to estimate a policy's value from logged data; SNIPS is the recommended estimator."),
- ("RRF (reciprocal rank fusion)",
-  "score(i) = &Sigma;<sub>s</sub> 1/(c + rank<sub>s</sub>(i)) across sources &mdash; score-scale-free, training-free rank combiner. <b>Role:</b> the best non-learned fusion of ALS and semantic candidates; chosen for robustness, not a recall win."),
- ("Position bias (and PAL)",
-  "Users click/consume top-ranked items partly because of position, not relevance; naive click-recall is therefore confounded. Position-aware learning (PAL) / IPS de-bias examination from relevance. <b>Role:</b> PulseDiscover does position-bias-aware <i>evaluation</i> (a two-lane OPE diagnostic) &mdash; not an in-ranker correction (that is documented future work)."),
+# ============ 2. ARCHITECTURE ============
+story += [P("2 &nbsp; System Architecture", H1), divider(),
+          P("Two lanes share one honest boundary. The <b>offline modelling lane</b> (V1, d3aplus) produced the findings &mdash; ALS is the "
+            "warm floor, a converged SASRec still lost. The <b>served system lane</b> (V2, c2 &rarr; Cloud Run) is what actually runs. The "
+            "amber bridge is the protocol boundary that keeps the two from being conflated."),
+          Image("defense/_arch.png", width=7.2*inch, height=7.2*inch*660/1000),
+          Spacer(1,8),
+          P("Per-stage contract", H2),
+          dtable([["Stage","Input &rarr; Output","Claim enabled / not enabled"],
+                  ["Candidate gen","interactions &rarr; candidate pool","\"coverage is the binding lever (+~44% recall)\" / not online impact"],
+                  ["FAISS retrieval","embeddings &rarr; top-K","\"FlatIP lossless ~47% faster; HNSW near-lossless\" / not quality gain"],
+                  ["Fusion / rank","pool+features &rarr; ordered slate","\"learned fusion beat ALS-only on test\" / not in production"],
+                  ["Exposure rerank","slate &rarr; reranked slate","\"interpretable exposure control\" / not learned LTR"],
+                  ["Fallback","any request &rarr; non-empty slate","\"0% empty across failure modes\" / not fallback quality"],
+                  ["Serving","user_id,k,mode &rarr; JSON","\"production-like, deployed to Cloud Run\" / not online lift"],
+                  ["Evaluation","logs/splits &rarr; metrics","\"cohort + exposure + OPE\" / not real-traffic value"],
+                  ["Decision","frontiers &rarr; ship/hold/reject","\"I decide what ships and what must not\" / not deployed-and-proven"]],
+                 [1.05*inch, 2.6*inch, 3.65*inch]),
+          PageBreak()]
+
+# ============ 3. FUNDAMENTALS BRIDGE ============
+story += [P("3 &nbsp; Fundamentals Bridge &mdash; method cards", H1), divider(),
+          P("Each technique from first principles: objective &middot; mechanism &middot; assumptions &middot; failure modes &middot; why-over-alternatives &middot; role in PulseDiscover.", SMALL)]
+cards = [
+ ("ALS &mdash; implicit-feedback matrix factorization", BLUE,
+  "<b>Objective:</b> min &Sigma; c<sub>ui</sub>(p<sub>ui</sub> &minus; x<sub>u</sub>&middot;y<sub>i</sub>)&sup2; + &lambda;(&#8214;x&#8214;&sup2;+&#8214;y&#8214;&sup2;), confidence c=1+&alpha;r, preference p=1[r&gt;0]. "
+  "<b>Mechanism:</b> alternate closed-form ridge solves per side &mdash; x<sub>u</sub>=(Y<sup>T</sup>C<sub>u</sub>Y+&lambda;I)<sup>-1</sup>Y<sup>T</sup>C<sub>u</sub>p. "
+  "<b>Assumes:</b> low-rank structure; missing &asymp; weak-negative. <b>Fails on:</b> cold users / niche tail. <b>Over BPR:</b> closed-form, fast, stable. "
+  "<b>Role:</b> the warm-retrieval floor and the served model (c2)."),
+ ("SASRec &mdash; self-attentive sequential recommendation", BLUE,
+  "<b>Objective:</b> maximize next-item likelihood (full softmax over the catalog). <b>Mechanism:</b> causal self-attention over the item-embedding sequence. "
+  "<b>Assumes:</b> informative order + dense-enough sequences. <b>Fails on:</b> short/sparse/padded histories (the NaN-mask bug). <b>Lever found:</b> full-softmax vs sampled-softmax (~6.7&times;) &mdash; still &lt; ALS. "
+  "<b>Role:</b> the deep-model challenger, trained to convergence; a documented honest negative."),
+ ("Two-tower / LightGCN", BLUE,
+  "<b>Two-tower:</b> user/item encoders trained with in-batch softmax; honest negative here (R@20 0.0020) &mdash; ID-only mean-pooling loses the co-occurrence structure ALS factorizes. "
+  "<b>LightGCN:</b> light graph convolution (no feature transforms/nonlinearities) propagating CF signal; deferred &mdash; graph training over 40k items is not cheap on CPU, documented not silently skipped."),
+ ("LambdaMART &mdash; learning-to-rank fusion", GREEN,
+  "<b>Objective:</b> boosted trees optimizing a listwise NDCG surrogate; gradients are &lambda;-weighted by the NDCG change of swapping a pair, grouped per query (user). "
+  "<b>Assumes:</b> enough positive labels/query; features carry cross-source signal. <b>Fails on:</b> extreme label sparsity (overfit). "
+  "<b>Role:</b> the G28 fusion ranker over ALS+semantic+popularity candidate features &mdash; champion of the tournament."),
+ ("FAISS &mdash; ANN retrieval (FlatIP / HNSW / IVF)", GREEN,
+  "<b>FlatIP:</b> exact exhaustive inner product (O(N), lossless). <b>HNSW:</b> navigable-small-world graph, efSearch trades recall/latency. <b>IVF:</b> coarse quantiser, nprobe controls cells scanned. "
+  "<b>Failure:</b> aggressive nprobe shreds the candidate pool while a single-gold metric stays flat. <b>Role:</b> FlatIP default, HNSW scale option, IVF rejected."),
+ ("Dense semantic content retrieval", GREEN,
+  "<b>Objective:</b> embed item content (title + genre shelves) with MiniLM (384-d, L2-normalized); FAISS IndexFlatIP (cosine-equiv); item-to-item from the seed item. "
+  "<b>Assumes:</b> content similarity &asymp; taste at genre level; metadata text informative (100% coverage). <b>Fails on:</b> head relevance (collaborative signal dominates), zero-history users. "
+  "<b>Role:</b> the only source that structurally reaches item-cold-start items (reachability 54.6%)."),
+ ("RRF &mdash; reciprocal rank fusion", GREEN,
+  "<b>Objective:</b> score(i)=&Sigma;<sub>s</sub> 1/(c+rank<sub>s</sub>(i)) over sources; score-scale-free, training-free. <b>Assumes:</b> rank is a comparable cross-source signal. "
+  "<b>Fails on:</b> nothing catastrophic &mdash; but it buys robustness, not a recall lift. <b>Role:</b> best non-learned fusion; ALS-first fusion fails (saturates top-20), RRF lets semantic compete."),
+ ("IPS &mdash; inverse propensity scoring", PURPLE,
+  "<b>Objective:</b> V&#770;(&pi;<sub>e</sub>)=(1/N)&Sigma; [1{a<sub>i</sub>=&pi;<sub>e</sub>(x<sub>i</sub>)}/&pi;<sub>log</sub>(a<sub>i</sub>|x<sub>i</sub>)]&middot;r<sub>i</sub>. <b>Assumes:</b> overlap (&pi;<sub>log</sub>&gt;0 on &pi;<sub>e</sub>'s support); correct propensities. "
+  "<b>Fails on:</b> high variance at modest ESS (here it over-estimated ~2&times;). <b>Role:</b> executed in G29; the cautionary high-variance baseline."),
+ ("SNIPS &mdash; self-normalized IPS", PURPLE,
+  "<b>Objective:</b> &Sigma; w<sub>i</sub>r<sub>i</sub> / &Sigma; w<sub>i</sub>, w<sub>i</sub>=1{a=&pi;<sub>e</sub>}/&pi;<sub>log</sub>. Trades a little bias for much lower variance. "
+  "<b>Role:</b> the recommended estimator when no reward model exists &mdash; stable and close to the known value in G29."),
+ ("Doubly-Robust (DR) OPE", PURPLE,
+  "<b>Objective:</b> DR = mean(r&#770;(x,&pi;<sub>e</sub>)) + mean(w&middot;(r &minus; r&#770;(x,a))); unbiased if either propensities or reward model is right. "
+  "<b>Fails on:</b> a mis-calibrated reward model (a class-balanced r&#770; broke it &mdash; went negative). <b>Role:</b> lowest-bias estimator once r&#770; is base-rate-calibrated (DR 0.0089 vs true 0.0106)."),
+ ("Position bias &amp; PAL", AMBER,
+  "<b>Problem:</b> top-ranked items get examined more, so click-recall measures position as much as relevance. PAL/IPS de-bias examination from relevance. "
+  "<b>Role:</b> PulseDiscover does position-bias-aware <i>evaluation</i> (a two-lane OPE diagnostic) &mdash; not an in-ranker correction (that is labelled future work)."),
+ ("Exposure governance &mdash; Gini / Lorenz / base-rate lift", AMBER,
+  "<b>Objective:</b> over the full catalog (zeros included) compute Gini = 2&Sigma;i&middot;x<sub>i</sub>/(n&Sigma;x<sub>i</sub>) &minus; (n+1)/n, the Lorenz curve, top-x% share, and tier exposure-lift vs catalog base rate. "
+  "<b>Failure:</b> Gini alone hides which tail &mdash; pair with tier-lift. <b>Role:</b> catalog-health as a first-class ship-gate metric (all policies Gini&gt;0.97; popularity 1.0)."),
+ ("Cold-start cohorts &amp; fallback policy", AMBER,
+  "<b>Mechanism:</b> cohort users (unknown / sparse 1&ndash;2 / low 3&ndash;5 / warm 6+); evaluate popularity/content/item-sim/blended fallback; report warm-ALS and cold-fallback metrics SEPARATELY. "
+  "<b>Honest nuance:</b> per-cohort recall is non-monotonic (cold gold is more popularity-predictable) &mdash; recall understates the real cost, which is coverage/personalization collapse."),
+ ("Negative sampling", colors.HexColor("#46607f"),
+  "<b>Idea:</b> sampled negatives approximate the full softmax; popularity-biased samplers skew the gradient. <b>Role:</b> implicit in ALS/sequence training; the full-softmax-vs-sampled lever in G20 was exactly this choice."),
 ]
-for name, body in concepts:
-    story += [P(name, H2), P(body, BODY)]
+for name, acc, body in cards:
+    story.append(card(name, body, acc))
+story.append(PageBreak())
 
-# ---------- 4. Decision Log ----------
-story += [PageBreak(), P("4 &nbsp; Decision Log &mdash; trade-offs with rationale", H1), rule(),
-          tbl([["Decision","Rationale","Boundary kept"],
-               [cell("<b>ALS over SASRec</b> as the warm floor"), cell("A canonical full-softmax SASRec was trained to convergence and still scored below ALS (R@20 0.065 vs 0.085). On short, sparse book histories the dominant signal is collaborative co-read, which MF captures directly; depth was not the lever."), cell("\"a converged deep model lost\" &mdash; not \"deep models are useless\"")],
-               [cell("<b>FlatIP exact as default</b> (HNSW only as scale option)"), cell("FlatIP is lossless and ~47% faster than numpy brute force at this scale; HNSW ef64 is near-lossless (overlap 0.992, ~2.4x) but approximate. Correctness-by-default; opt into approximation explicitly."), cell("latency, not quality &mdash; FAISS never improves recommendations")],
-               [cell("<b>RRF = robustness, not a recall win</b>"), cell("RRF recovers cold-start and ~4x coverage at ~95% of ALS relevance, but does not beat ALS-only on warm recall. Framed as robustness/coverage, never as a headline lift."), cell("no \"hybrid beats both lanes\" claim")],
-               [cell("<b>IVF rejected</b> despite speed"), cell("Low-nprobe IVF kept gold Recall@20 flat while candidate-overlap@K vs exact collapsed to 0.28&ndash;0.78 &mdash; it returned a largely different (broken) candidate set. Speed that destroys candidate fidelity is a bug."), cell("overlap@K is a first-class acceptance check")],
-               [cell("<b>BM25 = query-by-document</b>"), cell("PulseDiscover has no free-text queries; BM25's \"query\" is the seed item's own text (more-like-this). This is a real IR pattern, so the search framing is honest without claiming a free-text search engine."), cell("seed-item, not free-text query search")],
-              ], [1.5*inch, 3.55*inch, 1.2*inch])]
+# ============ 4. DECISION LOG ============
+story += [P("4 &nbsp; Decision Log", H1), divider(),
+          dtable([["Decision","Rationale","Boundary kept"],
+                  ["ALS over SASRec (warm floor)","Converged full-softmax SASRec still lost (0.065 vs 0.085); depth isn't the lever on sparse book histories.","\"a converged deep model lost\" &mdash; not \"deep is useless\""],
+                  ["FlatIP exact as default","Lossless &amp; ~47% faster; HNSW near-lossless but approximate. Correctness by default, opt into approximation.","HNSW is a flagged scale mode, not silent default"],
+                  ["IVF rejected","Low-nprobe kept gold recall flat while candidate-overlap collapsed 0.28&ndash;0.78 &mdash; a broken pool.","overlap@K is a first-class acceptance check"],
+                  ["RRF = robustness not win","Recovers cold-start + ~4&times; coverage at ~95% of ALS relevance; does NOT beat ALS-only on warm recall.","no \"hybrid beats both lanes\" claim"],
+                  ["Semantic as complement","Uniquely reaches item-cold-start (54.6%) but loses head relevance (0.010 vs 0.087).","cold-start/tail source, not a warm-path replacement"],
+                  ["BM25 = query-by-document","No free-text queries exist; the seed item's text is the query (more-like-this).","seed-item, not a free-text search engine"],
+                  ["Learned fusion, bounded","LambdaMART beat ALS-only on held-out test (0.036 vs 0.022) but on 81 positives.","claimed on the offline test split only"],
+                  ["OPE executed, not faked","Estimators recover a known value offline; props synthetic, reward a proxy.","methodology demonstrated, not a real value"],
+                  ["V1/V2 registry","d3aplus 0.0846 and c2 0.0375 are different builds/protocols.","never conflated &mdash; kept in a registry"]],
+                 [1.55*inch, 4.0*inch, 1.75*inch]),
+          PageBreak()]
 
-# ---------- 5. Three Real Failures ----------
-story += [PageBreak(), P("5 &nbsp; Three Real Failures (caught and corrected)", H1), rule(),
-          P("The interview value of the project is the failures I caught myself.", SMALL)]
+# ============ 5. FAILURES ============
+story += [P("5 &nbsp; Failures I'm Proud Of", H1), divider(),
+          P("The interview value of a project is the failures you catch yourself. Each: what happened &rarr; what it revealed &rarr; what I did.", SMALL)]
 fails = [
- ("SASRec false convergence &mdash; the NaN val-loss patience bug",
-  "<b>What happened:</b> training early-stopped at ~6 epochs &mdash; looked converged. The validation-loss curve was all-NaN (masked-attention NaN on short/padded sequences), and a NaN comparison silently satisfied the patience criterion while train loss and eval-R@20 were still rising. "
-  "<b>Revealed:</b> a monitor can fire \"done\" for the wrong reason; \"early stop triggered\" is not evidence of convergence. "
-  "<b>Did:</b> rejected the run as invalid, rebuilt the monitor on an eval-R@20 plateau, and only declared convergence (v3, ~95 epochs) once the metric we care about flattened. "
-  "<b>Demonstrates:</b> I never accept a convenient stop; I check why a signal fired."),
+ ("SASRec false convergence (NaN val-loss patience)",
+  "Training early-stopped at ~6 epochs on an all-NaN val-loss curve (2-block masked-attention NaN on short/padded sequences); a NaN comparison silently satisfied patience while train loss + eval-R@20 were still rising. <b>Revealed:</b> \"early stop fired\" &ne; \"converged.\" <b>Did:</b> rejected as invalid, rebuilt the monitor on an eval-R@20 plateau (valid convergence at ~95 epochs)."),
+ ("v2 eval leakage (same set for stopping + final eval)",
+  "SASRec v2 used the 5k eval set for BOTH the early-stopping criterion and the final metric &mdash; model selection peeking at test. <b>Revealed:</b> reusing a held-out set for selection leaks. <b>Did:</b> split a separate validation-monitor set; fixed the epoch cap to an exact value."),
+ ("Stale-script contamination on Colab",
+  "Twice, Colab ran a cached v1 script instead of v3 and reported old numbers. <b>Revealed:</b> \"I updated the script\" &ne; \"the run used it.\" <b>Did:</b> hardened the notebook to write/run a distinctly-named file with assert guards; provenance-tagged the unrecoverable headline plot_reconstructed."),
  ("IVF &mdash; the metric can lie",
-  "<b>What happened:</b> FAISS IVF at low nprobe looked great on gold Recall@20, but candidate-overlap@K vs exact had collapsed to 0.28&ndash;0.78 &mdash; it returned a mostly different candidate set that happened to still contain the single gold item. "
-  "<b>Revealed:</b> a single-gold metric is blind to most of the slate changing, so a downstream metric can stay flat while the thing it depends on silently degrades. "
-  "<b>Did:</b> rejected IVF despite its speed; kept FlatIP/HNSW and made overlap@K a first-class acceptance check. "
-  "<b>Demonstrates:</b> I instrument the mechanism, not just the headline number."),
- ("ID-dtype silent zeroing &mdash; the pipeline ran clean with wrong numbers",
-  "<b>What happened:</b> book_id is a string in the ALS index, but eval/train ids loaded as int64; every membership test compared int vs str keys, so every lookup missed and recall floored to ~0 &mdash; while the pipeline ran clean and produced plausible-shaped (wrong) numbers. "
-  "<b>Revealed:</b> the most dangerous bugs don't crash; silent type coercion quietly degrades a metric to zero while everything looks healthy. "
-  "<b>Did:</b> caught it with an overlap sanity check (the genre map had zero catalog-overlapping keys &mdash; impossible if types matched), normalised book_id to str repo-wide. "
-  "<b>Demonstrates:</b> I sanity-check intermediate artifacts instead of trusting a final number."),
+  "IVF looked fine on gold Recall@20 while candidate-overlap@K vs exact collapsed to 0.28&ndash;0.78 &mdash; a mostly different candidate set that happened to contain the gold. <b>Revealed:</b> a single-gold metric is blind to most of the slate changing. <b>Did:</b> rejected IVF; made overlap@K a first-class check."),
+ ("ID-dtype silent zeroing",
+  "book_id is a string in the ALS index but ints in eval; every membership test compared int vs str keys, so every lookup missed and recall floored to ~0 &mdash; while the pipeline ran clean with plausible numbers. <b>Revealed:</b> silent type coercion is where pipelines rot. <b>Did:</b> caught it via an overlap sanity check (0 catalog-overlapping keys = impossible if types matched); normalized to str repo-wide."),
+ ("G24 recall non-monotonicity",
+  "Cold cohorts scored HIGHER recall than warm &mdash; the opposite of the expected story. <b>Revealed:</b> cold users' next item is more popularity-predictable, so recall understates cold-start cost. <b>Did:</b> refused the expected narrative; reframed the real cost as coverage (~59&times;) + personalization (0.68&rarr;0.001) collapse."),
+ ("G29 Doubly-Robust went negative",
+  "DR returned ~&minus;0.4 (impossible for a [0,1] reward). <b>Revealed:</b> a class-balanced reward model calibrated to ~0.5 vs a true ~1% base rate broke the DR baseline. <b>Did:</b> caught it from the impossible sign; switched to a base-rate-calibrated model; DR then recovered the known value best of the three."),
+ ("Serving load-path false confidence (caught in the stress test)",
+  "The startup dim-assert was tautological (index built from Y, so it can't fail) and a corrupt model pickle returned 0 items (popularity not yet loaded). <b>Revealed:</b> a health check that can't fail is worse than none. <b>Did:</b> added a real X/Y dim assert; load popularity independently so a degraded service still serves a non-empty fallback."),
 ]
 for name, body in fails:
-    story += [P(name, H2), P(body, BODY)]
+    story.append(card(name, body, RED))
+story.append(PageBreak())
 
-# ---------- 6. Eval Results ----------
-story += [PageBreak(), P("6 &nbsp; Eval Results &mdash; with honest claim boundaries", H1), rule(),
-          Paragraph("<b>Protocol warning (load-bearing):</b> the V1 <b>d3aplus</b> ALS tuning result (R@20 <b>0.0846</b>) and "
-            "the V2 <b>served-c2</b> results (full-catalog single-held-out-gold, R@20 ~<b>0.0375</b>) are <b>different model builds "
-            "and different evaluation protocols &mdash; they are NOT comparable</b>. I keep them in a model/protocol registry "
-            "precisely so they are never conflated. V2 numbers are used for <i>relative</i> cross-policy/cohort structure, not as a "
-            "headline that overturns V1.",
-            ParagraphStyle("warn", parent=BODY, fontSize=8.8, leading=12, backColor=colors.HexColor("#fdecea"),
-                           borderColor=ACCENT, borderWidth=0.6, borderPadding=6, spaceAfter=8)),
-          tbl([["Result","Number","Protocol tag"],
-               [cell("V1 ALS warm floor"), cell("R@20 0.0846"), cell("V1 d3aplus tuning &mdash; REAL_OFFLINE")],
-               [cell("Canonical SASRec, converged"), cell("R@20 0.065 (lost to ALS)"), cell("V1 &mdash; PLOT_RECONSTRUCTED")],
-               [cell("Served ALS (exact)"), cell("R@20 ~0.0375"), cell("V2 served-c2 &mdash; NOT_COMPARABLE to V1")],
-               [cell("FAISS FlatIP"), cell("lossless, ~47% lower p95"), cell("V2 latency &mdash; latency only")],
-               [cell("HNSW ef64"), cell("overlap 0.992, ~2.4x"), cell("V2 latency")],
-               [cell("Cold-start fallback cost"), cell("coverage collapse ~59x; personalization 0.68&rarr;0.001"), cell("V2 served-c2")],
-               [cell("Exposure concentration"), cell("all policies Gini&gt;0.97; popularity 1.0"), cell("V2 &mdash; concentration, not fairness")],
-               [cell("Semantic cold-start reach"), cell("54.6% of unseen golds (ALS/pop = 0)"), cell("V2 &mdash; reachability, offline")],
-               [cell("Learned fusion vs ALS-only"), cell("test R@20 0.036 vs 0.022; cold 0.032 vs 0"), cell("V2 &mdash; held-out test, 81 positives, directional")],
-               [cell("OPE estimators"), cell("DR 0.0089 vs true 0.0106; IPS over-est; SNIPS stable"), cell("V2 &mdash; offline, synthetic props, proxy reward")],
-               [cell("Search/IR retrieval"), cell("BM25 R@20 0.0133 &gt; dense 0.0067; hybrid 0.0117"), cell("V2 &mdash; seed-item, single-relevant NDCG/MRR")],
-              ], [1.7*inch, 2.35*inch, 2.2*inch]),
-          Spacer(1,5),
-          P("Every cell above is offline. Small-sample caveats (e.g. 81 test positives in the fusion result) are stated, not hidden; "
-            "the learned-beats-ALS claim is restricted to the offline test split and is directionally consistent across four model families.", SMALL)]
+# ============ 6. EVAL + REGISTRY ============
+story += [P("6 &nbsp; Eval Results &amp; Model/Protocol Registry", H1), divider(),
+          callout("PROTOCOL WARNING (load-bearing)",
+                  "V1 <b>d3aplus</b> R@20 <b>0.0846</b> and V2 <b>served-c2</b> R@20 <b>~0.0375</b> are different model builds and different "
+                  "evaluation protocols (V2 = full-catalog single-held-out-gold). <b>They are NOT comparable.</b> V2 numbers are used for "
+                  "relative cross-policy/cohort structure, never as a headline that overturns V1.", accent=RED, fill=colors.HexColor("#2a1414")),
+          Spacer(1,6),
+          P("Headline metrics", H2),
+          dtable([["Result","Number","Protocol tag"],
+                  ["ALS warm floor","R@20 0.0846","V1 d3aplus tuning &mdash; REAL_OFFLINE"],
+                  ["SASRec converged","R@20 0.065 (lost)","V1 &mdash; PLOT_RECONSTRUCTED"],
+                  ["Served ALS exact","R@20 ~0.0375","V2 served-c2 &mdash; NOT_COMPARABLE"],
+                  ["FAISS FlatIP","lossless, ~47% lower p95","V2 latency"],
+                  ["HNSW ef64","overlap 0.992, ~2.4&times;","V2 latency"],
+                  ["Cold-start fallback","coverage ~59&times;; pers. 0.68&rarr;0.001","V2 served-c2"],
+                  ["Semantic reach","54.6% unseen golds","V2 served-c2"],
+                  ["Learned fusion","test 0.036 vs 0.022","V2 &mdash; 81 positives, directional"],
+                  ["OPE","DR 0.0089 vs true 0.0106","V2 &mdash; offline, proxy reward"],
+                  ["Exposure","Gini &gt;0.97; pop 1.0","V2 &mdash; concentration not fairness"],
+                  ["Search/IR","BM25 0.0133 &gt; dense 0.0067","V2 &mdash; seed-item NDCG/MRR"]],
+                 [1.7*inch, 2.35*inch, 3.25*inch]),
+          Spacer(1,8),
+          P("Model registry", H2),
+          dtable([["Key","Lane","Headline","Comparability"],
+                  ["d3aplus_als_f64","V1","R@20 0.0846","V1 protocol ONLY"],
+                  ["sasrec_canonical_v3","V1","R@20 0.065 (plot_reconstructed)","V1; packaging-limited"],
+                  ["c2_als_f64","V2 SERVED","R@20 ~0.0375","V2 protocol ONLY"],
+                  ["minilm_content","V2","reach 54.6%","candidate-gen only"],
+                  ["g28_lambdamart_fusion","V2","test 0.036 (81 pos)","offline test split only"]],
+                 [1.8*inch, 0.95*inch, 2.4*inch, 2.15*inch]),
+          PageBreak()]
 
-# ---------- 7. Truth Boundary ----------
-story += [PageBreak(), P("7 &nbsp; Truth Boundary", H1), rule(),
-          P("Claimable (artifact-backed):", H2),
+# ============ 7. GATE WALKTHROUGH ============
+story += [P("7 &nbsp; Gate-by-Gate Walkthrough (V2)", H1), divider(),
+          dtable([["Gate","What shipped","Result / verdict"],
+                  ["G22","FAISS latency&ndash;quality frontier","FlatIP default lossless &minus;47% p95; HNSW overlap 0.992; IVF rejected"],
+                  ["G23","Production-shaped FastAPI + load test","warm p95 ~3.3ms; 0% empty; failure modes graceful"],
+                  ["G24","Cold-start / sparse-cohort fallback quality","coverage collapse ~59&times;; recall non-monotonic; 57% item-cold-start"],
+                  ["G25","Catalog exposure governance","all Gini&gt;0.97; popularity degenerate; HNSW exposure-neutral"],
+                  ["G26A","Decision-architecture spine + claim ladder","model/protocol registry; OPE logging schema designed"],
+                  ["G26B","Heuristic exposure rerank, in-service","head-cap: coverage 6.9&rarr;9.8%, tail ~4.3&times;, no relevance loss; default OFF"],
+                  ["G27","Semantic content retrieval (MiniLM+FAISS)","reach 54.6% of unseen golds; coverage 62.6% vs 8.1%; loses head"],
+                  ["G28","Learned fusion tournament (LambdaMART)","beat ALS-only on test (0.036 vs 0.022) + recovered cold-start"],
+                  ["G29","Off-policy evaluation executed","IPS/SNIPS/DR recover known value; DR lowest-bias, SNIPS stable"],
+                  ["G30","Final RiskFrame audit + interview kit","9.1/10; offline gold-complete"],
+                  ["G31","Search/IR front end (BM25+dense+RRF)","BM25 strongest single lane; NDCG/MRR; role coverage added"]],
+                 [0.55*inch, 3.0*inch, 3.75*inch]),
+          Spacer(1,6),
+          P("The discipline an interviewer should notice: every gate has a pre-registered question, an artifact, and an honest verdict &mdash; "
+            "including the gates that produced negatives (G20 SASRec, G22 IVF) and the gate that refused an expected story (G24).", SMALL),
+          PageBreak()]
+
+# ============ 8. OPE DEEP DIVE ============
+story += [P("8 &nbsp; Off-Policy Evaluation &mdash; deep dive", H1), divider(),
+          P("<b>Setup.</b> Single-action contextual-bandit OPE. Context x = user; action a = one item drawn from the candidate pool; the "
+            "stochastic logging policy &pi;<sub>0</sub> = &epsilon;-uniform (&epsilon;=0.15) + softmax over an inverse-rank blend, guaranteeing "
+            "overlap (&pi;<sub>0</sub>&gt;0). Reward r = 1 if the drawn item is in the user's held-out test interactions. Evaluated on the "
+            "leakage-safe TEST users; 30 Monte-Carlo draws/user &rarr; 28,320 logged samples."),
+          P("Estimators", H2),
           bullets([
-           "Built an offline two-stage recommender decision system on 2.56M real Goodreads interactions.",
-           "ALS is the warm-retrieval floor &mdash; earned by beating a <i>converged</i> SASRec (documented honest negative).",
-           "FAISS latency&ndash;quality frontier: FlatIP exact lossless ~47% faster; HNSW near-lossless; IVF rejected for overlap collapse.",
-           "Production-<i>like</i> FastAPI+FAISS serving with versioned loader, fallback tree, logging, monitoring &mdash; and it is now <b>deployed to Cloud Run serving live HTTPS</b>.",
-           "Measured cold-start fallback quality and catalog exposure concentration; added a semantic content lane that uniquely reaches cold-start items.",
-           "A LightGBM LambdaMART fusion beat ALS-only on the held-out test split and recovered cold-start (offline, small positive set).",
-           "Executed the OPE pipeline (logging + IPS/SNIPS/DR) and validated estimators recover a known value offline.",
+           "<b>IPS</b> = (1/N) &Sigma; [1{a<sub>i</sub>=&pi;<sub>e</sub>(x<sub>i</sub>)} / &pi;<sub>0</sub>(a<sub>i</sub>|x<sub>i</sub>)] r<sub>i</sub> &mdash; unbiased, high variance.",
+           "<b>SNIPS</b> = &Sigma; w<sub>i</sub>r<sub>i</sub> / &Sigma; w<sub>i</sub> &mdash; self-normalized; lower variance, slight bias.",
+           "<b>DR</b> = mean(r&#770;(x,&pi;<sub>e</sub>)) + mean(w<sub>i</sub>(r<sub>i</sub> &minus; r&#770;(x,a<sub>i</sub>))) &mdash; lowest bias with a calibrated reward model r&#770;.",
           ]),
-          P("Forbidden (never claimed):", H2),
-          bullets([
-           "Online lift / engagement / A/B impact &mdash; no live experiment was run.",
-           "Production <i>quality</i> or \"served real users to effect\" &mdash; deployed and callable is true; business impact is not.",
-           "Solved cold-start, solved long-tail discovery, or fairness certified.",
-           "LLM recommender / semantic taste understanding &mdash; the semantic lane is embedding-based candidate generation.",
-           "Learned ranker beats ALS beyond the offline test split; real off-policy value (props were synthetic, reward a proxy).",
-           "Any cross-protocol comparison of V1 d3aplus and served-c2 numbers.",
-          ], SMALL)]
+          P("Result (recover a known value)", H2),
+          dtable([["Target policy","true (precision@1)","IPS","SNIPS","DR","ESS"],
+                  ["ALS top-1","0.0106","0.0211","0.0129","0.0089","266"],
+                  ["RRF-fusion top-1","0.0117","0.0218","0.0134","0.0110","220"]],
+                 [1.9*inch, 1.4*inch, 1.0*inch, 1.0*inch, 1.0*inch, 1.0*inch]),
+          Spacer(1,6),
+          P("<b>Reading:</b> all three land near the directly-computed true value &mdash; the logged-propensity pipeline is correct. DR is "
+            "closest (its reward-model baseline reduces bias); IPS over-estimates ~2&times; (the textbook high-variance failure at modest ESS); "
+            "SNIPS sits between. The estimators correctly rank RRF-fusion above ALS &mdash; the ordering OPE would use to choose a policy."),
+          callout("HONESTY BOUNDARY",
+                  "Propensities are synthetic (a logging policy we control) and the reward is a held-out-gold proxy, not real engagement. This "
+                  "VALIDATES the estimators offline; it does NOT estimate real online value. A real off-policy number needs logged "
+                  "real-traffic propensities &mdash; the labelled next step.", accent=AMBER, fill=colors.HexColor("#2c1f0b")),
+          PageBreak()]
 
-# ---------- 8. Hard Q&A ----------
-story += [PageBreak(), P("8 &nbsp; Hard Q&amp;A", H1), rule()]
+# ============ 9. COLD-START + EXPOSURE ============
+story += [P("9 &nbsp; Cold-Start &amp; Exposure &mdash; deep dive", H1), divider(),
+          P("Cold-start taxonomy", H2),
+          P("<b>User cold-start:</b> unknown (0 history) / sparse (1&ndash;2) / low (3&ndash;5) / warm (6+). <b>Item cold-start (offline-split "
+            "sense):</b> 57.2% of held-out gold items are unseen in train &mdash; no collaborative signal, so ALS/popularity reach them with "
+            "probability ~0 by construction."),
+          P("The honest finding (not the expected one)", H2),
+          P("Per-cohort Recall@20 is <b>non-monotonic</b> &mdash; cold/sparse cohorts score equal-or-higher than warm, because a low-history "
+            "user's next item is more popularity-predictable and easier to retrieve. So <b>recall understates the cold-start cost.</b> The real, "
+            "measured cost of falling back to popularity is a <b>collapse of personalization and catalog coverage</b>:"),
+          dtable([["Metric (top-20)","ALS warm (served)","Popularity fallback"],
+                  ["Unique items recommended","3,532","60"],
+                  ["Catalog coverage","8.7%","0.15%"],
+                  ["Slate personalization (distinct/users)","0.68","0.001"],
+                  ["Long-tail exposure share","0.4%","0.0%"]],
+                 [3.1*inch, 2.1*inch, 2.1*inch]),
+          Spacer(1,6),
+          P("Exposure governance", H2),
+          P("Over the full catalog (zeros included): every policy is concentrated (Gini &gt; 0.97); popularity is near-degenerate (Gini 1.0, "
+            "99.9% zero-exposure, ~60 unique items). Head items get ~10&times; their catalog base rate; the long tail gets ~0.02&times; "
+            "(suppressed ~50&times;). HNSW is exposure-neutral vs exact (Gini 0.986 &asymp; 0.986). This is catalog-exposure <b>concentration</b> "
+            "governance &mdash; explicitly NOT protected-class fairness."),
+          P("Mitigation (G26): a head-item exposure cap is Pareto-dominant on the warm cohort &mdash; it improves Recall@20 +40% AND long-tail "
+            "exposure ~8&times; AND lowers Gini, because head inflation was crowding niche relevant items out of the top-20. MMR and "
+            "genre-diversification were honest negatives. The win is protocol-specific (warm cohort, single-held-out-gold).", SMALL),
+          PageBreak()]
+
+# ============ 10. TRUTH BOUNDARY ============
+story += [P("10 &nbsp; Truth Boundary &amp; Claim Ladder", H1), divider(),
+          dtable([["Real (built &amp; measured)","Simulated / proxy","NOT claimed"],
+                  ["2.56M Goodreads dataset, temporal split","OPE propensities synthetic","online lift / engagement / A/B impact"],
+                  ["ALS/SASRec/content/semantic/BM25 retrieval","OPE reward = held-out-gold proxy","production quality (deployed &ne; effective)"],
+                  ["FAISS serving + load test + Cloud Run deploy","81 test positives in fusion eval","solved cold-start / long-tail"],
+                  ["cohort recall, exposure Gini, NDCG/MRR, IPS/SNIPS/DR","&mdash;","fairness certification"],
+                  ["gate-by-gate audit history","&mdash;","LLM recommender / semantic taste"],
+                  ["model/protocol registry","&mdash;","learned-fusion-beats-ALS beyond the test split"]],
+                 [2.7*inch, 2.0*inch, 2.6*inch]),
+          Spacer(1,8),
+          P("Claim ladder", H2),
+          bullets([
+           "<b>Locked safe:</b> offline decision dossier &middot; ALS warm floor &middot; FAISS frontier &middot; fallback quality &middot; exposure governance &middot; deployed-to-Cloud-Run.",
+           "<b>Safe with boundary:</b> SASRec converged-and-lost (plot_reconstructed) &middot; production-LIKE API &middot; cold-start handled at system level &middot; OPE methodology demonstrated.",
+           "<b>Forbidden:</b> online lift &middot; real users &middot; real off-policy value &middot; cold-start solved &middot; fairness certified &middot; LLM recommender &middot; learned-beats-ALS in production.",
+          ]),
+          PageBreak()]
+
+# ============ 11. PRODUCT / BUSINESS ============
+story += [P("11 &nbsp; Product &amp; Business Reasoning", H1), divider(),
+          dtable([["Decision","First-principles driver","Business consequence"],
+                  ["ALS = warm floor","depth didn't beat MF at convergence","ship a simple, cheap, strong floor"],
+                  ["coverage &gt; sophistication","recall ceiling is candidate-bound","invest in candidate generation, not depth"],
+                  ["FAISS = latency evidence","ANN doesn't change relevance","serving cost, not a UX lift"],
+                  ["fallback existence &ne; quality","always-nonempty &ne; good","cold UX is generic; measure it"],
+                  ["exposure audit &ne; fairness","concentration &ne; protected-class","catalog-health signal, not certification"],
+                  ["popularity = emergency only","Gini 1.0, zero personalization","creator/tail starvation if it dominates"],
+                  ["logs for real OPE","IPS needs &pi;<sub>log</sub> overlap","online decisioning unlocked once logged"]],
+                 [1.7*inch, 2.9*inch, 2.7*inch]),
+          Spacer(1,6),
+          P("<b>Who uses this:</b> recommender DS (protocol/metric validity), ranking ML engineer (retrieval/serving tradeoffs), search/discovery "
+            "&amp; marketplace PM (catalog health, cold-start UX), platform engineer (latency, fallback, monitoring). <b>Why wrongness is "
+            "expensive:</b> a recall-looking win that worsens catalog health, an ANN setting that shreds the candidate pool, or a popularity "
+            "fallback that quietly becomes dominant all degrade discovery and creator opportunity at scale before any dashboard notices."),
+          PageBreak()]
+
+# ============ 12. HARD Q&A ============
+story += [P("12 &nbsp; Hard Q&amp;A", H1), divider()]
 qa = [
- ("Why did SASRec lose to ALS?",
-  "Book next-item is weakly sequence-predictable; the dominant signal is collaborative co-read, which MF captures directly. I trained a canonical full-softmax SASRec to convergence (~95 epochs, eval-R@20 plateau) and it still scored below ALS &mdash; depth was not the lever on short, sparse histories."),
- ("Was the SASRec just undertrained?",
-  "No. I monitored convergence on eval-R@20 (after catching a NaN val-loss false-stop), and the full-softmax-vs-sampled-softmax gap (~6.7x) showed the loss objective was the real lever &mdash; and even fixed, it didn't beat ALS."),
- ("What's the OPE variance problem and how did SNIPS help?",
-  "Raw IPS uses importance weights &pi;<sub>e</sub>/&pi;<sub>log</sub>; at modest effective sample size a few large weights blow up the variance (my IPS over-estimated ~2x). SNIPS self-normalises by the sum of weights, trading a little bias for much lower variance &mdash; it's my recommended estimator when no reward model exists; DR is lowest-bias when a calibrated reward model does."),
- ("Why was DR negative the first time?",
-  "The DR reward model was a class-balanced logistic that calibrated toward ~0.5 vs the true ~0.01 base rate, so it massively over-predicted and broke the DR baseline. I caught it from the impossible negative value, switched to a base-rate-calibrated model, and DR then recovered the known value best of the three."),
- ("What is the real cost of cold-start here?",
-  "Not a recall drop &mdash; recall is actually non-monotonic (cold users' next item is more popularity-predictable, so it's easier to retrieve). The real cost is that popularity fallback collapses catalog coverage ~59x and personalization from 0.68 to ~0.001. I reframed the metric around what actually degrades."),
- ("Why did you reject IVF if it was faster?",
-  "At low nprobe IVF kept gold Recall@20 flat but candidate-overlap@K vs exact collapsed to 0.28&ndash;0.78 &mdash; it served a largely different, broken candidate set. Speed that silently destroys candidate fidelity is a recall bug, so I kept FlatIP/HNSW and made overlap@K an acceptance check."),
- ("Why did BM25 beat dense on this data?",
-  "On short text (title + genre shelves), exact lexical overlap &mdash; shared series names, shared genre words &mdash; carries more signal than a 384-d embedding that compresses and blurs exactly those rare disambiguating tokens. Embeddings win on long, paraphrase-heavy text; lexical wins on short, keyword-dense text. So I reported BM25 as the strongest single lane and hybrid as robustness, not a win."),
- ("So is your hybrid retrieval better?",
-  "On recall, no &mdash; RRF hybrid sits below BM25 alone on this seed-item task. Its value is robustness: it never collapses to either lane's weakness and it reaches cold-start. I don't claim hybrid beats both lanes."),
- ("Did the learned ranker actually beat ALS?",
-  "On the held-out test split, yes (R@20 0.036 vs 0.022) and it recovered cold-start (0.032 vs 0), consistent across four model families &mdash; but on only 81 positives with a single held-out gold, offline. I treat it as directional, not a production claim, pending OPE/online evidence."),
- ("Why does fusion help at all?",
-  "ALS and semantic candidate sets are almost disjoint &mdash; they overlap on only 6,749 of ~880k candidates. A learned ranker can pick the best items across both complementary sources, which is what lifted test recall and cold-start."),
- ("What does the live Cloud Run endpoint actually serve?",
-  "The served-c2 ALS model with exact FlatIP FAISS retrieval: GET /recommend returns top-K items with source tags and a graceful fallback (unknown user &rarr; popularity, never empty). /health reports loader readiness. It is the real serving path &mdash; not an online-lift experiment. \"Deployed and serving HTTPS\" is true; \"improved engagement\" is not."),
- ("Is any of this production / online?",
-  "No. Everything is offline by scope. The serving API is deployed and callable, but there are no real users, no logged real-traffic propensities, and no A/B. That boundary is documented as the explicit next step, not hidden."),
- ("What would falsify your headline claims?",
-  "ALS-floor: a properly-tuned sequence/graph model beating it on this exact protocol. Fusion-win: it not holding on a larger positive set or a different relevance target. Semantic value: cold-start reachability not translating to any online engagement. OPE: ESS too low / no overlap. I state these kill conditions rather than hide them."),
+ ("Why did SASRec lose to ALS?","Book next-item is weakly sequence-predictable; the dominant signal is collaborative co-read, which MF captures directly. I trained a canonical full-softmax SASRec to convergence and it still scored below ALS &mdash; depth was not the lever on sparse histories."),
+ ("Was the SASRec undertrained?","No &mdash; I monitored convergence on eval-R@20 after catching a NaN val-loss false-stop, and showed the full-softmax-vs-sampled lever (~6.7&times;) was the real driver; even fixed, it didn't beat ALS."),
+ ("What's the OPE variance problem and how does SNIPS fix it?","Raw IPS weights &pi;<sub>e</sub>/&pi;<sub>0</sub> blow up variance at modest ESS (my IPS over-estimated ~2&times;). SNIPS self-normalizes by the sum of weights, trading a little bias for much lower variance &mdash; my recommended estimator when no reward model exists; DR is lowest-bias when a calibrated one does."),
+ ("Why did DR go negative once?","A class-balanced reward model calibrated toward ~0.5 vs a true ~1% base rate, so it over-predicted and broke the DR baseline. I caught it from the impossible negative value and switched to a base-rate-calibrated model; DR then recovered the known value best of the three."),
+ ("What's the real cost of cold-start here?","Not a recall drop &mdash; recall is non-monotonic because cold users' next item is more popularity-predictable. The real cost is coverage collapse ~59&times; and personalization 0.68&rarr;0.001. I reframed the metric around what actually degrades."),
+ ("Why reject IVF if it was faster?","Low-nprobe IVF kept gold Recall@20 flat while candidate-overlap vs exact collapsed to 0.28&ndash;0.78 &mdash; a broken pool a single-gold metric can't see. Speed that destroys candidate fidelity is a recall bug."),
+ ("Why did BM25 beat dense on short text?","On title+genre text, exact lexical overlap (shared series/genre words) carries more signal than a 384-d embedding that blurs the rare disambiguating tokens. Embeddings win on long paraphrase-heavy text; lexical wins on short keyword-dense text."),
+ ("So is your hybrid retrieval better?","On recall, no &mdash; RRF hybrid sits below BM25 alone on this seed-item task. Its value is robustness: it never collapses to either lane's weakness and it reaches cold-start. I don't claim hybrid beats both."),
+ ("Did the learned ranker actually beat ALS?","On the held-out test split, yes (0.036 vs 0.022) and it recovered cold-start (0.032 vs 0), consistent across four model families &mdash; but on 81 positives, single-gold, offline. Directional, not a production claim."),
+ ("Why does fusion help at all?","ALS and semantic candidate sets are almost disjoint (overlap 6,749 of ~880k). A learned ranker picks the best across both complementary sources &mdash; that's what lifted test recall and cold-start."),
+ ("What does the live Cloud Run endpoint serve?","The served-c2 ALS model with exact FlatIP retrieval: /recommend returns top-K with source tags and a graceful fallback (unknown user &rarr; popularity, never empty). /health reports readiness. \"Deployed and serving HTTPS\" is true; \"improved engagement\" is not."),
+ ("Is any of this production / online?","No &mdash; offline by scope. The API is deployed and callable, but there are no real users, no logged real-traffic propensities, and no A/B. That boundary is documented as the next step."),
+ ("Why is your served recall ~0.0375 when V1 was 0.0846?","Different builds and protocols &mdash; d3aplus tuning vs served-c2 full-catalog single-held-out-gold. I keep them in a registry so they're never conflated. The relative cross-policy structure is the V2 signal, not the absolute."),
+ ("Is the semantic lane an LLM recommender?","No &mdash; embedding-based candidate generation (MiniLM over content text). No generation, no chat, no \"semantic taste.\" It reaches items collaborative filtering can't."),
+ ("Why not LightGCN / two-tower / bandits?","Deferred/T3 &mdash; on a catalog where a converged SASRec lost to MF they're unlikely to pay and expensive to defend offline. I built where it's measured to matter: cold-start and catalog health."),
+ ("Is your exposure work a fairness claim?","No &mdash; catalog exposure concentration (Gini/coverage/tier-lift), explicitly not protected-class fairness. I don't certify fairness; I measure concentration as a ship-gate metric."),
+ ("How did you prevent leakage in the fusion eval?","Split by user-hash (a user is wholly in one split); test labels never used for training or model selection; served-c2 protocol only. The fix for the v2 SASRec leakage (stopping on the eval set) was a separate validation-monitor set."),
+ ("Why is the cover claim 'gold_candidate' not 'gold_complete'?","One packaging gap: the G20 SASRec headline is plot_reconstructed (the direct artifact was lost). The decision is sound; the evidence packaging is one artifact short, so I hold the status honestly at candidate."),
+ ("What would a head-cap rerank cost in production?","Sub-millisecond, and it improved recall AND exposure on the warm cohort here &mdash; but the win is protocol-specific (single-held-out-gold). I ship it config-flagged, default OFF, and would tune the cap on a live relevance target."),
+ ("What's your single biggest risk if I pushed you?","Small-sample fragility &mdash; the fusion win rests on 81 test positives. I state it, it's directionally consistent across four model families, and the honest resolution is propensity logging + an A/B, which I've designed but not run."),
+ ("Could you have just shipped the best offline number?","That's exactly the failure mode the project targets. The IVF and head-cap stories show a better-looking number that was either broken (IVF) or protocol-specific (head-cap). Shipping a metric without its mechanism is how recsys quietly breaks."),
+ ("What would falsify your headline claims?","ALS-floor: a properly-tuned sequence/graph model beating it on this exact protocol. Fusion-win: not holding on a larger positive set. Semantic value: cold-start reach not translating to online engagement. OPE: ESS too low / no overlap. I state these kill conditions, not hide them."),
 ]
 for q, a in qa:
-    story += [P("Q. " + q, ParagraphStyle("Q", parent=BODY, fontSize=9.4, leading=12.5, textColor=NAVY, spaceAfter=1, fontName="DJ-Bold")),
-              P("A. " + a, ParagraphStyle("A", parent=BODY, fontSize=9.0, leading=12.2, spaceAfter=7))]
+    story += [P("Q. " + q, LEADQ), P("A. " + a, ANS)]
+story.append(PageBreak())
 
-# ---------- 9. What I'd Build Next ----------
-story += [PageBreak(), P("9 &nbsp; What I'd Build Next", H1), rule(),
+# ============ 13. NEXT ============
+story += [P("13 &nbsp; What I'd Build Next", H1), divider(),
           P("With production access, in priority order:"),
           bullets([
-           "<b>Real-traffic propensity logging</b> &mdash; populate the OPE schema (already designed) with live &pi;<sub>log</sub>, position, exploration bucket and reward, to turn IPS/SNIPS/DR from a validated methodology into real off-policy value estimates.",
+           "<b>Real-traffic propensity logging</b> &mdash; populate the designed OPE schema (request/impression/position/&pi;<sub>log</sub>/reward) to turn IPS/SNIPS/DR into real off-policy value estimates.",
            "<b>Canary + live A/B</b> of the fusion policy and the head-cap exposure rerank, with guardrail metrics (relevance, coverage, Gini, fallback rate, p95) wired to alerts &mdash; the only way to claim online lift.",
            "<b>In-ranker position-bias correction (PAL / IPS-weighted LTR)</b> &mdash; upgrade position bias from <i>evaluated</i> to <i>corrected</i>.",
-           "<b>Productionise the lexical lane</b> (Lucene/Elasticsearch/bm25s) so BM25 is sub-millisecond, and persist the FAISS index to cut cold-start build time.",
-           "<b>Two-tower / GNN retrieval and graded-relevance labels</b> &mdash; only once there's signal/scale to justify them; today they're deferred, not silently skipped.",
+           "<b>Productionise the lexical lane</b> (Lucene / Elasticsearch / bm25s) for sub-ms BM25, and persist the FAISS index to cut cold-start build time.",
+           "<b>Two-tower / GNN retrieval and graded-relevance labels</b> &mdash; once there's signal/scale to justify them; today deferred, not silently skipped.",
           ]),
-          Spacer(1, 10), rule(),
-          P("Companion material: docs/PULSEDISCOVERY_INTERVIEW_KIT.md (pitch &amp; claim ladder), "
-            "docs/PULSEDISCOVERY_UNIFIED_DEFENSE_KERNEL.md (full method cards), "
-            "docs/PULSEDISCOVERY_FAILURES_AND_HARDENING.md (failures + serving stress test), "
-            "docs/G26A_MODEL_PROTOCOL_REGISTRY.md (V1/V2 metric registry).", SMALL)]
+          PageBreak()]
 
-def footer(canvas, doc):
+# ============ 14. EVIDENCE INDEX ============
+story += [P("14 &nbsp; Evidence Artifact Index", H1), divider(),
+          P("Every claim maps to a JSON in <font face='Courier'>outputs/evidence/</font>. Selected artifacts:", SMALL),
+          dtable([["Artifact","Proves"],
+                  ["g22_faiss_latency_quality_report.json","FlatIP lossless &minus;47% p95; HNSW near-lossless; IVF overlap collapse"],
+                  ["g23_serving_api_report.json","production-like API, 0% empty, failure-mode coverage"],
+                  ["g24_cold_start_sparse_cohort_report.json","fallback coverage collapse ~59&times;, personalization 0.68&rarr;0.001"],
+                  ["g25_catalog_exposure_governance_report.json","exposure Gini/coverage; HNSW exposure-neutral"],
+                  ["g26b_rerank_integration_report.json","head-cap rerank: +recall, +coverage, no relevance loss"],
+                  ["g27_semantic_retrieval_report.json","semantic reaches 54.6% of item-cold-start golds"],
+                  ["g28_final_ranker_fusion_decision.json","learned fusion beats ALS-only on held-out test"],
+                  ["g29_ope_execution_report.json","IPS/SNIPS/DR recover a known value offline"],
+                  ["g31_search_ir_report.json","BM25 + dense + RRF with NDCG/MRR"],
+                  ["g30_final_gold_audit.json","RiskFrame 9.1, offline gold-complete"],
+                  ["g_serving_stress_test.json","serving edge-case stress test + two load-path fixes"]],
+                 [3.4*inch, 3.9*inch]),
+          Spacer(1,10), divider(),
+          P("Companion docs in the repo: PULSEDISCOVERY_INTERVIEW_KIT.md (pitch &amp; claim ladder) &middot; "
+            "PULSEDISCOVERY_UNIFIED_DEFENSE_KERNEL.md (method-by-method defense) &middot; PULSEDISCOVERY_FAILURES_AND_HARDENING.md "
+            "(failures + serving stress test) &middot; G26A_MODEL_PROTOCOL_REGISTRY.md (V1/V2 registry).", SMALL),
+          P("If a result isn't backed by an artifact in outputs/evidence/, it isn't claimed.", st("end", fontSize=9, textColor=GREEN, alignment=TA_CENTER, spaceBefore=8))]
+
+def page_bg(canvas, doc):
     canvas.saveState()
-    canvas.setFont("DJ", 7.5); canvas.setFillColor(GREY)
-    canvas.drawString(0.75*inch, 0.5*inch, "PulseDiscover — Interview Defense Dossier")
-    canvas.drawRightString(7.75*inch, 0.5*inch, "Offline by scope • every claim artifact-backed • page %d" % doc.page)
+    canvas.setFillColor(BG); canvas.rect(0,0,letter[0],letter[1],fill=1,stroke=0)
+    canvas.setFont("DJ", 7.5); canvas.setFillColor(MUTE)
+    canvas.drawString(0.6*inch, 0.45*inch, "PulseDiscover — Interview Defense Dossier")
+    canvas.drawRightString(letter[0]-0.6*inch, 0.45*inch, "Offline by scope · every claim artifact-backed · p%d" % doc.page)
     canvas.restoreState()
 
 doc = SimpleDocTemplate("defense/PulseDiscover_Interview_Defense.pdf", pagesize=letter,
-                        leftMargin=0.75*inch, rightMargin=0.75*inch, topMargin=0.7*inch, bottomMargin=0.7*inch,
-                        title="PulseDiscover Interview Defense", author="PulseDiscover")
-doc.build(story, onFirstPage=footer, onLaterPages=footer)
+                        leftMargin=0.6*inch, rightMargin=0.6*inch, topMargin=0.6*inch, bottomMargin=0.6*inch,
+                        title="PulseDiscover Interview Defense Dossier", author="Sidharth Kriplani")
+doc.build(story, onFirstPage=page_bg, onLaterPages=page_bg)
 print("built defense/PulseDiscover_Interview_Defense.pdf")

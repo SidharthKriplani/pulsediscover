@@ -2,6 +2,8 @@
 
 # local SVG render previews (not committed)
 preview/
+# temp PNGs used only to embed diagrams into the defense PDF
+defense/_*.png
 
 # raw data dumps (GB) and all interim/processed data + model artifacts
 data/
