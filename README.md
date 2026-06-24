@@ -68,7 +68,7 @@ Each is detected by an explicit check (overlap@K, exposure Gini, cohort separati
 | Semantic cold-start reach | **54.6%** of unseen golds (ALS/pop = 0) | V2 served-c2 |
 | Learned fusion vs ALS-only | test R@20 **0.036 vs 0.022**; cold 0.032 vs 0 | V2 &mdash; held-out test, 81 positives |
 | Off-policy evaluation | DR **0.0089** vs true 0.0106; SNIPS stable; IPS over-estimates | V2 &mdash; offline, proxy reward |
-| Exposure concentration | all policies Gini **&gt; 0.97**; popularity = 1.0 | V2 &mdash; concentration, not fairness |
+| Exposure concentration | all policies Gini **&gt; 0.97**; popularity 0.9995 | V2 &mdash; concentration, not fairness |
 | Search/IR hybrid | BM25 **0.0133** &gt; dense 0.0067; RRF hybrid 0.0117 | V2 &mdash; seed-item, NDCG/MRR |
 | Serving | warm p95 **~3.3 ms** (local), **0%** empty | V2 load test |
 
@@ -119,7 +119,7 @@ Each is detected by an explicit check (overlap@K, exposure Gini, cohort separati
 | Evaluation | cohort Recall@K &middot; NDCG@K &middot; MRR &middot; Gini / catalog coverage |
 | API | FastAPI + uvicorn |
 | Deployment | Docker + GCP Cloud Run (512 MiB / 1 vCPU, exact FlatIP) |
-| Corpus | Goodreads fantasy/paranormal (UCSD book graph) &middot; 2.56M interactions &middot; 94k users &middot; 42k items |
+| Corpus | Goodreads fantasy/paranormal (UCSD book graph) &middot; 2.56M interactions &middot; 94k users &middot; ~42k items (40,541 in the served ALS catalog) |
 
 ---
 
@@ -172,7 +172,7 @@ Every claim maps to a JSON in `outputs/evidence/`. A sample of what each proves:
 
 ## Resume-safe claim
 
-> Built **PulseDiscover**, an offline two-stage recommender decision system on 2.56M real Goodreads interactions (94k users, 42k items): tuned **ALS matrix factorization** to a warm-retrieval floor and *earned* it by showing a **converged full-softmax SASRec still lost**; built a **FAISS** latency&ndash;quality frontier (FlatIP exact default, HNSW scale, **IVF rejected** for candidate-overlap collapse); added a **dense semantic (MiniLM) cold-start lane** that uniquely reaches item-cold-start items and a **BM25** lexical lane; trained a **LightGBM LambdaMART fusion** ranker that beat ALS-only on the held-out test split; **executed off-policy evaluation** (IPS/SNIPS/DR) and measured **catalog-exposure governance** (Gini/coverage); and **deployed the FastAPI + FAISS serving path to GCP Cloud Run** &mdash; all under strict claim discipline with documented honest negatives and an explicit offline/online boundary.
+> Built **PulseDiscover**, an offline two-stage recommender decision system on 2.56M real Goodreads interactions (94k users, ~42k items; 40,541 in the served ALS catalog): tuned **ALS matrix factorization** to a warm-retrieval floor and *earned* it by showing a **converged full-softmax SASRec still lost**; built a **FAISS** latency&ndash;quality frontier (FlatIP exact default, HNSW scale, **IVF rejected** for candidate-overlap collapse); added a **dense semantic (MiniLM) cold-start lane** that uniquely reaches item-cold-start items and a **BM25** lexical lane; trained a **LightGBM LambdaMART fusion** ranker that beat ALS-only on the held-out test split; **executed off-policy evaluation** (IPS/SNIPS/DR) and measured **catalog-exposure governance** (Gini/coverage); and **deployed the FastAPI + FAISS serving path to GCP Cloud Run** &mdash; all under strict claim discipline with documented honest negatives and an explicit offline/online boundary.
 
 ---
 

@@ -135,7 +135,7 @@ story += [P("1 &nbsp; Project Summary &amp; Thesis", H1), divider(),
             "candidate fidelity, or cold-start coverage silently collapsed &mdash; and nobody measured the gap. PulseDiscover is the "
             "measurement-and-decision layer that catches that gap before it reaches users."),
           P("<b>What it is.</b> An offline, honesty-gated two-stage recommender decision system on a real 2.56M-interaction Goodreads "
-            "fantasy/paranormal corpus (94k users, 42k items). Four candidate sources (ALS, dense semantic, BM25, popularity) feed a FAISS "
+            "fantasy/paranormal corpus (94k users, ~42k items; 40,541 in the served ALS catalog). Four candidate sources (ALS, dense semantic, BM25, popularity) feed a FAISS "
             "retrieval layer, a learned ALS+semantic fusion ranker, a config-flagged exposure rerank, and a graceful fallback tree, served "
             "by a FastAPI app deployed on Cloud Run &mdash; with cohort, exposure, and off-policy evaluation governing every ship decision."),
           P("<b>How it was built.</b> As a gated experimentation program (G11&ndash;G31). Each stage was added, measured, and either adopted "
@@ -214,7 +214,7 @@ cards = [
   "<b>Role:</b> PulseDiscover does position-bias-aware <i>evaluation</i> (a two-lane OPE diagnostic) &mdash; not an in-ranker correction (that is labelled future work)."),
  ("Exposure governance &mdash; Gini / Lorenz / base-rate lift", AMBER,
   "<b>Objective:</b> over the full catalog (zeros included) compute Gini = 2&Sigma;i&middot;x<sub>i</sub>/(n&Sigma;x<sub>i</sub>) &minus; (n+1)/n, the Lorenz curve, top-x% share, and tier exposure-lift vs catalog base rate. "
-  "<b>Failure:</b> Gini alone hides which tail &mdash; pair with tier-lift. <b>Role:</b> catalog-health as a first-class ship-gate metric (all policies Gini&gt;0.97; popularity 1.0)."),
+  "<b>Failure:</b> Gini alone hides which tail &mdash; pair with tier-lift. <b>Role:</b> catalog-health as a first-class ship-gate metric (all policies Gini&gt;0.97; popularity 0.9995)."),
  ("Cold-start cohorts &amp; fallback policy", AMBER,
   "<b>Mechanism:</b> cohort users (unknown / sparse 1&ndash;2 / low 3&ndash;5 / warm 6+); evaluate popularity/content/item-sim/blended fallback; report warm-ALS and cold-fallback metrics SEPARATELY. "
   "<b>Honest nuance:</b> per-cohort recall is non-monotonic (cold gold is more popularity-predictable) &mdash; recall understates the real cost, which is coverage/personalization collapse."),
@@ -283,7 +283,7 @@ story += [P("6 &nbsp; Eval Results &amp; Model/Protocol Registry", H1), divider(
                   ["Semantic reach","54.6% unseen golds","V2 served-c2"],
                   ["Learned fusion","test 0.036 vs 0.022","V2 &mdash; 81 positives, directional"],
                   ["OPE","DR 0.0089 vs true 0.0106","V2 &mdash; offline, proxy reward"],
-                  ["Exposure","Gini &gt;0.97; pop 1.0","V2 &mdash; concentration not fairness"],
+                  ["Exposure","Gini &gt;0.97; pop 0.9995","V2 &mdash; concentration not fairness"],
                   ["Search/IR","BM25 0.0133 &gt; dense 0.0067","V2 &mdash; seed-item NDCG/MRR"]],
                  [1.7*inch, 2.35*inch, 3.25*inch]),
           Spacer(1,8),
@@ -362,7 +362,7 @@ story += [P("9 &nbsp; Cold-Start &amp; Exposure &mdash; deep dive", H1), divider
                  [3.1*inch, 2.1*inch, 2.1*inch]),
           Spacer(1,6),
           P("Exposure governance", H2),
-          P("Over the full catalog (zeros included): every policy is concentrated (Gini &gt; 0.97); popularity is near-degenerate (Gini 1.0, "
+          P("Over the full catalog (zeros included): every policy is concentrated (Gini &gt; 0.97); popularity is near-degenerate (Gini 0.9995, "
             "99.9% zero-exposure, ~60 unique items). Head items get ~10&times; their catalog base rate; the long tail gets ~0.02&times; "
             "(suppressed ~50&times;). HNSW is exposure-neutral vs exact (Gini 0.986 &asymp; 0.986). This is catalog-exposure <b>concentration</b> "
             "governance &mdash; explicitly NOT protected-class fairness."),
@@ -398,7 +398,7 @@ story += [P("11 &nbsp; Product &amp; Business Reasoning", H1), divider(),
                   ["FAISS = latency evidence","ANN doesn't change relevance","serving cost, not a UX lift"],
                   ["fallback existence &ne; quality","always-nonempty &ne; good","cold UX is generic; measure it"],
                   ["exposure audit &ne; fairness","concentration &ne; protected-class","catalog-health signal, not certification"],
-                  ["popularity = emergency only","Gini 1.0, zero personalization","creator/tail starvation if it dominates"],
+                  ["popularity = emergency only","Gini 0.9995, zero personalization","creator/tail starvation if it dominates"],
                   ["logs for real OPE","IPS needs &pi;<sub>log</sub> overlap","online decisioning unlocked once logged"]],
                  [1.7*inch, 2.9*inch, 2.7*inch]),
           Spacer(1,6),
