@@ -4,6 +4,7 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-serving-009688?logo=fastapi&logoColor=white)
 ![FAISS](https://img.shields.io/badge/FAISS-ANN_retrieval-4B8BBE)
 ![LightGBM](https://img.shields.io/badge/LightGBM-LambdaMART-2E7D32)
+![PyTorch](https://img.shields.io/badge/PyTorch-two--tower_BPR-EE4C2C?logo=pytorch&logoColor=white)
 ![Cloud Run](https://img.shields.io/badge/Cloud_Run-LIVE-4285F4?logo=googlecloud&logoColor=white)
 ![Scope](https://img.shields.io/badge/scope-offline_eval-555555)
 
@@ -11,7 +12,7 @@
 
 > Recommenders rarely fail because the model was wrong. They fail because a **metric improved while catalog health, candidate fidelity, or cold-start coverage silently collapsed** &mdash; and nobody measured the gap. PulseDiscover is the measurement layer that catches that gap before it reaches users.
 
-**Metrics &mdash; offline floor:** `ALS R@20 0.085` &middot; `cold-lane R@20 0.241` &middot; `SASRec converged → lost` &nbsp;|&nbsp; **served-c2 lane:** `R@20 ~0.0375` &middot; `FlatIP lossless −47% p95` &middot; `0% empty-response` &middot; `Cloud Run: LIVE`
+**Metrics &mdash; offline floor:** `ALS R@20 0.085` &middot; `cold-lane R@20 0.241` &middot; `SASRec converged → lost` &nbsp;|&nbsp; **served-c2 lane:** `R@20 ~0.0375` &middot; `FlatIP lossless −47% p95` &middot; `0% empty-response` &middot; `Cloud Run: LIVE` &nbsp;|&nbsp; **V3 neural + exploration:** `two-tower R@20 0.064 → lost to ALS` &middot; `content ablation +0.021` &middot; `Thompson coverage 17%→51%, Gini 0.97→0.81`
 
 **Live:** `https://pulsediscover-serving-98058433335.us-central1.run.app`
 
@@ -21,7 +22,7 @@
 
 ![architecture](docs/assets/architecture.svg)
 
-Every stage was added, measured, and **adopted or rejected with an artifact** across a gated program (G11&ndash;G31). V1 set the offline modelling floor; the V2 lane (G22&ndash;G31) added serving, cold-start, exposure governance, learned fusion, executed off-policy evaluation, and a search/IR front end &mdash; then the serving path shipped to Cloud Run.
+Every stage was added, measured, and **adopted or rejected with an artifact** across a gated program (G11&ndash;G33). V1 set the offline modelling floor; the V2 lane (G22&ndash;G31) added serving, cold-start, exposure governance, learned fusion, executed off-policy evaluation, and a search/IR front end &mdash; then the serving path shipped to Cloud Run. The V3 gate (G32&ndash;G33) added a two-tower neural retrieval model with content signals (an honest negative vs ALS, with a real content lift) and a Thompson Sampling exploration bandit (explore/exploit tradeoff, offline).
 
 ---
 
@@ -71,10 +72,14 @@ Each is detected by an explicit check (overlap@K, exposure Gini, cohort separati
 | Exposure concentration | all policies Gini **&gt; 0.97**; popularity 0.9995 | V2 &mdash; concentration, not fairness |
 | Search/IR hybrid | BM25 **0.0133** &gt; dense 0.0067; RRF hybrid 0.0117 | V2 &mdash; seed-item, NDCG/MRR |
 | Serving | warm p95 **~3.3 ms** (local), **0%** empty | V2 load test |
+| Two-tower (ID + content), BPR | R@20 **0.0642** [0.057&ndash;0.071] (**lost to ALS 0.085**) | V3 G32 &mdash; ALS-floor protocol, honest negative |
+| Two-tower content ablation | **+0.021** R@20 from MiniLM content (0.043 → 0.064) | V3 G32 |
+| Thompson vs greedy exploration | coverage **17%→51%**, Gini **0.97→0.81**, relevance **&minus;1.3pp** | V3 G33 &mdash; offline sim |
+| OPE of exploration policy | recovers greedy (DR 0.005 vs true 0.006); **collapses for bandit** (ESS 168→21) | V3 G33 &mdash; methodology demo |
 
 ---
 
-## Gate ladder (V2: G22&ndash;G31)
+## Gate ladder (V2: G22&ndash;G31 &middot; V3: G32&ndash;G33)
 
 | Gate | What shipped | Verdict |
 |---|---|---|
@@ -88,6 +93,8 @@ Each is detected by an explicit check (overlap@K, exposure Gini, cohort separati
 | G29 | Off-policy evaluation executed (IPS / SNIPS / DR) | estimators validated |
 | G30 | Final RiskFrame audit + interview kit | offline gold-complete |
 | G31 | Search/IR front end (BM25 + dense + RRF, NDCG/MRR) | role coverage added |
+| **G32** | **Two-tower neural retrieval (ID + MiniLM content, BPR)** | **honest negative: R@20 0.064 vs ALS 0.085; content +0.021** |
+| **G33** | **Thompson Sampling exploration bandit (offline)** | **coverage 17%→51%, Gini 0.97→0.81, −1.3pp relevance; OPE overlap collapse** |
 
 ---
 
@@ -113,6 +120,8 @@ Each is detected by an explicit check (overlap@K, exposure Gini, cohort separati
 | Warm retrieval | ALS implicit matrix factorization &middot; 64 factors |
 | Semantic (cold) retrieval | sentence-transformers `all-MiniLM-L6-v2` &middot; 384-dim &middot; FAISS FlatIP |
 | Lexical retrieval | BM25Okapi (`rank_bm25`) &middot; query-by-document |
+| Neural retrieval (V3) | **PyTorch two-tower** &middot; mean-pooled history user tower &middot; learned-ID ⊕ MiniLM-content item tower &middot; BPR loss |
+| Exploration (V3) | **Thompson Sampling** bandit &middot; per-item Beta posteriors over two-tower candidates |
 | Fusion / rank | Reciprocal Rank Fusion (RRF, k=60) &middot; LightGBM **LambdaMART** |
 | ANN serving | FAISS &mdash; IndexFlatIP (exact) &middot; IndexHNSWFlat (scale) |
 | Off-policy eval | IPS &middot; SNIPS &middot; Doubly-Robust |
@@ -132,6 +141,7 @@ The interview value of a project is the failures you catch yourself. Five-plus d
 - **ID-dtype silent zeroing** &mdash; string-vs-int `book_id` keys made every lookup miss and recall floor to ~0 *while the pipeline ran clean*; caught with an overlap sanity check.
 - **DR went negative** &mdash; a class-balanced reward model over-predicted vs a ~1% base rate and broke Doubly-Robust OPE; fixed with a base-rate-calibrated model (DR then lowest-bias).
 - **G24 recall non-monotonicity** &mdash; cold cohorts scored *higher* recall than warm; refused the expected story and reframed the real cost as coverage/personalization collapse.
+- **V3 OPE overlap collapse** &mdash; the same IPS/SNIPS/DR estimators cleanly recovered the greedy policy (DR 0.005 vs true 0.006) but went unreliable (DR negative) for the Thompson bandit as effective sample size collapsed 168→21; reported as the finding, not hidden &mdash; you cannot off-policy-evaluate an exploration policy a logging policy doesn't cover.
 
 ---
 
@@ -165,6 +175,8 @@ Every claim maps to a JSON in `outputs/evidence/`. A sample of what each proves:
 | `g29_ope_execution_report.json` | IPS/SNIPS/DR recover a known value offline |
 | `g31_search_ir_report.json` | BM25 + dense + RRF with NDCG/MRR |
 | `g30_final_gold_audit.json` | RiskFrame 9.1, offline gold-complete |
+| `G32_two_tower_eval.json` | two-tower R@20 0.064 vs ALS 0.085 (honest negative) + content ablation +0.021 |
+| `G33_bandit_eval.json` | Thompson coverage/Gini/diversity + OPE overlap collapse (ESS 168→21) |
 
 **Deeper docs:** `docs/78_CONTROL_TOWER.md` (status) &middot; `docs/PULSEDISCOVERY_INTERVIEW_KIT.md` (pitch + claim ladder) &middot; `docs/PULSEDISCOVERY_UNIFIED_DEFENSE_KERNEL.md` (method-by-method defense) &middot; **Interview defense PDF:** `defense/PulseDiscover_Interview_Defense.pdf`.
 
@@ -172,7 +184,7 @@ Every claim maps to a JSON in `outputs/evidence/`. A sample of what each proves:
 
 ## Resume-safe claim
 
-> Built **PulseDiscover**, an offline two-stage recommender decision system on 2.56M real Goodreads interactions (94k users, ~42k items; 40,541 in the served ALS catalog): tuned **ALS matrix factorization** to a warm-retrieval floor and *earned* it by showing a **converged full-softmax SASRec still lost**; built a **FAISS** latency&ndash;quality frontier (FlatIP exact default, HNSW scale, **IVF rejected** for candidate-overlap collapse); added a **dense semantic (MiniLM) cold-start lane** that uniquely reaches item-cold-start items and a **BM25** lexical lane; trained a **LightGBM LambdaMART fusion** ranker that beat ALS-only on the held-out test split; **executed off-policy evaluation** (IPS/SNIPS/DR) and measured **catalog-exposure governance** (Gini/coverage); and **deployed the FastAPI + FAISS serving path to GCP Cloud Run** &mdash; all under strict claim discipline with documented honest negatives and an explicit offline/online boundary.
+> Built **PulseDiscover**, an offline two-stage recommender decision system on 2.56M real Goodreads interactions (94k users, ~42k items; 40,541 in the served ALS catalog): tuned **ALS matrix factorization** to a warm-retrieval floor and *earned* it by showing a **converged full-softmax SASRec still lost** &mdash; and later a **PyTorch two-tower model (learned IDs ⊕ MiniLM content, BPR) also lost** (R@20 0.064 vs 0.085, non-overlapping CIs) while its **content ablation showed a real +0.021 lift**; built a **FAISS** latency&ndash;quality frontier (FlatIP exact default, HNSW scale, **IVF rejected** for candidate-overlap collapse); added a **dense semantic (MiniLM) cold-start lane** that uniquely reaches item-cold-start items and a **BM25** lexical lane; trained a **LightGBM LambdaMART fusion** ranker that beat ALS-only on the held-out test split; added a **Thompson Sampling exploration bandit** (catalog coverage 17%→51%, exposure Gini 0.97→0.81, at a ~1.3pp relevance cost); **executed off-policy evaluation** (IPS/SNIPS/DR), validated it, and **showed it collapses for the exploration policy** (ESS 168→21); measured **catalog-exposure governance** (Gini/coverage); and **deployed the FastAPI + FAISS serving path to GCP Cloud Run** &mdash; all under strict claim discipline with documented honest negatives and an explicit offline/online boundary.
 
 ---
 
