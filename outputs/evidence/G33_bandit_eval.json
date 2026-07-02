@@ -1,0 +1,49 @@
+{
+  "gate": "G33",
+  "layer": "thompson_sampling_bandit_on_two_tower",
+  "mode": "offline_simulation",
+  "n_users": 5000,
+  "candidate_pool_K": 200,
+  "slate_S": 20,
+  "ts_passes": 6,
+  "reward_proxy": "held-out future interactions (test.csv); NOT real engagement",
+  "greedy": {
+    "catalog_coverage_items": 6972,
+    "catalog_coverage_pct": 16.62,
+    "exposure_gini": 0.9736,
+    "intra_list_diversity": 0.492,
+    "slate_hit_rate@20": 0.0642
+  },
+  "thompson": {
+    "catalog_coverage_items": 21201,
+    "catalog_coverage_pct": 50.53,
+    "exposure_gini": 0.8063,
+    "intra_list_diversity": 0.5054,
+    "slate_hit_rate@20": 0.051
+  },
+  "relevance_verdict": "Thompson REDUCES top-slate relevance: slate hit@20 0.0642 (greedy) -> 0.0510 (thompson). This is the expected explore/exploit COST, not a gain.",
+  "tradeoff_note": "Thompson trades ~1.3pp of top-slate relevance for ~3x catalog coverage (16.6%%->50.5%%), lower exposure Gini (0.974->0.806), and higher intra-list diversity \u2014 the explore/exploit tradeoff. Relevance drops, not rises.",
+  "ope_top1": {
+    "true_value_greedy": 0.0062,
+    "true_value_thompson": 0.0178,
+    "greedy_estimates": {
+      "IPS": 0.0048,
+      "SNIPS": 0.0047,
+      "DR": 0.005,
+      "ESS": 168.041,
+      "n_match": 332
+    },
+    "thompson_estimates": {
+      "IPS": 0.0,
+      "SNIPS": 0.0,
+      "DR": -0.0005,
+      "ESS": 21.0739,
+      "n_match": 38
+    },
+    "key_finding": "OPE OVERLAP COLLAPSES for the exploration policy: logged-action match drops 332->38 and ESS 168->21, so IPS/SNIPS/DR are UNRELIABLE for Thompson. DR recovers greedy (0.005 vs true 0.0062) but fails Thompson (DR<0). Off-policy evaluation of an exploration policy needs a logging policy that covers it.",
+    "caveat_true_value_thompson": "OPTIMISTICALLY BIASED: the Beta posterior was updated on the same held-out proxy reward it is then scored against, so argmax-posterior-mean top-1 memorizes rewarded pool items. This is NOT evidence of a relevance improvement.",
+    "note": "single-action contextual-bandit OPE; propensities synthetic; reward is proxy. Methodology demo, not online lift."
+  },
+  "truth_boundary": "offline only; no live serving, no A/B, no online lift claimed",
+  "sec": 5.0
+}

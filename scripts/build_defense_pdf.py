@@ -108,7 +108,8 @@ story += [Spacer(1, 24), P("PulseDiscover", TITLE),
           Spacer(1, 12),
           callout("STATUS",
                   "V1 <b>gold_candidate 8.9</b> (locked, terminal) &middot; V2 lane <b>offline gold-complete</b> (RiskFrame 9.1) &middot; "
-                  "serving API <b>deployed to Google Cloud Run</b> (live HTTPS).", accent=GREEN, fill=colors.HexColor("#12301c")),
+                  "serving API <b>deployed to Google Cloud Run</b> (live HTTPS) &middot; V3 gate <b>two-tower + Thompson exploration</b> "
+                  "(offline, honest negative + explore/exploit tradeoff).", accent=GREEN, fill=colors.HexColor("#12301c")),
           Spacer(1,6),
           callout("READING RULE",
                   "Every number in this dossier is <b>offline and protocol-tagged</b>. The V1 d3aplus result (R@20 0.0846) and the served-c2 "
@@ -125,7 +126,8 @@ story += [P("Contents", H1), divider(),
                   ["7","Gate-by-gate walkthrough (G22&ndash;G31)"],["8","Off-policy evaluation deep dive"],
                   ["9","Cold-start &amp; exposure deep dive"],["10","Truth boundary &amp; claim ladder"],
                   ["11","Product &amp; business reasoning"],["12","Hard Q&amp;A (22 questions)"],
-                  ["13","What I'd build next"],["14","Evidence artifact index"]],
+                  ["13","What I'd build next"],["14","Evidence artifact index"],
+                  ["V3","Neural two-tower + Thompson exploration bandit (G32&ndash;G33)"]],
                  [0.5*inch, 6.8*inch]),
           PageBreak()]
 
@@ -183,9 +185,13 @@ cards = [
   "<b>Objective:</b> maximize next-item likelihood (full softmax over the catalog). <b>Mechanism:</b> causal self-attention over the item-embedding sequence. "
   "<b>Assumes:</b> informative order + dense-enough sequences. <b>Fails on:</b> short/sparse/padded histories (the NaN-mask bug). <b>Lever found:</b> full-softmax vs sampled-softmax (~6.7&times;) &mdash; still &lt; ALS. "
   "<b>Role:</b> the deep-model challenger, trained to convergence; a documented honest negative."),
- ("Two-tower / LightGCN", BLUE,
-  "<b>Two-tower:</b> user/item encoders trained with in-batch softmax; honest negative here (R@20 0.0020) &mdash; ID-only mean-pooling loses the co-occurrence structure ALS factorizes. "
-  "<b>LightGCN:</b> light graph convolution (no feature transforms/nonlinearities) propagating CF signal; deferred &mdash; graph training over 40k items is not cheap on CPU, documented not silently skipped."),
+ ("Two-tower &mdash; ID + content retrieval (V3, G32)", BLUE,
+  "<b>Objective:</b> user tower = mean-pooled history item-embeddings; item tower = learned-ID embedding &oplus; a projection of the 384-d MiniLM content vector; dot-product scored, BPR loss (8 uniform negatives), 23 epochs, PyTorch CPU. "
+  "<b>Result:</b> R@20 <b>0.0642</b> [0.057&ndash;0.071] on the exact ALS-floor protocol &mdash; a documented honest negative vs ALS 0.0846 (non-overlapping CIs). Content ablation: turning the content tower off drops R@20 to 0.0432, so MiniLM content contributes <b>+0.021 R@20</b>. "
+  "<b>Reading:</b> content is now first-class inside retrieval and earns a real lift, but still loses to a tuned MF on dense warm book histories &mdash; the second neural model to do so (after SASRec)."),
+ ("LightGCN &mdash; graph CF (deferred, documented)", BLUE,
+  "<b>Mechanism:</b> light graph convolution (no feature transforms/nonlinearities) propagating CF signal over the user-item graph. "
+  "<b>Status:</b> deferred &mdash; graph training over ~42k items is not cheap on CPU, and on a catalog where a converged SASRec and a content two-tower both lost to MF it is unlikely to pay. Documented, not silently skipped."),
  ("LambdaMART &mdash; learning-to-rank fusion", GREEN,
   "<b>Objective:</b> boosted trees optimizing a listwise NDCG surrogate; gradients are &lambda;-weighted by the NDCG change of swapping a pair, grouped per query (user). "
   "<b>Assumes:</b> enough positive labels/query; features carry cross-source signal. <b>Fails on:</b> extreme label sparsity (overfit). "
@@ -236,7 +242,9 @@ story += [P("4 &nbsp; Decision Log", H1), divider(),
                   ["BM25 = query-by-document","No free-text queries exist; the seed item's text is the query (more-like-this).","seed-item, not a free-text search engine"],
                   ["Learned fusion, bounded","LambdaMART beat ALS-only on held-out test (0.036 vs 0.022) but on 81 positives.","claimed on the offline test split only"],
                   ["OPE executed, not faked","Estimators recover a known value offline; props synthetic, reward a proxy.","methodology demonstrated, not a real value"],
-                  ["V1/V2 registry","d3aplus 0.0846 and c2 0.0375 are different builds/protocols.","never conflated &mdash; kept in a registry"]],
+                  ["V1/V2 registry","d3aplus 0.0846 and c2 0.0375 are different builds/protocols.","never conflated &mdash; kept in a registry"],
+                  ["Two-tower = honest negative (V3)","ID+content BPR two-tower R@20 0.064 vs ALS 0.085 (non-overlapping CIs); content ablation adds +0.021.","content earns a lift; MF still wins warm"],
+                  ["Bandit = exploration, not relevance (V3)","Thompson raised coverage 17&rarr;51% and cut Gini 0.97&rarr;0.81 for a ~1.3pp relevance cost.","explore/exploit stated as a COST, offline only"]],
                  [1.55*inch, 4.0*inch, 1.75*inch]),
           PageBreak()]
 
@@ -260,6 +268,8 @@ fails = [
   "DR returned ~&minus;0.4 (impossible for a [0,1] reward). <b>Revealed:</b> a class-balanced reward model calibrated to ~0.5 vs a true ~1% base rate broke the DR baseline. <b>Did:</b> caught it from the impossible sign; switched to a base-rate-calibrated model; DR then recovered the known value best of the three."),
  ("Serving load-path false confidence (caught in the stress test)",
   "The startup dim-assert was tautological (index built from Y, so it can't fail) and a corrupt model pickle returned 0 items (popularity not yet loaded). <b>Revealed:</b> a health check that can't fail is worse than none. <b>Did:</b> added a real X/Y dim assert; load popularity independently so a degraded service still serves a non-empty fallback."),
+ ("V3 OPE overlap collapse for the exploration policy",
+  "Reusing the G29 IPS/SNIPS/DR estimators on the Thompson bandit, DR went slightly negative and IPS/SNIPS hit 0 &mdash; while they cleanly recovered the greedy policy (DR 0.005 vs true 0.006). <b>Revealed:</b> the exploration policy picks items the logging policy rarely logs, so effective sample size collapsed 168&rarr;21 and the estimators lost all power. <b>Did:</b> reported it as the finding, not a bug &mdash; you cannot off-policy-evaluate an exploration policy a logging policy doesn't cover; real logged propensities are the prerequisite."),
 ]
 for name, body in fails:
     story.append(card(name, body, RED))
@@ -284,7 +294,11 @@ story += [P("6 &nbsp; Eval Results &amp; Model/Protocol Registry", H1), divider(
                   ["Learned fusion","test 0.036 vs 0.022","V2 &mdash; 81 positives, directional"],
                   ["OPE","DR 0.0089 vs true 0.0106","V2 &mdash; offline, proxy reward"],
                   ["Exposure","Gini &gt;0.97; pop 0.9995","V2 &mdash; concentration not fairness"],
-                  ["Search/IR","BM25 0.0133 &gt; dense 0.0067","V2 &mdash; seed-item NDCG/MRR"]],
+                  ["Search/IR","BM25 0.0133 &gt; dense 0.0067","V2 &mdash; seed-item NDCG/MRR"],
+                  ["Two-tower (ID+content)","R@20 0.0642 (lost to ALS)","V3 G32 &mdash; ALS-floor protocol"],
+                  ["Two-tower content ablation","+0.021 R@20 from MiniLM","V3 G32"],
+                  ["Thompson vs greedy","cov 17&rarr;51%; Gini 0.97&rarr;0.81; rel &minus;1.3pp","V3 G33 &mdash; offline sim"],
+                  ["OPE of exploration policy","ESS 168&rarr;21; DR fails bandit","V3 G33 &mdash; methodology demo"]],
                  [1.7*inch, 2.35*inch, 3.25*inch]),
           Spacer(1,8),
           P("Model registry", H2),
@@ -293,12 +307,14 @@ story += [P("6 &nbsp; Eval Results &amp; Model/Protocol Registry", H1), divider(
                   ["sasrec_canonical_v3","V1","R@20 0.065 (plot_reconstructed)","V1; packaging-limited"],
                   ["c2_als_f64","V2 SERVED","R@20 ~0.0375","V2 protocol ONLY"],
                   ["minilm_content","V2","reach 54.6%","candidate-gen only"],
-                  ["g28_lambdamart_fusion","V2","test 0.036 (81 pos)","offline test split only"]],
+                  ["g28_lambdamart_fusion","V2","test 0.036 (81 pos)","offline test split only"],
+                  ["g32_two_tower","V3","R@20 0.0642 (honest negative)","ALS-floor protocol"],
+                  ["g33_thompson_bandit","V3","cov 51%; Gini 0.81 (offline)","exploration sim, proxy reward"]],
                  [1.8*inch, 0.95*inch, 2.4*inch, 2.15*inch]),
           PageBreak()]
 
 # ============ 7. GATE WALKTHROUGH ============
-story += [P("7 &nbsp; Gate-by-Gate Walkthrough (V2)", H1), divider(),
+story += [P("7 &nbsp; Gate-by-Gate Walkthrough (V2&ndash;V3)", H1), divider(),
           dtable([["Gate","What shipped","Result / verdict"],
                   ["G22","FAISS latency&ndash;quality frontier","FlatIP default lossless &minus;47% p95; HNSW overlap 0.992; IVF rejected"],
                   ["G23","Production-shaped FastAPI + load test","warm p95 ~3.3ms; 0% empty; failure modes graceful"],
@@ -310,11 +326,61 @@ story += [P("7 &nbsp; Gate-by-Gate Walkthrough (V2)", H1), divider(),
                   ["G28","Learned fusion tournament (LambdaMART)","beat ALS-only on test (0.036 vs 0.022) + recovered cold-start"],
                   ["G29","Off-policy evaluation executed","IPS/SNIPS/DR recover known value; DR lowest-bias, SNIPS stable"],
                   ["G30","Final RiskFrame audit + interview kit","9.1/10; offline gold-complete"],
-                  ["G31","Search/IR front end (BM25+dense+RRF)","BM25 strongest single lane; NDCG/MRR; role coverage added"]],
+                  ["G31","Search/IR front end (BM25+dense+RRF)","BM25 strongest single lane; NDCG/MRR; role coverage added"],
+                  ["G32","Two-tower neural retrieval (ID+content, BPR)","R@20 0.064 vs ALS 0.085 &mdash; honest negative; content ablation +0.021"],
+                  ["G33","Thompson Sampling exploration bandit","coverage 17&rarr;51%, Gini 0.97&rarr;0.81, &minus;1.3pp relevance; OPE overlap collapse"]],
                  [0.55*inch, 3.0*inch, 3.75*inch]),
           Spacer(1,6),
           P("The discipline an interviewer should notice: every gate has a pre-registered question, an artifact, and an honest verdict &mdash; "
             "including the gates that produced negatives (G20 SASRec, G22 IVF) and the gate that refused an expected story (G24).", SMALL),
+          PageBreak()]
+
+# ============ V3. NEURAL + EXPLORATION ============
+story += [P("V3 &nbsp; Neural Two-Tower + Thompson Exploration Bandit", H1), divider(),
+          P("V3 answers the two questions the target role weighs most heavily: can a neural two-tower with content "
+            "beat ALS, and does a bandit exploration layer buy real catalog diversity? The answers are an honest "
+            "<b>no</b> and a measured <b>yes-with-a-cost</b> &mdash; and the sharpest result is that off-policy "
+            "evaluation breaks down for the exploration policy exactly where the theory says it should."),
+          P("G32 &mdash; two-tower vs ALS (identical protocol)", H2),
+          P("User tower: mean-pooled learned embeddings of the user's history (&le;50 items). Item tower: a learned "
+            "item-ID embedding plus a projection of the 384-d MiniLM content embedding. BPR loss, 8 uniform negatives, "
+            "23 epochs. Evaluated leave-last-out on the same 5,000-user eval_sample, top-200, history-masked, with "
+            "per-user bootstrap 95% CIs &mdash; the exact ALS-floor protocol.", SMALL),
+          dtable([["Model","Recall@20","95% CI","NDCG@20","Verdict"],
+                  ["ALS (F=64)","0.0846","[0.0766, 0.0922]","0.0344","baseline"],
+                  ["Two-tower (ID + content)","0.0642","[0.0574, 0.0712]","0.0262","loses to ALS"],
+                  ["Two-tower (ID only, content off)","0.0432","[0.0376, 0.0490]","0.0162","ablation"]],
+                 [2.35*inch, 1.15*inch, 1.55*inch, 1.05*inch, 1.2*inch]),
+          Spacer(1,4),
+          bullets([
+           "<b>ALS wins, not noise:</b> its CI lower bound 0.0766 is above the two-tower's upper bound 0.0712 &mdash; non-overlapping.",
+           "<b>Content is a real signal:</b> the content tower adds +0.021 R@20 (0.0432 &rarr; 0.0642), CIs non-overlapping &mdash; content is now first-class inside retrieval.",
+           "<b>Second neural negative:</b> SASRec (0.065) and the two-tower (0.064) both lose to MF on dense warm book histories &mdash; depth is not the lever.",
+          ]),
+          P("G33 &mdash; Thompson Sampling exploration (offline)", H2),
+          P("For each of the 5,000 warm users, take the two-tower top-200 pool and build a size-20 slate under greedy "
+            "(rank by score) vs Thompson (per-item Beta posterior, updated with a held-out-positive proxy reward over "
+            "6 passes). Offline simulation &mdash; no live serving.", SMALL),
+          dtable([["Metric","Greedy","Thompson","Direction"],
+                  ["Catalog coverage","16.6% (6,972)","50.5% (21,201)","~3&times; more catalog exposed"],
+                  ["Exposure Gini","0.9736","0.8063","less concentrated"],
+                  ["Intra-list diversity","0.492","0.5054","modestly higher"],
+                  ["Slate hit-rate@20 (relevance)","0.0642","0.0510","&minus;1.3pp (the cost)"]],
+                 [2.5*inch, 1.55*inch, 1.55*inch, 1.7*inch]),
+          Spacer(1,4),
+          P("Off-policy evaluation of the two policies (IPS/SNIPS/DR, single-action bandit)", H2),
+          dtable([["Target","true","IPS","SNIPS","DR","ESS","matches"],
+                  ["Greedy top-1","0.0062","0.0048","0.0047","0.0050","168","332"],
+                  ["Thompson top-1","(0.018, biased)","0.0000","0.0000","&minus;0.0005","21","38"]],
+                 [1.7*inch, 1.15*inch, 0.85*inch, 0.95*inch, 0.9*inch, 0.75*inch, 1.0*inch]),
+          Spacer(1,6),
+          callout("HONESTY BOUNDARY (V3)",
+                  "Offline only. The two-tower LOST to ALS (reported as an honest negative). The bandit REDUCES top-slate "
+                  "relevance &mdash; it buys exploration/diversity, not accuracy. OPE recovers the greedy policy but is "
+                  "unreliable for the exploration policy (ESS 168&rarr;21), so its estimates are a methodology demo, not "
+                  "online value. The Thompson &lsquo;true value&rsquo; is optimistically biased (posterior fit on the same "
+                  "proxy reward) and is not counted as a relevance gain. No online lift, no A/B, no production claim.",
+                  accent=AMBER, fill=colors.HexColor("#2c1f0b")),
           PageBreak()]
 
 # ============ 8. OPE DEEP DIVE ============
@@ -425,7 +491,9 @@ qa = [
  ("Is any of this production / online?","No &mdash; offline by scope. The API is deployed and callable, but there are no real users, no logged real-traffic propensities, and no A/B. That boundary is documented as the next step."),
  ("Why is your served recall ~0.0375 when V1 was 0.0846?","Different builds and protocols &mdash; d3aplus tuning vs served-c2 full-catalog single-held-out-gold. I keep them in a registry so they're never conflated. The relative cross-policy structure is the V2 signal, not the absolute."),
  ("Is the semantic lane an LLM recommender?","No &mdash; embedding-based candidate generation (MiniLM over content text). No generation, no chat, no \"semantic taste.\" It reaches items collaborative filtering can't."),
- ("Why not LightGCN / two-tower / bandits?","Deferred/T3 &mdash; on a catalog where a converged SASRec lost to MF they're unlikely to pay and expensive to defend offline. I built where it's measured to matter: cold-start and catalog health."),
+ ("Did the V3 two-tower beat ALS?","No &mdash; and I report it as an honest negative. A proper two-tower (mean-pooled history user tower + learned-ID&oplus;MiniLM-content item tower, BPR) reached R@20 0.0642 [0.057&ndash;0.071] vs ALS 0.0846 on the identical protocol; the CIs don't overlap. The useful result is the content ablation: MiniLM content adds +0.021 R@20, so content earns its place inside retrieval even though the model still loses to MF on dense warm histories. Two neural models (SASRec, two-tower) now lose to ALS &mdash; consistent, not a fluke."),
+ ("What did the Thompson Sampling bandit actually buy?","Exploration, at an explicit relevance cost &mdash; not a relevance win. Over two-tower candidate pools, Thompson vs greedy raised catalog coverage 16.6%&rarr;50.5% and cut exposure Gini 0.97&rarr;0.81, for a ~1.3pp drop in top-slate hit-rate (0.064&rarr;0.051). That's the explore/exploit tradeoff, stated as a cost. Offline simulation with a proxy reward &mdash; no online lift."),
+ ("Why did OPE break for the bandit but not for greedy?","Overlap. The synthetic logging policy covers the greedy top-1 well (332 matched samples, ESS 168) so IPS/SNIPS/DR recover it (DR 0.005 vs true 0.006). The exploration policy selects items the logging policy rarely logs, so overlap collapses (38 matches, ESS 21) and the estimators become unreliable &mdash; DR even goes negative. You can't off-policy-evaluate an exploration policy a logging policy doesn't cover; it's the same lesson as the G29 DR-negative failure."),
  ("Is your exposure work a fairness claim?","No &mdash; catalog exposure concentration (Gini/coverage/tier-lift), explicitly not protected-class fairness. I don't certify fairness; I measure concentration as a ship-gate metric."),
  ("How did you prevent leakage in the fusion eval?","Split by user-hash (a user is wholly in one split); test labels never used for training or model selection; served-c2 protocol only. The fix for the v2 SASRec leakage (stopping on the eval set) was a separate validation-monitor set."),
  ("Why is the cover claim 'gold_candidate' not 'gold_complete'?","One packaging gap: the G20 SASRec headline is plot_reconstructed (the direct artifact was lost). The decision is sound; the evidence packaging is one artifact short, so I hold the status honestly at candidate."),
@@ -446,7 +514,7 @@ story += [P("13 &nbsp; What I'd Build Next", H1), divider(),
            "<b>Canary + live A/B</b> of the fusion policy and the head-cap exposure rerank, with guardrail metrics (relevance, coverage, Gini, fallback rate, p95) wired to alerts &mdash; the only way to claim online lift.",
            "<b>In-ranker position-bias correction (PAL / IPS-weighted LTR)</b> &mdash; upgrade position bias from <i>evaluated</i> to <i>corrected</i>.",
            "<b>Productionise the lexical lane</b> (Lucene / Elasticsearch / bm25s) for sub-ms BM25, and persist the FAISS index to cut cold-start build time.",
-           "<b>Two-tower / GNN retrieval and graded-relevance labels</b> &mdash; once there's signal/scale to justify them; today deferred, not silently skipped.",
+           "<b>Two-tower &amp; exploration are now built (V3)</b> &mdash; the two-tower is an honest negative with a real content lift, and the Thompson bandit needs real logged propensities to make its OPE trustworthy; graded-relevance labels and GNN retrieval remain the next scale-up.",
           ]),
           PageBreak()]
 
@@ -464,7 +532,9 @@ story += [P("14 &nbsp; Evidence Artifact Index", H1), divider(),
                   ["g29_ope_execution_report.json","IPS/SNIPS/DR recover a known value offline"],
                   ["g31_search_ir_report.json","BM25 + dense + RRF with NDCG/MRR"],
                   ["g30_final_gold_audit.json","RiskFrame 9.1, offline gold-complete"],
-                  ["g_serving_stress_test.json","serving edge-case stress test + two load-path fixes"]],
+                  ["g_serving_stress_test.json","serving edge-case stress test + two load-path fixes"],
+                  ["G32_two_tower_eval.json","two-tower R@20 0.064 vs ALS 0.085 + content ablation (V3)"],
+                  ["G33_bandit_eval.json","Thompson coverage/Gini/diversity + OPE overlap collapse (V3)"]],
                  [3.4*inch, 3.9*inch]),
           Spacer(1,10), divider(),
           P("Companion docs in the repo: PULSEDISCOVERY_INTERVIEW_KIT.md (pitch &amp; claim ladder) &middot; "
