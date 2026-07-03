@@ -16,5 +16,8 @@ pyarrow
 sentence-transformers   # G27 dense semantic content embeddings (MiniLM)
 rank-bm25               # G31 lexical retrieval
 
+# Streaming (G34) — Kafka real-time scoring path (producer/consumer client)
+kafka-python
+
 # Docs
 reportlab               # defense PDF builder

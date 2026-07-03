@@ -1,0 +1,15 @@
+{
+  "gate": "G34_kafka_realtime_streaming_offline",
+  "events": 600,
+  "k": 20,
+  "known_frac": 0.7,
+  "model_hits": 435,
+  "cold_start_fallbacks": 165,
+  "unexpected_errors": 0,
+  "empty_responses": 0,
+  "avg_scoring_latency_ms": 0.256,
+  "p95_scoring_latency_ms": 0.604,
+  "service_ready": true,
+  "model_id": "als_f64_fbaa29668f",
+  "verdict": "PASS"
+}

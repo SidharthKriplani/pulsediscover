@@ -2,7 +2,7 @@
 FROM python:3.10-slim
 
 WORKDIR /app
-RUN pip install --no-cache-dir fastapi uvicorn[standard] faiss-cpu numpy pandas scipy scikit-learn
+RUN pip install --no-cache-dir fastapi uvicorn[standard] faiss-cpu numpy pandas scipy scikit-learn kafka-python
 
 # code + model/index inputs (data mounted at runtime or baked in)
 COPY src/ /app/src/

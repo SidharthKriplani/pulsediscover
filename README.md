@@ -95,6 +95,19 @@ Each is detected by an explicit check (overlap@K, exposure Gini, cohort separati
 | G31 | Search/IR front end (BM25 + dense + RRF, NDCG/MRR) | role coverage added |
 | **G32** | **Two-tower neural retrieval (ID + MiniLM content, BPR)** | **honest negative: R@20 0.064 vs ALS 0.085; content +0.021** |
 | **G33** | **Thompson Sampling exploration bandit (offline)** | **coverage 17%→51%, Gini 0.97→0.81, −1.3pp relevance; OPE overlap collapse** |
+| **G34** | **Kafka real-time streaming scorer (event-driven twin of G23)** | **at-least-once; same model/fallback/telemetry; offline PASS, 0 empty, p95 ~0.5ms** |
+
+### G34 — real-time streaming (Kafka)
+
+An event-driven twin of the G23 API: interaction events on `pd.interactions` are scored in real time
+through the **same** `RecommenderService` and the slate is published to `pd.recommendations`. At-least-once
+(commit-after-produce). Single-node Apache Kafka (KRaft) via `docker-compose.kafka.yml`; broker-free offline
+acceptance in `scripts/run_g34_kafka_stream_offline.py`. Details: [`docs/70_G34_KAFKA_REALTIME_STREAMING.md`](docs/70_G34_KAFKA_REALTIME_STREAMING.md).
+
+```bash
+python scripts/run_g34_kafka_stream_offline.py --n 1000        # no broker (CI)
+docker compose -f docker-compose.kafka.yml up -d kafka         # + up pulsediscover-stream
+```
 
 ---
 
