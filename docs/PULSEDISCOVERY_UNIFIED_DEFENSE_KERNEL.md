@@ -18,6 +18,7 @@ theory → product decision → data/eval design → implementation artifact →
 10. **Learned ALS+semantic fusion beat ALS-only on held-out test** (0.036 vs 0.022) + recovered cold-start (0.032 vs 0); ALS & semantic candidates ~disjoint (overlap 6,749).
 11. **OPE executed offline** — IPS/SNIPS/DR recover a known value (DR lowest-bias, SNIPS lowest-variance); synthetic propensities + proxy reward, not online.
 12. **No online lift, no production, no fairness certification, no real-traffic OPE** — permanently out of scope by design.
+13. **Real-time streaming (G34) is an event-driven twin of the serving path** — same ALS+FAISS model, same fallback tree, same telemetry, at-least-once delivery; offline-accepted, live broker via compose, not a production cluster.
 
 ---
 
@@ -115,5 +116,8 @@ ALS-floor: a properly-tuned sequence/graph model beating it on this exact protoc
 
 ## Failures I'm proud of + serving stress test
 The catch-and-correct stories (SASRec false convergence, eval-leakage, stale-script contamination, IVF "metric can lie", BM25-beats-dense-on-short-text) and the empirical serving edge-case stress test (with two load-path fixes + Cloud Run memory sizing) live in **`docs/PULSEDISCOVERY_FAILURES_AND_HARDENING.md`** (`outputs/evidence/g_serving_stress_test.json`). These are often the strongest interview material — lead with them when asked "tell me about a time something went wrong."
+
+## G34 — Kafka real-time streaming scorer (V3 serving addition)
+**Problem:** the G23 API scores on request/response; many recommender roles want an event-driven, real-time path. **Core idea:** interaction events on `pd.interactions` are scored through the *same* `RecommenderService` and the slate is published to `pd.recommendations` — the streaming twin of the REST service, not a re-implementation. **Assumptions:** events are well-formed JSON; the model/index are already built. **Failure modes handled:** malformed event → `bad_event` record (never crashes); consumer crash mid-event → re-processes (at-least-once), not drops. **Why at-least-once:** `enable_auto_commit=False` + offsets committed only after the output record is durably produced (`acks="all"`). **Why over alternatives:** exactly-once needs transactions/idempotent producer + a schema registry — documented out-of-scope; at-least-once + idempotent scoring is the honest, sufficient guarantee here. **In-PulseDiscover:** `src/serving/kafka_stream.py`; offline acceptance `outputs/evidence/g34_kafka_stream_offline.json` (0 unexpected errors, 0 empty responses, p95 ~0.5ms; ~65% model hits, ~35% correct cold-start fallbacks). **Hard Q:** *"Is this production streaming?"* → **Safe answer:** "It's a production-*shaped* single-node broker via compose with real at-least-once semantics; not a multi-broker cluster, no exactly-once/schema-registry, and acceptance uses synthetic events — same synthetic-vs-live boundary as the rest of the repo."
 
 **Status: unified defense built — all V1 + V2 methods defended in one deck, claim-bounded, with kill conditions. Interview-ready.**
