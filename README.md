@@ -12,7 +12,7 @@
 
 > Recommenders rarely fail because the model was wrong. They fail because a **metric improved while catalog health, candidate fidelity, or cold-start coverage silently collapsed** &mdash; and nobody measured the gap. PulseDiscover is the measurement layer that catches that gap before it reaches users.
 
-**Metrics &mdash; offline floor:** `ALS R@20 0.085` &middot; `cold-lane R@20 0.241` &middot; `SASRec converged → lost` &nbsp;|&nbsp; **served-c2 lane:** `R@20 ~0.0375` &middot; `FlatIP lossless −47% p95` &middot; `0% empty-response` &middot; `Cloud Run: LIVE` &nbsp;|&nbsp; **V3 neural + exploration:** `two-tower R@20 0.064 → lost to ALS` &middot; `content ablation +0.021` &middot; `Thompson coverage 17%→51%, Gini 0.97→0.81`
+**Metrics &mdash; offline floor:** `ALS R@20 0.085` &middot; `cold-lane R@20 0.241 (100% cold-pool coverage)` &middot; `90/10 two-lane: +735 new items @ −8.1% warm` &middot; `SASRec converged → lost` &nbsp;|&nbsp; **served-c2 lane:** `R@20 ~0.0375` &middot; `FlatIP lossless −47% p95` &middot; `0% empty-response` &middot; `Cloud Run: LIVE` &nbsp;|&nbsp; **V3 neural + exploration:** `two-tower R@20 0.064 → lost to ALS` &middot; `content ablation +0.021` &middot; `Thompson coverage 17%→51%, Gini 0.97→0.81`
 
 **Live:** `https://pulsediscover-serving-98058433335.us-central1.run.app`
 
@@ -61,14 +61,16 @@ Each is detected by an explicit check (overlap@K, exposure Gini, cohort separati
 |---|---|---|
 | ALS warm floor | R@20 **0.085** | V1 d3aplus tuning |
 | Canonical SASRec, converged | R@20 0.065 (**lost to ALS**) | V1 &mdash; honest negative |
-| Content-hybrid cold lane | cold R@20 **0.241** (ALS = 0) | V1 cold-start |
+| Content-hybrid cold lane | cold R@20 **0.241** (ALS = 0), **100%** cold-pool coverage (all 1,420 cold items surfaced) | V1 cold-start |
+| 90/10 two-lane serving policy | overall R@20 **+21%** (0.0398&rarr;0.0484); cold R@20 0&rarr;**0.050**; **735** distinct new items at **&minus;8.1%** warm recall (&le;10% guardrail) &mdash; A/B candidate, not offline-proven winner | V1 two-lane (C2/O1B) |
+| Position-bias correction (PBM / IPS) | naive CTR **11&times;** under-credits cold slots; IPS recovers ~**77%** at aggregate (per-item stays variance-heavy) | V1 position-bias (P1) |
 | FAISS FlatIP (exact) | lossless, ~**47%** lower p95 | V2 latency |
 | FAISS HNSW ef64 | overlap **0.992**, ~2.4&times; | V2 latency |
 | FAISS IVF | **rejected** &mdash; overlap collapsed 0.28&ndash;0.78 | V2 |
 | Cold-start fallback cost | coverage **~59&times;** collapse; personalization 0.68&rarr;**0.001** | V2 served-c2 |
 | Semantic cold-start reach | **54.6%** of unseen golds (ALS/pop = 0) | V2 served-c2 |
 | Learned fusion vs ALS-only | test R@20 **0.036 vs 0.022**; cold 0.032 vs 0 | V2 &mdash; held-out test, 81 positives |
-| Off-policy evaluation | DR **0.0089** vs true 0.0106; SNIPS stable; IPS over-estimates | V2 &mdash; offline, proxy reward |
+| Off-policy evaluation (IPS/SNIPS/DM/DR) | DR **0.0089** vs true 0.0106; SNIPS stable; IPS over-estimates; logger positivity decisive (ESS 1.4k&rarr;7.6k) | V2 &mdash; offline, proxy reward |
 | Exposure concentration | all policies Gini **&gt; 0.97**; popularity 0.9995 | V2 &mdash; concentration, not fairness |
 | Search/IR hybrid | BM25 **0.0133** &gt; dense 0.0067; RRF hybrid 0.0117 | V2 &mdash; seed-item, NDCG/MRR |
 | Serving | warm p95 **~3.3 ms** (local), **0%** empty | V2 load test |
@@ -137,7 +139,7 @@ docker compose -f docker-compose.kafka.yml up -d kafka         # + up pulsedisco
 | Exploration (V3) | **Thompson Sampling** bandit &middot; per-item Beta posteriors over two-tower candidates |
 | Fusion / rank | Reciprocal Rank Fusion (RRF, k=60) &middot; LightGBM **LambdaMART** |
 | ANN serving | FAISS &mdash; IndexFlatIP (exact) &middot; IndexHNSWFlat (scale) |
-| Off-policy eval | IPS &middot; SNIPS &middot; Doubly-Robust |
+| Off-policy eval | IPS &middot; SNIPS &middot; DM (direct method) &middot; Doubly-Robust &middot; PBM/IPS position-bias correction |
 | Evaluation | cohort Recall@K &middot; NDCG@K &middot; MRR &middot; Gini / catalog coverage |
 | API | FastAPI + uvicorn |
 | Deployment | Docker + GCP Cloud Run (512 MiB / 1 vCPU, exact FlatIP) |
@@ -186,6 +188,9 @@ Every claim maps to a JSON in `outputs/evidence/`. A sample of what each proves:
 | `g27_semantic_retrieval_report.json` | semantic reaches 54.6% of item-cold-start golds |
 | `g28_final_ranker_fusion_decision.json` | learned fusion beats ALS-only on held-out test |
 | `g29_ope_execution_report.json` | IPS/SNIPS/DR recover a known value offline |
+| `domain_coldstart_report.json` | cold R@20 0.241 with 100% cold-pool coverage |
+| `domain_two_lane_ope_prevalence_report.json` | 90/10 policy: 735 new items at &minus;8.1% warm (guardrail pass); OPE cannot separate from control |
+| `domain_position_bias_two_lane_report.json` | naive CTR 11&times; under-credits cold slots; IPS aggregate recovery |
 | `g31_search_ir_report.json` | BM25 + dense + RRF with NDCG/MRR |
 | `g30_final_gold_audit.json` | RiskFrame 9.1, offline gold-complete |
 | `G32_two_tower_eval.json` | two-tower R@20 0.064 vs ALS 0.085 (honest negative) + content ablation +0.021 |
@@ -208,7 +213,6 @@ Every claim maps to a JSON in `outputs/evidence/`. A sample of what each proves:
 | [pulsediscover](https://github.com/SidharthKriplani/pulsediscover) | **(this)** recommender / IR decision system + serving + OPE |
 | [pulseagent](https://github.com/SidharthKriplani/pulseagent) | multi-agent RAG on LangGraph (MCP tools, NLI verification) |
 | [pulseguard](https://github.com/SidharthKriplani/pulseguard) | ML credit-risk governance (champion/challenger, calibration, Cloud Run) |
-| [pulseknowledge](https://github.com/SidharthKriplani/pulseknowledge) | RAG reliability harness (hybrid retrieval, citation entailment) |
 | [all repositories &rarr;](https://github.com/SidharthKriplani?tab=repositories) | full portfolio |
 
 *If a result isn't backed by an artifact in `outputs/evidence/`, it isn't claimed.*
