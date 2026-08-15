@@ -26,6 +26,8 @@ uploads/
 # python / OS noise
 __pycache__/
 *.pyc
+.pytest_cache/
+.ruff_cache/
 .ipynb_checkpoints/
 .DS_Store
 .venv/

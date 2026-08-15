@@ -1,0 +1,124 @@
+name: CI/CD
+
+# Runs on every push and PR to main. Jobs 1-2 (lint/test, docker-build) never require
+# secrets and stay green on any fork/clone. Job 3 (deploy) is gated on GCP secrets being
+# configured in this repo's Settings > Secrets and variables > Actions — see that job's
+# comments for the exact secret names and what happens when they're absent.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  # ── Job 1: lint + fast tests / import-check ────────────────────────────────────────
+  lint-and-test:
+    name: Lint + import-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install lint/test tooling + serving deps
+        run: |
+          pip install -r requirements-dev.txt
+          pip install fastapi "uvicorn[standard]" faiss-cpu numpy pandas
+
+      - name: Ruff lint (permissive config — see ruff.toml)
+        run: ruff check .
+
+      - name: Import-check the serving app
+        # Proves src/serving/api.py imports cleanly with no model artifacts present.
+        # RecommenderService degrades gracefully (ready=False) rather than raising when
+        # data/interim/*.pkl are missing — see src/serving/recommender_service.py.
+        run: |
+          PD_DATADIR=/tmp/ci-no-data python -c "
+          import sys; sys.path.insert(0, 'src')
+          import serving.api as api
+          assert api.app is not None
+          print('serving.api imported OK; svc.ready =', api.svc.ready)
+          "
+
+      - name: Fast tests
+        run: python -m pytest tests/ -v
+
+  # ── Job 2: Docker build ─────────────────────────────────────────────────────────────
+  docker-build:
+    name: Docker build
+    needs: [lint-and-test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build serving image (root Dockerfile)
+        # Builds the generic serving image (code only — no baked model artifacts, matches
+        # "data mounted at runtime or baked in" in the Dockerfile's own comment). This is
+        # the build that's guaranteed reproducible from a fresh clone with no GCP access.
+        # deploy/Dockerfile.cloudrun (used by job 3) additionally bakes in
+        # data/interim/c2_als.pkl + c2_serving_assets.pkl, which are produced locally by
+        # scripts/build_serving_assets.py and are NOT committed to this repo (data/ is
+        # gitignored) — that image is only buildable where those artifacts are available.
+        run: docker build -t pulsediscover-serving:${{ github.sha }} -f Dockerfile .
+
+  # ── Job 3: Cloud Run deploy (gated on secrets) ──────────────────────────────────────
+  deploy:
+    name: Deploy to Cloud Run
+    needs: [docker-build]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Check required secrets are configured
+        id: secrets-check
+        # GCP_SA_KEY: JSON key for a service account with Cloud Run Admin + Artifact
+        #   Registry Writer + Cloud Build Editor (or Workload Identity Federation — swap
+        #   the auth step below for google-github-actions/auth's workload_identity_provider
+        #   input if you'd rather not use a long-lived key).
+        # GCP_PROJECT_ID: target GCP project id.
+        # Add both in: repo Settings > Secrets and variables > Actions > New repository secret.
+        # Until they're added, this whole job no-ops (every later step is skipped) so CI/CD
+        # stays green on forks and before the owner has provisioned a GCP project.
+        run: |
+          if [ -n "${{ secrets.GCP_SA_KEY }}" ] && [ -n "${{ secrets.GCP_PROJECT_ID }}" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::GCP_SA_KEY / GCP_PROJECT_ID not set — skipping Cloud Run deploy. Add them in repo Settings > Secrets and variables > Actions to enable deploys."
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.secrets-check.outputs.configured == 'true'
+
+      - id: auth
+        if: steps.secrets-check.outputs.configured == 'true'
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - if: steps.secrets-check.outputs.configured == 'true'
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Deploy to Cloud Run
+        if: steps.secrets-check.outputs.configured == 'true'
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: pulsediscover-serving
+          region: us-central1
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          source: "."
+          # Matches the spec in deploy/cloudrun_deploy.sh (512Mi/1vCPU/min=1/max=5/concurrency=8).
+          flags: >-
+            --memory=512Mi --cpu=1 --min-instances=1 --max-instances=5
+            --concurrency=8 --timeout=300
+            --set-env-vars=PD_BUILD_HNSW=0,PD_DEFAULT_MODE=exact,PD_ENABLE_RERANK=0
+        # Known gap, honestly noted: even with secrets configured, this builds from
+        # deploy/Dockerfile.cloudrun (via Cloud Build, since `source` is a directory), which
+        # COPYs data/interim/c2_als.pkl + c2_serving_assets.pkl. Those are produced locally
+        # by scripts/build_serving_assets.py from the raw dataset and are not committed to
+        # this repo, so a real deploy additionally needs a step (not included here) to fetch
+        # them into the runner first — e.g. `gsutil cp gs://<bucket>/interim/*.pkl
+        # data/interim/` — or to publish them as a release artifact. This job proves the
+        # google-github-actions wiring; it does not by itself reproduce a working deploy.

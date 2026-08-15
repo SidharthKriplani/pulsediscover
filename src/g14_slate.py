@@ -20,7 +20,7 @@ b2c=dict(zip(cm.book_id,cm.creator_id)); b2s=dict(zip(cm.book_id,cm.series_id));
 pop=pd.read_csv(os.path.join(SP,"train.csv"),usecols=["book_id"],dtype=str).book_id.value_counts(); popd=pop.to_dict()
 G=pickle.load(open(os.path.join(OUT,"g13_cands.pkl"),"rb")); cands=G["cands"]; poptop=G["poptop"]
 es=pd.read_csv(os.path.join(SP,"eval_sample.csv"),dtype=str); users=es.user_id.tolist(); golds=dict(zip(es.user_id,es.gold))
-warm=set(iidx); cold_set=set(G_cs) if False else pickle.load(open(os.path.join(OUT,"c2_lists.pkl"),"rb"))["cold_items"]
+warm=set(iidx); cold_set=set(G_cs) if False else pickle.load(open(os.path.join(OUT,"c2_lists.pkl"),"rb"))["cold_items"]  # noqa: F821 (dead branch, never evaluated)
 hist_books={u:set(idx2item[i] for i in eval_seq.get(u,[]) if i<len(idx2item) and idx2item[i] is not None) for u in users}
 uauth={u:set(b2c.get(b,"") for b in hist_books[u])-{""} for u in users}; user_ser={u:set(b2s.get(b,"") for b in hist_books[u])-{""} for u in users}
 FN=["als_score","als_rank","sas_score","sas_rank","log_pop","pub_year","warm_flag","seen_flag","author_match","series_match","from_als","from_sas","from_content","from_pop","history_len"]

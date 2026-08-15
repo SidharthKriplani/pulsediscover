@@ -1,0 +1,18 @@
+# Ruff config — intentionally permissive.
+#
+# This repo's research/eval scripts (src/, scripts/) use a dense, semicolon-and-colon,
+# many-statements-per-line style throughout, by design (fast iteration during model
+# development, not meant to be house-style-clean). CI lints for real correctness bugs
+# (pyflakes: undefined names, syntax errors) rather than style, so it stays green without
+# a repo-wide reformat. Re-tighten (add "E"/"I" back, run `ruff format`) if/when the
+# codebase gets a formatting pass.
+line-length = 320
+
+[lint]
+select = ["F", "E9"]
+ignore = [
+    "F401",  # unused import — several intentional (re-exports, `# type: ignore` shims)
+    "F841",  # unused local variable — common in eval/report scripts (kept for readability)
+]
+
+exclude = ["*.ipynb", "notebooks", "archive"]

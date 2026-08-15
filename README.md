@@ -143,6 +143,7 @@ docker compose -f docker-compose.kafka.yml up -d kafka         # + up pulsedisco
 | Evaluation | cohort Recall@K &middot; NDCG@K &middot; MRR &middot; Gini / catalog coverage |
 | API | FastAPI + uvicorn |
 | Deployment | Docker + GCP Cloud Run (512 MiB / 1 vCPU, exact FlatIP) |
+| CI/CD | GitHub Actions (`.github/workflows/ci-cd.yml`) &middot; ruff lint + pytest import-check on every push &middot; Docker build &middot; Cloud Run deploy gated on GCP secrets |
 | Corpus | Goodreads fantasy/paranormal (UCSD book graph) &middot; 2.56M interactions &middot; 94k users &middot; ~42k items (40,541 in the served ALS catalog) |
 
 ---
@@ -171,7 +172,7 @@ curl localhost:8080/health                              # {"status":"ok","ready"
 curl "localhost:8080/recommend?user_id=<known>&k=5"     # 5 items, source:als
 ```
 
-Large derived artifacts (ALS factors, embeddings, raw CSVs) are **not committed** (size / GitHub limits); `scripts/` builds each from the public Goodreads dataset. One-command Cloud Run deploy + spec in `deploy/DEPLOY.md`.
+Large derived artifacts (ALS factors, embeddings, raw CSVs) are **not committed** (size / GitHub limits); `scripts/` builds each from the public Goodreads dataset. One-command Cloud Run deploy + spec in `deploy/DEPLOY.md`. Lint + import-check locally with `pip install -r requirements-dev.txt && ruff check . && pytest tests/`.
 
 ---
 

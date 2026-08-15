@@ -1,0 +1,5 @@
+# Dev / CI-only tooling — not installed into the serving image (deploy/Dockerfile.cloudrun,
+# Dockerfile). Used by .github/workflows/ci-cd.yml's lint + test job.
+ruff==0.15.11
+pytest==8.3.5
+httpx==0.28.1
